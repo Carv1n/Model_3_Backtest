@@ -1,0 +1,33 @@
+# Model_X_Backtest - Projektzusammenfassung
+
+## Projektziel
+Systematisches Backtesting und Optimierung von zwei Forex-Trading-Strategien (Model 3 & Model X) auf Basis von Pivot-Gap-Logik und fundamentalen Indikatoren (COT, Seasonality, Valuation, Bonds) für 28 Major Forex-Paare. Ziel ist es, die technische und fundamentale Wirksamkeit der Strategien zu validieren, zu vergleichen und zu optimieren.
+
+## Sinn und Zweck
+- **Validierung:** Überprüfung, ob die vereinfachte Pivot-Gap-Strategie (Model X) und die komplexere Multi-Timeframe-Strategie (Model 3) profitabel sind – insbesondere mit und ohne fundamentale Filter.
+- **Optimierung:** Systematisches Testen verschiedener Entry-, Exit- und Filter-Varianten, um die besten Parameter-Kombinationen zu finden.
+- **Integration:** Kombination der besten technischen Setups mit validierten fundamentalen Indikatoren für maximale Robustheit.
+- **Dokumentation:** Alle wichtigen Erkenntnisse, Entscheidungen und Chat-Besprechungen werden fortlaufend in eigenen Dokumenten festgehalten.
+
+## Vorgehen & Nächste Schritte
+1. **Datenbeschaffung:** Download und Aufbereitung der historischen Oanda-Daten (Parquet/CSV) für alle relevanten Paare und Timeframes.
+2. **Implementierung Model X:**
+   - Pivot-Erkennung (inkl. Doji- und Versatz-Filter)
+   - Entry/Exit-Logik (verschiedene Varianten)
+   - Backtesting-Framework für systematische Tests
+3. **Fundamentale Indikatoren:**
+   - Isolierte Backtests für COT, Seasonality, Valuation, Bonds
+   - Entwicklung und Validierung der Indikatoren
+4. **Implementierung Model 3:**
+   - Multi-Timeframe-Logik und Verfeinerungen
+   - Komplexere Entry/Exit- und RR-Logik
+5. **Integration & Optimierung:**
+   - Kombination der besten technischen und fundamentalen Setups
+   - Finale Optimierung und Vorbereitung für Forward-Tests
+
+## Dokumentations-Regel
+**WICHTIG:** Alle wesentlichen Chat-Besprechungen, Erkenntnisse und Entscheidungen zu diesem Projekt werden von GitHub Copilot immer in eigenen Dokumenten im Ordner `Project_Summary` festgehalten und fortlaufend aktualisiert.
+
+---
+
+Weitere Details zu Strategie-Logik, Test-Matrix und Implementierung siehe die jeweiligen Unterdokumente im `Project_Summary`-Ordner.

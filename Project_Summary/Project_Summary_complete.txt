@@ -1,0 +1,539 @@
+================================================================================
+PIVOT GAP TRADING - PROJEKT DOKUMENTATION
+PROJEKT-ÜBERSICHT
+PROJEKTZIEL:
+Systematisches Backtesting von zwei Forex-Trading-Strategien (Model 3 & Model X)
+in Python über 28 Major Forex Pairs mit vollständiger Optimierung von
+Entry/Exit-Varianten und Integration fundamentaler Indikatoren.
+HAUPTZIELE:
+
+Technisches Backtesting: Vollständige Validierung der Pivot-basierten Strategien
+Fundamentale Validierung: Isoliertes Testen von COT, Seasonality, Valuation, Bonds
+Systematische Optimierung: Verschiedene Entry/Exit/Filter-Kombinationen testen
+Integration: Kombination der besten technischen Setups mit validierten Fundamentals
+
+KRITISCHE ERKENNTNIS:
+⚠️ Beide Strategien basieren STARK auf Fundamentals. Ohne diese sind die
+technischen Setups wahrscheinlich NICHT profitabel. Die technischen Regeln
+dienen nur als Entry-Timing, während die Fundamentals die Richtung (Bias)
+und Pair-Auswahl bestimmen.
+DATENQUELLE
+Provider:           Oanda API (Practice Account EU)
+Timezone:           UTC+1 (Berlin)
+Timeframes:         1H, 4H, Daily, 3D, Weekly, Monthly
+Pairs:              28 Major Forex Pairs
+Historische Daten:  Maximal verfügbar (idealerweise ab 2010-2015)
+Format:             Parquet (empfohlen) oder CSV
+Grund für Oanda:    Exakt identische Daten wie TradingView Oanda
+BACKTEST-PLAN
+PHASE 1: MODEL X BACKTESTING (Priorität 1)
+
+Standard-Setup testen (direkter Touch, SL 1.5, TP -3)
+Entry-Varianten: Direkter Touch, 1H Close, 4H Close, Wick Diff, Mitte Gap
+Exit-Varianten: Verschiedene SL/TP Fib-Levels
+Filter-Varianten: Doji-Filter, Versatz-Filter, Pivot-Platzierung
+
+PHASE 2: FUNDAMENTALS (Parallel zu Phase 1)
+
+COT/Open Interest isoliert testen
+Seasonality isoliert testen
+Valuation isoliert testen und optimieren
+Bonds isoliert testen und optimieren
+
+PHASE 3: MODEL 3 BACKTESTING (Nach Model X)
+
+Komplexer wegen Multi-Timeframe Verfeinerungen
+Gleiche Test-Matrix wie Model X
+Vergleich mit Model X Ergebnissen
+
+PHASE 4: INTEGRATION
+
+Beste technische Setups + validierte Fundamentals kombinieren
+Finale Optimierung
+Forward-Testing Vorbereitung
+
+STANDARD-EINSTELLUNGEN
+Für initialen Backtest beider Strategien:
+Doji-Filter:         5% Body (Kerzen mit Body < 5% ignorieren)
+Versatz-Platzierung: Größere Box-Variante (Close K1 oder Open K2)
+Versatz-Filter:      2x (Pivot ungültig wenn größere ≥ 2x kleinere)
+Pivot Timeframes:    3D, W, M (einzeln und kombiniert testen)
+FUNDAMENTALE INDIKATOREN
+
+COT (COMMITMENT OF TRADERS) - HAUPTINDIKATOR
+Quelle:       CFTC, wöchentliche Daten, kostenlos
+Daten:        Open Interest, Commercial Hedgers, Large Speculators
+Status:       Optimierter Indikator vorhanden (mit Machine Learning)
+Validierung:  Als funktionierend bestätigt
+SEASONALITY
+Berechnung:   Aus historischen Preisdaten
+Analyse:      Welche Monate/Wochen tendieren bullish/bearish
+Status:       Muss noch implementiert und getestet werden
+VALUATION
+Typ:          Eigener entwickelter Indikator
+Logik:        "Bulletproof" laut Entwicklung
+Status:       Noch nicht vollständig getestet, isolierte Validierung nötig
+Priorität:    Mittelhoch
+BONDS
+Typ:          Eigener entwickelter Indikator
+Status:       Entwicklungsphase, Funktionalität unsicher
+Priorität:    Niedrig, erst nach Valuation
+Action:       Viel Optimierung und Umbau nötig
+
+BACKTEST-ANSATZ FÜR FUNDAMENTALS:
+⚠️ WICHTIG: Jeder Indikator ISOLIERT testen, NICHT über Strategie-Ergebnisse legen
+
+Methode 1: Simple Regel-Backtest (z.B. "Long wenn COT steigt")
+Methode 2: Korrelations-Test mit zukünftigen Preisbewegungen
+Methode 3: Filter-Test (Baseline-Strategie mit/ohne Indikator vergleichen)
+
+PIVOT-GRUNDLAGEN (FÜR BEIDE STRATEGIEN)
+PIVOT-DEFINITION:
+BULLISH PIVOT:
+
+Kerze 1: Rot (bearish, close < open)
+Kerze 2: Grün (bullish, close > open)
+Pivot existiert erst NACH Close von Kerze 2
+
+BEARISH PIVOT:
+
+Kerze 1: Grün (bullish, close > open)
+Kerze 2: Rot (bearish, close < open)
+Pivot existiert erst NACH Close von Kerze 2
+
+PIVOT-STRUKTUR:
+Terminologie:
+
+Pivot:         Open der zweiten Kerze (kann auch Close K1 sein bei Versatz)
+Pivot Extreme: Ende der längeren Wick (bullish: tiefster Low, bearish: höchster High)
+Pivot Near:    Ende der kürzeren Wick (bullish: höherer Low, bearish: tieferer High)
+Pivot Gap:     Box von Pivot bis Pivot Extreme
+Wick Difference: Box von Pivot Near bis Pivot Extreme
+
+Bei Bullish Pivot (von oben nach unten):
+Pivot (Open K2 oder Close K1) ← Fib 0
+↓
+[Pivot Gap]
+↓
+Pivot Near (kürzere untere Wick)
+[Wick Difference]
+Pivot Extreme (längere untere Wick) ← Fib 1
+Bei Bearish Pivot (von unten nach oben):
+Pivot Extreme (längere obere Wick) ← Fib 1
+[Wick Difference]
+Pivot Near (kürzere obere Wick)
+↓
+[Pivot Gap]
+↓
+Pivot (Open K2 oder Close K1) ← Fib 0
+FILTER & VALIDIERUNG:
+
+DOJI-FILTER:
+
+Wenn Body < 5% der gesamten Kerze → Pivot nicht generieren
+Gilt für BEIDE Kerzen des Pivots
+
+
+VERSATZ-HANDLING (Close K1 ≠ Open K2):
+
+Berechne Variante A: Close K1 bis Pivot Extreme
+Berechne Variante B: Open K2 bis Pivot Extreme
+Standard: Nimm die Variante mit größerer Pip-Größe
+Versatz-Filter: Wenn größere ≥ 2x kleinere → Pivot ungültig
+
+
+PIVOT OVERLAP REGEL:
+
+Wenn 2-3 Pivots das gleiche Pivot Extreme haben:
+→ Nur größere Pivot Gap nutzen
+→ Kleinere löschen
+→ Verfeinerungen könnten identisch sein → beide checken
+
+
+
+================================================================================
+MODEL 3
+KOMPLEXE MULTI-TIMEFRAME STRATEGIE
+STRATEGIE-ÜBERSICHT:
+Multi-Timeframe-System mit Pivots auf höheren Timeframes (3D, W, M) und
+systematischer Suche nach Verfeinerungen (Refinements) auf niedrigeren
+Timeframes innerhalb der Pivot-Zonen.
+KERNMERKMALE:
+
+Pivots auf 3D, Weekly, Monthly
+Verfeinerungen auf W, 3D, D, 4H, 1H
+Entry mit Candle-Close-Bestätigung (Standard: 1H)
+Fibonacci-basiertes Risk Management
+RR zwischen 1.0 und 1.5
+Minimum 60 Pips Stop Loss
+
+VERFEINERUNGEN (REFINEMENTS)
+KONZEPT:
+Innerhalb der Wick Difference des Haupt-Pivots werden auf niedrigeren
+Timeframes kleinere Pivots gesucht, die als präzisere Entry-Level dienen.
+SUCHPROZESS:
+
+Warte bis HTF Pivot valide ist (Kerze 2 geschlossen)
+Systematisch von HTF runter: M→W→3D→D→4H→1H
+Suche nach kleineren Pivots (gleiche 2-Kerzen-Regel wie Haupt-Pivot)
+
+GÜLTIGKEITSKRITERIEN (ALLE müssen erfüllt sein):
+
+✓ Größe: Max. 20% der kompletten Pivot Gap
+✓ Position: Innerhalb Wick Difference ODER High/Low exakt auf Pivot Near
+✓ Timing: Darf VOR Entstehung HTF Pivot nicht berührt worden sein
+✓ Doji-Filter: Body ≥ 5% (keine Dojis)
+✓ Versatz: Größere Box < 2x kleinere Box
+
+PRIORISIERUNG:
+
+Höchste Priorität: Verfeinerung auf höchstem verfügbaren TF
+Speicherung: ALLE validen Verfeinerungen über alle TFs
+Fallback: Wenn nicht valide → ein TF tiefer
+
+SONDERFALL:
+Wenn Wick Difference schon unter 20% der Pivot Gap UND keine kleinere
+Verfeinerung existiert → Wick Difference selbst als Entry-Level
+ENTRY-REGELN MODEL 3
+STANDARD ENTRY (mit 1H Close):
+VORAUSSETZUNGEN:
+
+HTF Pivot muss existieren (Kerze 2 geschlossen)
+Verfeinerung muss valide sein
+Pivot Gap muss ZUERST getriggert werden
+Verfeinerung darf bis Entry-Zeitpunkt nicht berührt worden sein
+
+ENTRY-PROZESS BULLISH (LONG):
+
+Warte auf Touch am High der Verfeinerung (höchste TF Prio)
+Warte auf 1H Candle Close
+Close muss ÜBER High sein
+Prüfe RR (muss zwischen 1.0 und 1.5 liegen)
+Entry bei Open nächster Candle
+
+ENTRY-PROZESS BEARISH (SHORT):
+
+Warte auf Touch am Low der Verfeinerung (höchste TF Prio)
+Warte auf 1H Candle Close
+Close muss UNTER Low sein
+Prüfe RR (muss zwischen 1.0 und 1.5 liegen)
+Entry bei Open nächster Candle
+
+BEI NICHT-BESTÄTIGUNG:
+
+Wenn Close nicht bestätigt ODER RR nicht erfüllt:
+→ Verfeinerung löschen
+→ Zur nächsten Verfeinerung (niedrigerer TF)
+Wenn keine Verfeinerung mehr übrig: Kein Setup
+
+ZU TESTENDE ENTRY-VARIANTEN:
+
+1H Close Bestätigung (Standard)
+4H Close Bestätigung
+Direkter Entry bei Touch (ohne Close-Bestätigung)
+
+FIBONACCI & EXITS MODEL 3
+FIBONACCI-SETUP:
+BULLISH PIVOT:
+
+Fib 0   = Pivot (oben)
+Fib 1   = Pivot Extreme (unten, tiefster Punkt)
+Fib 1.1 = unter Pivot Extreme
+
+BEARISH PIVOT:
+
+Fib 0   = Pivot (unten)
+Fib 1   = Pivot Extreme (oben, höchster Punkt)
+Fib 1.1 = über Pivot Extreme
+
+STOP LOSS REGELN:
+✓ Minimum 60 Pips von Entry entfernt
+✓ Minimum Fib 1.1 Level:
+
+Bullish: SL muss UNTER 1.1 Fib liegen
+Bearish: SL muss ÜBER 1.1 Fib liegen
+
+TAKE PROFIT:
+→ Fix auf -1 Fib Level
+
+Bullish: TP liegt ÜBER dem Pivot
+Bearish: TP liegt UNTER dem Pivot
+
+RISK/REWARD MANAGEMENT MODEL 3
+BERECHNUNG (immer vom aktuellen Entry-Preis):
+
+Bullish: RR = (TP - Entry) / (Entry - SL)
+Bearish: RR = (Entry - TP) / (SL - Entry)
+
+LIMITS:
+MINIMUM: 1.0 RR
+
+Wenn Setup zum Entry < 1.0 RR:
+→ Kein Entry
+→ Verfeinerung löschen
+→ Zur nächsten Verfeinerung
+
+MAXIMUM: 1.5 RR
+
+Wenn Setup zum Entry > 1.5 RR:
+→ SL vergrößern bis exakt 1.5 RR
+→ Entry durchführen
+
+ERLAUBTER BEREICH: 1.0 bis 1.5 RR
+TIMEFRAMES & PARAMETER MODEL 3
+PIVOT TIMEFRAMES:
+
+3D (3 Days)
+W (Weekly)
+M (Monthly)
+
+VERFEINERUNGS TIMEFRAMES:
+
+1H, 4H, D, 3D, W
+
+TESTBARE PARAMETER:
+Parameter               Standard        Varianten
+─────────────────────────────────────────────────────────────────
+Entry Methode           1H Close        4H Close, Direkter Touch
+Max Verfeinerungs-Größe 20%             15%, 25%, 30%
+Min Stop Loss           60 Pips         40, 80, 100 Pips
+Min RR                  1.0             0.8, 1.2
+Max RR                  1.5             2.0, unlimitiert
+Doji Filter             5%              3%, 7%, kein Filter
+Versatz Filter          2x              1.5x, kein Filter
+MODEL 3 TRADING-CHECKLISTE
+PRE-ENTRY:
+□ HTF Pivot existiert (Kerze 2 geschlossen)
+□ Pivot ist valide (Doji-Filter, Versatz-Filter)
+□ Mindestens eine Verfeinerung gefunden
+□ Verfeinerung erfüllt alle 5 Gültigkeitskriterien
+□ Pivot Gap wurde getriggert
+□ Verfeinerung wurde noch nicht berührt
+ENTRY-BESTÄTIGUNG:
+□ Preis hat Verfeinerung-Level berührt
+□ 1H Candle Close in korrekter Richtung
+□ RR zwischen 1.0 und 1.5
+□ SL mindestens 60 Pips entfernt
+□ SL jenseits von Fib 1.1
+TRADE-MANAGEMENT:
+□ Entry bei Open nächster Candle
+□ SL gemäß Fib-Regeln platziert
+□ TP auf -1 Fib Level gesetzt
+□ Bei Nicht-Erreichen: Nächste Verfeinerung prüfen
+================================================================================
+MODEL X
+VEREINFACHTE STRATEGIE
+STRATEGIE-ÜBERSICHT:
+Vereinfachte Version von Model 3 OHNE Verfeinerungen. Entry direkt bei Touch
+der Pivot Gap, fixe SL/TP Levels für konstantes 2:1 Risk/Reward.
+KERNMERKMALE:
+
+Pivots auf 3D, Weekly, Monthly (identisch zu Model 3)
+✗ KEINE Verfeinerungen
+Direkter Entry bei Touch der Pivot Gap (Standard)
+Fixe Fibonacci-Levels: SL bei 1.5, TP bei -3
+Fixe 2:1 RR (keine Anpassungen)
+Deutlich einfacher zu implementieren
+
+HAUPTUNTERSCHIED ZU MODEL 3:
+Model 3 = Komplex, Verfeinerungen, Close-Bestätigung, RR 1-1.5
+Model X = Simpel, keine Verfeinerungen, direkter Entry, RR 2:1
+ENTRY-REGELN MODEL X
+STANDARD ENTRY (Direkter Touch):
+VORAUSSETZUNGEN:
+
+HTF Pivot muss existieren (Kerze 2 geschlossen)
+Pivot ist valide (Doji-Filter, Versatz-Filter bestanden)
+
+ENTRY-PROZESS:
+BULLISH SETUP (LONG):
+
+Entry SOFORT wenn Preis die Pivot Gap berührt
+KEIN Candle Close abwarten
+Entry-Zone: Von Pivot (oben) bis Pivot Extreme (unten)
+
+BEARISH SETUP (SHORT):
+
+Entry SOFORT wenn Preis die Pivot Gap berührt
+KEIN Candle Close abwarten
+Entry-Zone: Von Pivot (unten) bis Pivot Extreme (oben)
+
+WICHTIG:
+
+Keine Verfeinerungen → Entry direkt an der Pivot Gap
+Pivot Gap muss nicht erst "getriggert" werden
+Sobald Preis die Gap berührt = Entry
+
+ZU TESTENDE ENTRY-VARIANTEN:
+ENTRY-ZONEN:
+
+Pivot Gap Touch (Standard) - Entry bei Berührung der gesamten Gap
+Wick Difference Touch - Entry nur bei Berührung der Wick Diff
+Mitte Pivot Gap - Entry nur bei Erreichen der Gap-Mitte
+
+ENTRY-TIMING:
+
+Direkter Touch (Standard) - Sofort bei Berührung
+1H Close Bestätigung - Warte auf 1H Close in korrekter Richtung
+4H Close Bestätigung - Warte auf 4H Close in korrekter Richtung
+
+ENTRY-BEDINGUNGEN FÜR CLOSE-VARIANTEN:
+
+Bullish mit Close: Close muss ÜBER Pivot Gap sein
+Bearish mit Close: Close muss UNTER Pivot Gap sein
+Falls nicht erfüllt: Kein Entry
+
+FIBONACCI & EXITS MODEL X
+FIBONACCI-SETUP:
+BULLISH PIVOT:
+
+Fib 0   = Pivot (oben)
+Fib 1   = Pivot Extreme (unten)
+Fib 1.5 = SL (unter Pivot Extreme)
+Fib -3  = TP (über Pivot)
+
+BEARISH PIVOT:
+
+Fib 0   = Pivot (unten)
+Fib 1   = Pivot Extreme (oben)
+Fib 1.5 = SL (über Pivot Extreme)
+Fib -3  = TP (unter Pivot)
+
+STOP LOSS:
+→ Immer Fib 1.5
+
+Bullish: SL unter Pivot Extreme
+Bearish: SL über Pivot Extreme
+Keine Mindest-Pips-Regel
+Keine Anpassungen
+
+TAKE PROFIT:
+→ Immer Fib -3
+
+Bullish: TP über Pivot
+Bearish: TP unter Pivot
+Deutlich größeres TP als Model 3 (dort -1)
+Keine Anpassungen
+
+RISK/REWARD MANAGEMENT MODEL X
+FIXE 2:1 RR:
+✓ Immer exakt 2:1 Risk/Reward
+
+Keine Anpassungen
+Keine Mindest- oder Maximal-Limits
+Durch Fib 1.5 (SL) und Fib -3 (TP) automatisch gegeben
+
+BERECHNUNG (zur Verifikation):
+
+Bullish: RR = (TP - Entry) / (Entry - SL)
+Bearish: RR = (Entry - TP) / (SL - Entry)
+
+UNTERSCHIED ZU MODEL 3:
+
+Model 3: Variable RR zwischen 1.0 und 1.5 mit Anpassungen
+Model X: Fixe RR von 2:1 ohne Anpassungen
+
+TIMEFRAMES & PARAMETER MODEL X
+PIVOT TIMEFRAMES:
+
+3D, W, M (identisch zu Model 3)
+
+TESTBARE PARAMETER:
+Parameter           Standard            Varianten
+─────────────────────────────────────────────────────────────────
+Entry Zone          Pivot Gap Touch     Wick Diff Touch, Mitte Gap
+Entry Timing        Direkter Touch      1H Close, 4H Close
+SL Level            Fib 1.5             Fib 1.3, 1.7, 2.0
+TP Level            Fib -3              Fib -2, -4, -5
+Doji Filter         5%                  3%, 7%, kein Filter
+Versatz Filter      2x                  1.5x, kein Filter
+Pivot Platzierung   Größere Box         Kleinere, Close K1, Open K2
+MODEL X TRADING-CHECKLISTE
+PRE-ENTRY:
+□ HTF Pivot existiert (Kerze 2 geschlossen)
+□ Pivot ist valide (Doji-Filter, Versatz-Filter)
+□ Entry-Zone definiert (Gap, Wick Diff oder Mitte)
+ENTRY-AUSFÜHRUNG (Standard):
+□ Preis hat Entry-Zone berührt
+□ Direkter Entry (oder Close-Bestätigung bei Variante)
+□ Entry bei aktueller Kerze (oder Open nächster bei Close-Variante)
+TRADE-MANAGEMENT:
+□ SL automatisch auf Fib 1.5 gesetzt
+□ TP automatisch auf Fib -3 gesetzt
+□ RR = 2:1 bestätigt
+□ Kein weiteres Management nötig
+MODEL 3 vs MODEL X - DIREKTER VERGLEICH
+Aspekt              Model 3                     Model X
+─────────────────────────────────────────────────────────────────────
+Komplexität         Hoch                        Niedrig
+Verfeinerungen      Ja, Multi-TF                Nein
+Entry-Bestätigung   1H Close (Standard)         Direkter Touch (Standard)
+Entry-Level         Verfeinerungs-High/Low      Pivot Gap
+SL Level            Variable (>1.1, >60 Pips)   Fix (1.5 Fib)
+TP Level            Fix (-1 Fib)                Fix (-3 Fib)
+RR Range            1.0-1.5 (anpassbar)         2:1 (fix)
+Implementierung     Komplex                     Einfach
+Backtest-Aufwand    Hoch                        Niedrig
+Trade-Frequenz      Niedriger (selektiver)      Höher
+Empfohlener Start   Später                      ZUERST ✓
+IMPLEMENTIERUNGS-PRIORITÄT
+PHASE 1: MODEL X (PRIORITÄT)
+Warum zuerst:
+✓ Deutlich einfacher zu implementieren
+✓ Keine Multi-Timeframe Verfeinerungs-Logik
+✓ Schnellere Validierung der Basis-Pivot-Erkennung
+✓ Einfacher zu debuggen
+PHASE 2: MODEL 3
+Nach erfolgreicher Model X Implementierung:
+
+Verfeinerungs-Logik hinzufügen
+Multi-Timeframe Koordination
+RR-Management implementieren
+
+KRITISCHE IMPLEMENTIERUNGS-DETAILS
+
+Pivot existiert erst nach Kerze 2 Close - vorher ist nichts valide
+Bei Model 3: Pivot Gap muss vor Verfeinerung getriggert werden
+RR immer vom Entry-Preis berechnen, nicht von theoretischen Levels
+Doji-Filter: Beide Kerzen des Pivots prüfen
+Versatz: Beide Varianten berechnen, größere nehmen (Standard)
+
+TESTING-REIHENFOLGE
+
+✓ Model X Standard (direkter Touch, Fib 1.5/-3)
+✓ Model X Entry-Varianten (1H/4H Close, Wick Diff, Mitte)
+✓ Model X Exit-Varianten (verschiedene SL/TP Levels)
+✓ Model X Filter-Varianten (Doji, Versatz, Platzierung)
+✓ Model 3 Standard (mit Verfeinerungen)
+✓ Model 3 Varianten (analog zu Model X)
+
+PERFORMANCE-ERWARTUNG
+OHNE FUNDAMENTALS:
+⚠️ Wahrscheinlich negative oder neutrale Performance
+⚠️ Dient primär zur Validierung der technischen Logik
+⚠️ Erst mit Fundamentals wird echte Edge erwartet
+MIT FUNDAMENTALS:
+✓ COT gibt primäre Richtung (Bias)
+✓ Seasonality unterstützt Timing
+✓ Valuation & Bonds als zusätzliche Filter
+✓ Technisches Entry-Timing optimiert Einstieg
+================================================================================
+PROJEKT-STATUS
+Aktueller Stand:
+
+Strategien vollständig definiert und dokumentiert
+TradingView Indikator für Pivot-Erkennung funktioniert
+Oanda API als Datenquelle identifiziert
+Backtest-Plan erstellt
+
+Nächste Schritte:
+
+Oanda Practice Account erstellen (EU, UTC+1)
+Python-Script für Daten-Download
+Model X in Python implementieren
+Fundamentals parallel entwickeln
+
+================================================================================
+Ende der Dokumentation
+Projekt: Pivot Gap Trading - Python Backtesting Framework
+Strategien: Model 3 (Multi-TF Refinements) & Model X (Simplified)
