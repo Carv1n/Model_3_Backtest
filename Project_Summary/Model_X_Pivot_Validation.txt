@@ -1,0 +1,170 @@
+================================================================================
+MODEL X - PIVOT VALIDATION SPECIFICATIONS
+================================================================================
+Date: 2025-12-05
+Status: FINALIZED
+
+================================================================================
+PIVOT DETECTION LOGIC
+================================================================================
+
+Pattern Recognition:
+- 2-candle pattern with opposite colors
+  * K1 red + K2 green => BULLISH pivot
+  * K1 green + K2 red => BEARISH pivot
+- Minimum body requirement: 10% of candle range
+- Minimum box size: 10 pips
+
+Gap Box Definition:
+- Pivot Extreme: Deepest low (bullish) / Highest high (bearish)
+- Larger Variant: max(Close K1, Open K2) for bullish / min(Close K1, Open K2) for bearish
+- gap_high = Larger Variant
+- gap_low = Pivot Extreme
+- gap_size = gap_high - gap_low
+
+Pivot Generated Date:
+- After K2 closes (index i in detection)
+- This is when we KNOW a pivot pattern exists
+
+Valid Date:
+- First candle AFTER the pattern (index i+1)
+- When we can START trading the pivot
+
+Trigger Date:
+- First candle that TOUCHES the gap box
+- Candle must have: low <= gap_high AND high >= gap_low
+
+================================================================================
+TP/SL LEVELS - FIXED FORMULAS
+================================================================================
+
+IMPORTANT: TP and SL are ALWAYS calculated based on the gap box, NOT from entry!
+Entry point varies depending on direction, but TP/SL are independent.
+
+BULLISH SETUP:
+  Gap Box: gap_low to gap_high (where gap_high > gap_low)
+  Entry Point: gap_high (for RR calculation only)
+  TP Level: gap_high + 3.0 × gap_size
+  SL Level: gap_low - 0.5 × gap_size
+  
+  TP Distance: 3.0 × gap_size
+  SL Distance: gap_high - (gap_low - 0.5 × gap_size) = 1.5 × gap_size
+  Risk/Reward: 3.0 / 1.5 = 2.0 ✓
+
+BEARISH SETUP:
+  Gap Box: gap_low to gap_high (where gap_high > gap_low)
+  Entry Point: gap_low (for RR calculation only)
+  TP Level: gap_low - 3.0 × gap_size
+  SL Level: gap_high + 0.5 × gap_size
+  
+  TP Distance: 3.0 × gap_size
+  SL Distance: (gap_high + 0.5 × gap_size) - gap_low = 1.5 × gap_size
+  Risk/Reward: 3.0 / 1.5 = 2.0 ✓
+
+================================================================================
+RISK/REWARD RATIO CALCULATION
+================================================================================
+
+Entry Points (for RR calculation):
+- Bullish: Entry = gap_high (upper boundary of box)
+- Bearish: Entry = gap_low (lower boundary of box)
+
+RR Calculation:
+- Bullish: RR = (TP - Entry) / (Entry - SL) = (3 × gap_size) / (1.5 × gap_size) = 2.0
+- Bearish: RR = (Entry - TP) / (SL - Entry) = (3 × gap_size) / (1.5 × gap_size) = 2.0
+
+ALL pivots must have RR = 2.0 exactly (2:1 Risk/Reward ratio)
+
+================================================================================
+VALIDATION EXPORT SPECIFICATIONS
+================================================================================
+
+Output Format: CSV with 17 columns
+
+Columns:
+1. pair: Currency pair (e.g., EURUSD)
+2. timeframe: Trading timeframe (3D, W, M)
+3. direction: bullish or bearish
+4. pivot_generated_date_utc: When K2 closes (UTC)
+5. pivot_generated_date_berlin: When K2 closes (Europe/Berlin timezone)
+6. valid_date_utc: First tradeable candle (UTC)
+7. valid_date_berlin: First tradeable candle (Berlin)
+8. gap_high: Upper boundary of pivot gap (5 decimals)
+9. gap_low: Lower boundary of pivot gap (5 decimals)
+10. tp_level: Take Profit level (5 decimals)
+11. sl_level: Stop Loss level (5 decimals)
+12. rr: Risk/Reward ratio (2 decimals) - should always be 2.00
+13. trigger_date_utc: First touch of gap (UTC, or empty if not triggered)
+14. trigger_date_berlin: First touch of gap (Berlin, or empty if not triggered)
+15. valid_candle_open: OHLC of first valid candle
+16. valid_candle_high
+17. valid_candle_low
+18. valid_candle_close
+
+Timezone Strategy:
+- All calculations: UTC
+- Validation comparison: Include Berlin timestamps for TradingView charts
+- Model X trades on: UTC data internally
+
+================================================================================
+CURRENT VALIDATION EXPORTS
+================================================================================
+
+Generated: 2025-12-05
+Total Pivots: 3,219
+
+3D Timeframe (TradingView imports):
+- gaps_EURUSD_3D.csv: 774 pivots
+- gaps_GBPUSD_3D.csv: 800 pivots
+  Subtotal: 1,574 pivots
+
+Weekly Timeframe:
+- gaps_EURUSD_W.csv: 495 pivots
+- gaps_GBPUSD_W.csv: 517 pivots
+  Subtotal: 1,012 pivots
+
+Monthly Timeframe:
+- gaps_EURUSD_M.csv: 104 pivots
+- gaps_GBPUSD_M.csv: 119 pivots
+  Subtotal: 223 pivots
+
+Data Source:
+- 3D: Direct TradingView exports (not resampled from Daily)
+- W/M: Resampled from H1/H4 Oanda data via Parquet files
+- All data: UTC timestamps internally
+- All pairs: 28 major Forex pairs in data/ folder
+
+================================================================================
+NEXT STEPS
+================================================================================
+
+1. Validate pivots manually against TradingView charts (EURUSD/GBPUSD sample)
+2. Generate validation exports for all 28 currency pairs
+3. Build Model X backtest engine incorporating:
+   - All 28 pairs on 3D, W, M timeframes
+   - Entry/exit variants (9 combinations from Model X spec)
+   - Fixed 2:1 RR with Fibonacci levels
+   - Direct touch entry at gap boundaries
+4. Integrate fundamental indicators (COT, Seasonality, Valuation, Bonds)
+5. Run backtests and optimization
+
+================================================================================
+CRITICAL NOTES FOR IMPLEMENTATION
+================================================================================
+
+⚠️ IMPORTANT: TP and SL calculations are INDEPENDENT of entry point!
+   - They depend ONLY on gap_high, gap_low, and gap_size
+   - Entry point (gap_high/gap_low) is used ONLY for RR verification
+   - This ensures consistent risk management across all pivots
+
+⚠️ IMPORTANT: All 3 RR components must be respected:
+   - TP must be exactly 3.0x the box distance from boundary
+   - SL must be exactly 0.5x the box distance from boundary
+   - RR will automatically be 2.0
+
+⚠️ MODEL X relies HEAVILY on fundamental indicators
+   - Without fundamentals, strategy is probably NOT profitable
+   - Pivot detection is only the entry mechanism
+   - Direction filter comes from COT, Seasonality, Valuation, Bonds
+
+================================================================================
