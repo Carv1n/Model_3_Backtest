@@ -1,0 +1,100 @@
+================================================================================
+SESSION 05.12.2024 - BACKTEST ENGINE & ERSTE RESULTS
+================================================================================
+
+WICHTIGSTE ERGEBNISSE:
+======================
+
+1. BACKTEST ENGINE FERTIG
+   - scripts/backtest_modelx.py = vollständige Engine
+   - Entry: Direct Touch (wenn Gap berührt wird)
+   - Exit: Fixed TP/SL (TP=+2R, SL=-1R)
+   - Alle 28 Pairs getestet auf 3D, W, M
+   - Total: 35,567 Trades über 23.5 Jahre
+
+2. TP/SL FORMELN (FINAL - NICHT MEHR ÄNDERN!)
+   - Bullish: Entry = gap_high, TP = gap_high + 3.0×gap, SL = gap_low - 0.5×gap
+   - Bearish: Entry = gap_low, TP = gap_low - 3.0×gap, SL = gap_high + 0.5×gap
+   - RR = immer 2.0 (TP=3×gap vom Entry, SL=1.5×gap vom Entry)
+
+3. R-MULTIPLE SYSTEM
+   - Jeder Trade = 1% Risk (FIX!)
+   - Win = +2R = +2% 
+   - Loss = -1R = -1%
+   - Expectancy = Average R per Trade
+
+4. PERFORMANCE STATS (18+ Metriken)
+   - Win Rate, Expectancy, Profit Factor
+   - Sharpe, Sortino, Calmar, Recovery Factor
+   - Max Drawdown (R & %), Max Consecutive Losses
+   - Avg Trade Duration, R-Squared
+
+5. ERSTE BACKTEST RESULTS
+   - Best Pair: EURCAD +154%, Sharpe 0.64
+   - Worst Pair: USDJPY -57%, Sharpe -0.23
+   - Overall (28 Pairs): +1,440% total, 61%/Jahr, Sharpe 1.10
+   
+   ⚠️ PROBLEM: Overall Stats stimmen NICHT!
+   - Max DD -231% bei 61%/Jahr ist unmöglich
+   - Grund: Trades werden falsch kombiniert
+   - Muss chronologisch sortiert werden!
+
+
+GENERIERTE FILES:
+=================
+results/backtest_{PAIR}.csv           - 28 Files mit allen Trades pro Pair
+results/backtest_summary_by_pair.csv  - Stats pro Pair (ohne Trade-Daten)
+results/backtest_overall_stats.csv    - Gesamtstats (NOCH FALSCH!)
+results/backtest_top5_stats.csv       - Top 5 Pairs Stats (NOCH FALSCH!)
+
+
+KRITISCHE TO-DOs (NÄCHSTE SESSION):
+====================================
+
+1. OVERALL STATS FIXEN (PRIORITÄT 1!)
+   - Problem: Aktuell werden R-Werte einfach addiert
+   - Lösung: Alle 35k Trades chronologisch sortieren (nach exit_time)
+   - Equity Curve durchrechnen: Start=100%, nach jedem Trade +/-R%
+   - Max DD aus dieser echten Equity Curve berechnen
+   - Dann ergeben die Stats Sinn!
+
+2. TOP 5 PAIRS STATS
+   - Gleiche Logik: Trades chronologisch sortieren
+   - Best 5: EURCAD, EURCHF, EURGBP, NZDJPY, NZDUSD
+
+3. DANACH: ANDERE ENTRY/EXIT VARIANTEN TESTEN
+   - Entry: Retest, Candle Close
+   - Exit: Trailing Stop, Breakeven
+
+4. FUNDAMENTALS (SPÄTER)
+   - COT, Seasonality, Valuation, Bonds
+   - Ohne Fundamentals = wahrscheinlich breakeven
+
+
+CODE STATUS:
+============
+✅ backtest_modelx.py        - Engine komplett (get_performance_stats OK für einzelne Pairs)
+✅ run_all_backtests.py      - Läuft alle 28 Pairs durch + speichert
+✅ create_summary.py         - Erstellt Summary + Overall Stats
+⚠️ Overall Stats Berechnung  - MUSS GEFIXT WERDEN (chronologisch!)
+
+
+WICHTIGE ERKENNTNISSE:
+======================
+- EUR Pairs performen am besten (bullish bias in Datenperiode?)
+- JPY/USD Pairs am schlechtesten
+- Ohne Fundamentals: Große Streuung zwischen Pairs
+- Mit allen 28 Pairs: Diversifikation wirkt (wenn Stats stimmen würden!)
+- Strategy ist NICHT breakeven wie erwartet → Fundamentals werden SEHR wichtig sein
+
+
+NÄCHSTER SCHRITT:
+==================
+1. Overall Stats Fix implementieren (chronologische Equity Curve)
+2. Dann echte Performance bewerten
+3. Dann Entry/Exit Varianten testen
+
+
+================================================================================
+Stand: 05.12.2024 23:45 Uhr
+================================================================================
