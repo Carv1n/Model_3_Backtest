@@ -169,8 +169,8 @@ def load_data_with_fallback(timeframe, pair):
     """Load data from Parquet or CSV with proper header handling."""
     data_dir = Path(__file__).parent.parent / "data"
     
-    # Try Parquet first (for 3D which has no raw folder)
-    parquet_path = data_dir / f"{timeframe}_all_pairs.parquet"
+    # Try Parquet first (UTC folder)
+    parquet_path = data_dir / "UTC" / f"All_Pairs_{timeframe}_UTC.parquet"
     if parquet_path.exists():
         try:
             df = pd.read_parquet(parquet_path)
@@ -199,8 +199,9 @@ def load_data_with_fallback(timeframe, pair):
         except Exception as e:
             print(f"Warning: Could not read Parquet file: {e}")
     
-    # Fall back to CSV
-    csv_path = data_dir / f"{timeframe}_raw/{pair}.csv"
+    # Fall back to CSV (UTC folder)
+    pair_filename = pair.replace('_', '')  # EURUSD instead of EUR_USD
+    csv_path = data_dir / "UTC" / timeframe / f"{pair_filename}_{timeframe}_UTC.csv"
     
     if not csv_path.exists():
         raise FileNotFoundError(f"Neither Parquet nor CSV file found for {timeframe} {pair}")

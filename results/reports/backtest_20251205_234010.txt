@@ -1,0 +1,41 @@
+================================================================================
+MODEL X BACKTEST REPORT
+================================================================================
+Generated: 2025-12-05 23:40:10
+Pairs: AUDCAD, AUDCHF, AUDJPY, AUDNZD, AUDUSD, CADCHF, CADJPY, CHFJPY, EURAUD, EURCAD, EURCHF, EURGBP, EURJPY, EURNZD, EURUSD, GBPAUD, GBPCAD, GBPCHF, GBPJPY, GBPNZD, GBPUSD, NZDCAD, NZDCHF, NZDJPY, NZDUSD, USDCAD, USDCHF, USDJPY
+Timeframes: 3D, W, M
+Entry Type: direct_touch
+Exit Type: fixed
+================================================================================
+
+OVERALL STATS
+================================================================================
+Total Trades:    44654
+Win Rate:        34.49%
+Total Return:    1459.42%
+Sharpe Ratio:    0.999
+Max Drawdown:    -220.00%
+================================================================================
+
+TOP PERFORMERS
+================================================================================
+
+GBPNZD: 146.10% (1593 trades)
+
+AUDCAD: 136.28% (1552 trades)
+
+NZDCHF: 115.00% (1490 trades)
+
+AUDNZD: 103.26% (1492 trades)
+
+AUDCHF: 102.94% (1545 trades)
+
+EURAUD: 95.87% (1603 trades)
+
+CHFJPY: 87.01% (1514 trades)
+
+CADCHF: 73.96% (1523 trades)
+
+EURGBP: 72.35% (1558 trades)
+
+USDCAD: 71.88% (1632 trades)

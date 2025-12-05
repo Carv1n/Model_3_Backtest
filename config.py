@@ -2,7 +2,7 @@ from pathlib import Path
 
 # API CONFIGURATION
 OANDA_API_KEY = "cc9f7bc8c8c8ba1ae722d1566ef1732f-f89066eb8786c746b38a43d5d99d3527"
-OANDA_ACCOUNT_TYPE = "practice"
+OANDA_ACCOUNT_TYPE = "live"  # Changed from "practice" - Live has more accurate historical data
 
 # PAIRS
 PAIRS = [
