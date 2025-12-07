@@ -1,0 +1,227 @@
+
+================================================================================
+EXPORTING PIVOTS
+================================================================================
+
+AUDCAD   3D:  1181 pivots → AUDCAD_3D.csv
+AUDCAD   W:   476 pivots → AUDCAD_W.csv
+AUDCAD   M:   116 pivots → AUDCAD_M.csv
+AUDCHF   3D:  1165 pivots → AUDCHF_3D.csv
+AUDCHF   W:   512 pivots → AUDCHF_W.csv
+AUDCHF   M:   112 pivots → AUDCHF_M.csv
+AUDJPY   3D:  1134 pivots → AUDJPY_3D.csv
+AUDJPY   W:   524 pivots → AUDJPY_W.csv
+AUDJPY   M:   115 pivots → AUDJPY_M.csv
+AUDNZD   3D:  1116 pivots → AUDNZD_3D.csv
+AUDNZD   W:   488 pivots → AUDNZD_W.csv
+AUDNZD   M:   122 pivots → AUDNZD_M.csv
+AUDUSD   3D:  1246 pivots → AUDUSD_3D.csv
+AUDUSD   W:   494 pivots → AUDUSD_W.csv
+AUDUSD   M:   138 pivots → AUDUSD_M.csv
+CADCHF   3D:  1146 pivots → CADCHF_3D.csv
+CADCHF   W:   494 pivots → CADCHF_W.csv
+CADCHF   M:   110 pivots → CADCHF_M.csv
+CADJPY   3D:  1134 pivots → CADJPY_3D.csv
+CADJPY   W:   493 pivots → CADJPY_W.csv
+CADJPY   M:   121 pivots → CADJPY_M.csv
+CHFJPY   3D:  1161 pivots → CHFJPY_3D.csv
+CHFJPY   W:   506 pivots → CHFJPY_W.csv
+CHFJPY   M:   114 pivots → CHFJPY_M.csv
+EURAUD   3D:  1215 pivots → EURAUD_3D.csv
+EURAUD   W:   505 pivots → EURAUD_W.csv
+EURAUD   M:   122 pivots → EURAUD_M.csv
+EURCAD   3D:  1192 pivots → EURCAD_3D.csv
+EURCAD   W:   531 pivots → EURCAD_W.csv
+EURCAD   M:   121 pivots → EURCAD_M.csv
+EURCHF   3D:  1093 pivots → EURCHF_3D.csv
+EURCHF   W:   510 pivots → EURCHF_W.csv
+EURCHF   M:   120 pivots → EURCHF_M.csv
+EURGBP   3D:  1107 pivots → EURGBP_3D.csv
+EURGBP   W:   534 pivots → EURGBP_W.csv
+EURGBP   M:   125 pivots → EURGBP_M.csv
+EURJPY   3D:  1248 pivots → EURJPY_3D.csv
+EURJPY   W:   556 pivots → EURJPY_W.csv
+EURJPY   M:   123 pivots → EURJPY_M.csv
+EURNZD   3D:  1207 pivots → EURNZD_3D.csv
+EURNZD   W:   527 pivots → EURNZD_W.csv
+EURNZD   M:   105 pivots → EURNZD_M.csv
+EURUSD   3D:  1294 pivots → EURUSD_3D.csv
+EURUSD   W:   559 pivots → EURUSD_W.csv
+EURUSD   M:   115 pivots → EURUSD_M.csv
+GBPAUD   3D:  1226 pivots → GBPAUD_3D.csv
+GBPAUD   W:   495 pivots → GBPAUD_W.csv
+GBPAUD   M:   118 pivots → GBPAUD_M.csv
+GBPCAD   3D:  1172 pivots → GBPCAD_3D.csv
+GBPCAD   W:   491 pivots → GBPCAD_W.csv
+GBPCAD   M:   115 pivots → GBPCAD_M.csv
+GBPCHF   3D:  1268 pivots → GBPCHF_3D.csv
+GBPCHF   W:   556 pivots → GBPCHF_W.csv
+GBPCHF   M:   135 pivots → GBPCHF_M.csv
+GBPJPY   3D:  1274 pivots → GBPJPY_3D.csv
+GBPJPY   W:   527 pivots → GBPJPY_W.csv
+GBPJPY   M:   137 pivots → GBPJPY_M.csv
+GBPNZD   3D:  1202 pivots → GBPNZD_3D.csv
+GBPNZD   W:   511 pivots → GBPNZD_W.csv
+GBPNZD   M:   122 pivots → GBPNZD_M.csv
+GBPUSD   3D:  1270 pivots → GBPUSD_3D.csv
+GBPUSD   W:   561 pivots → GBPUSD_W.csv
+GBPUSD   M:   135 pivots → GBPUSD_M.csv
+NZDCAD   3D:  1123 pivots → NZDCAD_3D.csv
+NZDCAD   W:   513 pivots → NZDCAD_W.csv
+NZDCAD   M:   110 pivots → NZDCAD_M.csv
+NZDCHF   3D:  1105 pivots → NZDCHF_3D.csv
+NZDCHF   W:   501 pivots → NZDCHF_W.csv
+NZDCHF   M:   111 pivots → NZDCHF_M.csv
+NZDJPY   3D:  1121 pivots → NZDJPY_3D.csv
+NZDJPY   W:   467 pivots → NZDJPY_W.csv
+NZDJPY   M:   120 pivots → NZDJPY_M.csv
+NZDUSD   3D:  1221 pivots → NZDUSD_3D.csv
+NZDUSD   W:   528 pivots → NZDUSD_W.csv
+NZDUSD   M:   135 pivots → NZDUSD_M.csv
+USDCAD   3D:  1231 pivots → USDCAD_3D.csv
+USDCAD   W:   534 pivots → USDCAD_W.csv
+USDCAD   M:   133 pivots → USDCAD_M.csv
+USDCHF   3D:  1249 pivots → USDCHF_3D.csv
+USDCHF   W:   558 pivots → USDCHF_W.csv
+USDCHF   M:   134 pivots → USDCHF_M.csv
+USDJPY   3D:  1205 pivots → USDJPY_3D.csv
+USDJPY   W:   574 pivots → USDJPY_W.csv
+USDJPY   M:   138 pivots → USDJPY_M.csv
+
+================================================================================
+Total Pivots Exported: 51,253
+Export Directory: /Users/carvin/Documents/Trading Backtests/03_Model X/pivot_analysis/pivots
+================================================================================
+
+
+================================================================================
+PIVOT QUALITY TEST
+================================================================================
+Body Ratio: 5% (filters extreme dojis)
+Entry: Direct Touch on pivot timeframe
+Gap Filter: 10-250 pips
+TP Levels: -1, -2, -3 Fib (1x, 2x, 3x Gap Size)
+SL Levels: Extreme, 0.5x Box, 1.0x Box
+Pairs: 28
+Timeframes: 3D, W, M
+================================================================================
+
+
+Testing: TP=1.0x (Fib -1), SL=Extreme
+--------------------------------------------------------------------------------
+  Trades: 47810 | Wins: 19282 | Losses: 28528
+  Win Rate:  40.33% | RR:  1.00 | PF:  0.76
+  Avg TP:     67 pips | Avg SL:     67 pips
+  Avg Gap:     67 pips | Min:    10 | Max:    250
+  Median Gap:     53 pips
+  Expectancy:  -9.18 pips/trade | Total:  -438962 pips
+
+Testing: TP=1.0x (Fib -1), SL=0.5x Box
+--------------------------------------------------------------------------------
+  Trades: 47806 | Wins: 22838 | Losses: 24968
+  Win Rate:  47.77% | RR:  0.67 | PF:  0.71
+  Avg TP:     67 pips | Avg SL:    101 pips
+  Avg Gap:     67 pips | Min:    10 | Max:    250
+  Median Gap:     53 pips
+  Expectancy: -14.43 pips/trade | Total:  -690036 pips
+
+Testing: TP=1.0x (Fib -1), SL=1.0x Box
+--------------------------------------------------------------------------------
+  Trades: 47799 | Wins: 25866 | Losses: 21933
+  Win Rate:  54.11% | RR:  0.50 | PF:  0.69
+  Avg TP:     67 pips | Avg SL:    135 pips
+  Avg Gap:     67 pips | Min:    10 | Max:    250
+  Median Gap:     53 pips
+  Expectancy: -17.34 pips/trade | Total:  -828798 pips
+
+Testing: TP=2.0x (Fib -2), SL=Extreme
+--------------------------------------------------------------------------------
+  Trades: 47789 | Wins: 16350 | Losses: 31439
+  Win Rate:  34.21% | RR:  2.00 | PF:  1.08
+  Avg TP:    135 pips | Avg SL:     67 pips
+  Avg Gap:     67 pips | Min:    10 | Max:    250
+  Median Gap:     53 pips
+  Expectancy:   3.43 pips/trade | Total:   164103 pips
+
+Testing: TP=2.0x (Fib -2), SL=0.5x Box
+--------------------------------------------------------------------------------
+  Trades: 47777 | Wins: 19383 | Losses: 28394
+  Win Rate:  40.57% | RR:  1.33 | PF:  0.97
+  Avg TP:    135 pips | Avg SL:    101 pips
+  Avg Gap:     67 pips | Min:    10 | Max:    250
+  Median Gap:     53 pips
+  Expectancy:  -1.84 pips/trade | Total:   -87849 pips
+
+Testing: TP=2.0x (Fib -2), SL=1.0x Box
+--------------------------------------------------------------------------------
+  Trades: 47756 | Wins: 22066 | Losses: 25690
+  Win Rate:  46.21% | RR:  1.00 | PF:  0.93
+  Avg TP:    135 pips | Avg SL:    135 pips
+  Avg Gap:     67 pips | Min:    10 | Max:    250
+  Median Gap:     53 pips
+  Expectancy:  -5.00 pips/trade | Total:  -238685 pips
+
+Testing: TP=3.0x (Fib -3), SL=Extreme
+--------------------------------------------------------------------------------
+  Trades: 47771 | Wins: 13833 | Losses: 33938
+  Win Rate:  28.96% | RR:  3.00 | PF:  1.20
+  Avg TP:    202 pips | Avg SL:     67 pips
+  Avg Gap:     67 pips | Min:    10 | Max:    250
+  Median Gap:     53 pips
+  Expectancy:   9.69 pips/trade | Total:   462985 pips
+
+Testing: TP=3.0x (Fib -3), SL=0.5x Box
+--------------------------------------------------------------------------------
+  Trades: 47752 | Wins: 16458 | Losses: 31294
+  Win Rate:  34.47% | RR:  2.00 | PF:  1.07
+  Avg TP:    202 pips | Avg SL:    101 pips
+  Avg Gap:     67 pips | Min:    10 | Max:    250
+  Median Gap:     53 pips
+  Expectancy:   4.35 pips/trade | Total:   207653 pips
+
+Testing: TP=3.0x (Fib -3), SL=1.0x Box
+--------------------------------------------------------------------------------
+  Trades: 47725 | Wins: 18849 | Losses: 28876
+  Win Rate:  39.50% | RR:  1.50 | PF:  1.01
+  Avg TP:    202 pips | Avg SL:    135 pips
+  Avg Gap:     67 pips | Min:    10 | Max:    250
+  Median Gap:     53 pips
+  Expectancy:   0.63 pips/trade | Total:    30177 pips
+
+================================================================================
+Results saved: /Users/carvin/Documents/Trading Backtests/03_Model X/pivot_analysis/results/pivot_quality_test_20251206_194748.csv
+================================================================================
+
+
+================================================================================
+TOP 5 BY WIN RATE
+================================================================================
+
+TP=1.0x | SL=1.0x Box
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/site-packages/pandas/core/indexes/base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rr_ratio'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/carvin/Documents/Trading Backtests/03_Model X/pivot_analysis/pivot_analysis.py", line 323, in <module>
+    f.write('TEST CONFIGURATION:\n')
+    ^^^^^^^^^^^^^^^^^^^
+  File "/Users/carvin/Documents/Trading Backtests/03_Model X/pivot_analysis/pivot_analysis.py", line 156, in run_quality_test
+    print(f"TP={row['tp_mult']}x | SL={row['sl_label']}")
+                                                      ^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/site-packages/pandas/core/series.py", line 1133, in __getitem__
+    return self._get_value(key)
+           ~~~~~~~~~~~~~~~^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/site-packages/pandas/core/series.py", line 1249, in _get_value
+    loc = self.index.get_loc(label)
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/site-packages/pandas/core/indexes/base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rr_ratio'

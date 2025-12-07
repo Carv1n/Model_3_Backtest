@@ -1,0 +1,310 @@
+========================================================================================================================
+PIVOT QUALITY TEST - COMPREHENSIVE RESULTS
+========================================================================================================================
+
+TEST CONFIGURATION:
+------------------------------------------------------------------------------------------------------------------------
+Body Ratio Filter:     5% (filters extreme dojis only)
+Gap Size Filter:       10-250 pips
+Entry Type:            Direct Touch on pivot timeframe
+Entry Level:           Bullish = gap_high | Bearish = gap_low
+Total Pairs:           28
+Timeframes:            3D, W, M
+Total Pivots Tested:   51,253
+TP Calculation:        -1 Fib (1x Gap), -2 Fib (2x Gap), -3 Fib (3x Gap)
+SL Calculation:        Extreme (Gap Extreme), 0.5x Box, 1.0x Box
+Report Generated:      20251206_195000
+
+========================================================================================================================
+DETAILED RESULTS BY COMBINATION
+========================================================================================================================
+
+COMBINATION 1: TP = 1.0x (Fib -1) | SL = Extreme
+------------------------------------------------------------------------------------------------------------------------
+Trade Statistics:
+  Total Trades:                      47,810
+  Wins:                              19,282  ( 40.33%)
+  Losses:                            28,528  ( 59.67%)
+
+Performance Metrics:
+  Win Rate:                           40.33%
+  Average Win per Trade:              72.20 pips
+  Average Loss per Trade:             64.19 pips
+  Risk/Reward Ratio (Setup):           1.00:1
+  Avg TP Distance:                    67.42 pips
+  Avg SL Distance:                    67.42 pips
+  Profit Factor:                       0.76
+  Expectancy (per Trade):             -9.18 pips
+  Total Pips (All Trades):         -438,962 pips
+
+Gap Size Statistics:
+  Minimum Gap:                           10 pips
+  Maximum Gap:                          250 pips
+  Median Gap:                            53 pips
+  Average Gap:                        67.42 pips
+
+========================================================================================================================
+
+COMBINATION 2: TP = 1.0x (Fib -1) | SL = 0.5x Box
+------------------------------------------------------------------------------------------------------------------------
+Trade Statistics:
+  Total Trades:                      47,806
+  Wins:                              22,838  ( 47.77%)
+  Losses:                            24,968  ( 52.23%)
+
+Performance Metrics:
+  Win Rate:                           47.77%
+  Average Win per Trade:              72.58 pips
+  Average Loss per Trade:             94.02 pips
+  Risk/Reward Ratio (Setup):           0.67:1
+  Avg TP Distance:                    67.41 pips
+  Avg SL Distance:                   101.11 pips
+  Profit Factor:                       0.71
+  Expectancy (per Trade):            -14.43 pips
+  Total Pips (All Trades):         -690,036 pips
+
+Gap Size Statistics:
+  Minimum Gap:                           10 pips
+  Maximum Gap:                          250 pips
+  Median Gap:                            53 pips
+  Average Gap:                        67.41 pips
+
+========================================================================================================================
+
+COMBINATION 3: TP = 1.0x (Fib -1) | SL = 1.0x Box
+------------------------------------------------------------------------------------------------------------------------
+Trade Statistics:
+  Total Trades:                      47,799
+  Wins:                              25,866  ( 54.11%)
+  Losses:                            21,933  ( 45.89%)
+
+Performance Metrics:
+  Win Rate:                           54.11%
+  Average Win per Trade:              72.35 pips
+  Average Loss per Trade:            123.12 pips
+  Risk/Reward Ratio (Setup):           0.50:1
+  Avg TP Distance:                    67.40 pips
+  Avg SL Distance:                   134.80 pips
+  Profit Factor:                       0.69
+  Expectancy (per Trade):            -17.34 pips
+  Total Pips (All Trades):         -828,798 pips
+
+Gap Size Statistics:
+  Minimum Gap:                           10 pips
+  Maximum Gap:                          250 pips
+  Median Gap:                            53 pips
+  Average Gap:                        67.40 pips
+
+========================================================================================================================
+
+COMBINATION 4: TP = 2.0x (Fib -2) | SL = Extreme
+------------------------------------------------------------------------------------------------------------------------
+Trade Statistics:
+  Total Trades:                      47,789
+  Wins:                              16,350  ( 34.21%)
+  Losses:                            31,439  ( 65.79%)
+
+Performance Metrics:
+  Win Rate:                           34.21%
+  Average Win per Trade:             138.01 pips
+  Average Loss per Trade:             66.55 pips
+  Risk/Reward Ratio (Setup):           2.00:1
+  Avg TP Distance:                   134.78 pips
+  Avg SL Distance:                    67.39 pips
+  Profit Factor:                       1.08
+  Expectancy (per Trade):              3.43 pips
+  Total Pips (All Trades):          164,103 pips
+
+Gap Size Statistics:
+  Minimum Gap:                           10 pips
+  Maximum Gap:                          250 pips
+  Median Gap:                            53 pips
+  Average Gap:                        67.39 pips
+
+========================================================================================================================
+
+COMBINATION 5: TP = 2.0x (Fib -2) | SL = 0.5x Box
+------------------------------------------------------------------------------------------------------------------------
+Trade Statistics:
+  Total Trades:                      47,777
+  Wins:                              19,383  ( 40.57%)
+  Losses:                            28,394  ( 59.43%)
+
+Performance Metrics:
+  Win Rate:                           40.57%
+  Average Win per Trade:             139.76 pips
+  Average Loss per Trade:             98.50 pips
+  Risk/Reward Ratio (Setup):           1.33:1
+  Avg TP Distance:                   134.75 pips
+  Avg SL Distance:                   101.06 pips
+  Profit Factor:                       0.97
+  Expectancy (per Trade):             -1.84 pips
+  Total Pips (All Trades):          -87,849 pips
+
+Gap Size Statistics:
+  Minimum Gap:                           10 pips
+  Maximum Gap:                          250 pips
+  Median Gap:                            53 pips
+  Average Gap:                        67.38 pips
+
+========================================================================================================================
+
+COMBINATION 6: TP = 2.0x (Fib -2) | SL = 1.0x Box
+------------------------------------------------------------------------------------------------------------------------
+Trade Statistics:
+  Total Trades:                      47,756
+  Wins:                              22,066  ( 46.21%)
+  Losses:                            25,690  ( 53.79%)
+
+Performance Metrics:
+  Win Rate:                           46.21%
+  Average Win per Trade:             140.37 pips
+  Average Loss per Trade:            129.86 pips
+  Risk/Reward Ratio (Setup):           1.00:1
+  Avg TP Distance:                   134.72 pips
+  Avg SL Distance:                   134.72 pips
+  Profit Factor:                       0.93
+  Expectancy (per Trade):             -5.00 pips
+  Total Pips (All Trades):         -238,685 pips
+
+Gap Size Statistics:
+  Minimum Gap:                           10 pips
+  Maximum Gap:                          250 pips
+  Median Gap:                            53 pips
+  Average Gap:                        67.36 pips
+
+========================================================================================================================
+
+COMBINATION 7: TP = 3.0x (Fib -3) | SL = Extreme
+------------------------------------------------------------------------------------------------------------------------
+Trade Statistics:
+  Total Trades:                      47,771
+  Wins:                              13,833  ( 28.96%)
+  Losses:                            33,938  ( 71.04%)
+
+Performance Metrics:
+  Win Rate:                           28.96%
+  Average Win per Trade:             199.64 pips
+  Average Loss per Trade:             67.73 pips
+  Risk/Reward Ratio (Setup):           3.00:1
+  Avg TP Distance:                   202.16 pips
+  Avg SL Distance:                    67.39 pips
+  Profit Factor:                       1.20
+  Expectancy (per Trade):              9.69 pips
+  Total Pips (All Trades):          462,985 pips
+
+Gap Size Statistics:
+  Minimum Gap:                           10 pips
+  Maximum Gap:                          250 pips
+  Median Gap:                            53 pips
+  Average Gap:                        67.39 pips
+
+========================================================================================================================
+
+COMBINATION 8: TP = 3.0x (Fib -3) | SL = 0.5x Box
+------------------------------------------------------------------------------------------------------------------------
+Trade Statistics:
+  Total Trades:                      47,752
+  Wins:                              16,458  ( 34.47%)
+  Losses:                            31,294  ( 65.53%)
+
+Performance Metrics:
+  Win Rate:                           34.47%
+  Average Win per Trade:             203.87 pips
+  Average Loss per Trade:            100.58 pips
+  Risk/Reward Ratio (Setup):           2.00:1
+  Avg TP Distance:                   202.10 pips
+  Avg SL Distance:                   101.05 pips
+  Profit Factor:                       1.07
+  Expectancy (per Trade):              4.35 pips
+  Total Pips (All Trades):          207,653 pips
+
+Gap Size Statistics:
+  Minimum Gap:                           10 pips
+  Maximum Gap:                          250 pips
+  Median Gap:                            53 pips
+  Average Gap:                        67.37 pips
+
+========================================================================================================================
+
+COMBINATION 9: TP = 3.0x (Fib -3) | SL = 1.0x Box
+------------------------------------------------------------------------------------------------------------------------
+Trade Statistics:
+  Total Trades:                      47,725
+  Wins:                              18,849  ( 39.50%)
+  Losses:                            28,876  ( 60.50%)
+
+Performance Metrics:
+  Win Rate:                           39.50%
+  Average Win per Trade:             205.58 pips
+  Average Loss per Trade:            133.15 pips
+  Risk/Reward Ratio (Setup):           1.50:1
+  Avg TP Distance:                   202.03 pips
+  Avg SL Distance:                   134.69 pips
+  Profit Factor:                       1.01
+  Expectancy (per Trade):              0.63 pips
+  Total Pips (All Trades):           30,177 pips
+
+Gap Size Statistics:
+  Minimum Gap:                           10 pips
+  Maximum Gap:                          250 pips
+  Median Gap:                            53 pips
+  Average Gap:                        67.34 pips
+
+========================================================================================================================
+
+========================================================================================================================
+RANKINGS & ANALYSIS
+========================================================================================================================
+
+TOP 5 BY WIN RATE (Best probability):
+------------------------------------------------------------------------------------------------------------------------
+1. TP=1.0x | SL=1.0x Box     | Win Rate:  54.11% | RR:   0.50:1 | Expectancy:   -17.34 pips | Trades: 47,799
+2. TP=1.0x | SL=0.5x Box     | Win Rate:  47.77% | RR:   0.67:1 | Expectancy:   -14.43 pips | Trades: 47,806
+3. TP=2.0x | SL=1.0x Box     | Win Rate:  46.21% | RR:   1.00:1 | Expectancy:    -5.00 pips | Trades: 47,756
+4. TP=2.0x | SL=0.5x Box     | Win Rate:  40.57% | RR:   1.33:1 | Expectancy:    -1.84 pips | Trades: 47,777
+5. TP=1.0x | SL=Extreme      | Win Rate:  40.33% | RR:   1.00:1 | Expectancy:    -9.18 pips | Trades: 47,810
+
+TOP 5 BY PROFIT FACTOR (Best profitability):
+------------------------------------------------------------------------------------------------------------------------
+1. TP=3.0x | SL=Extreme      | PF:     1.20 | Win Rate:  28.96% | RR:   3.00:1 | Expectancy:     9.69 pips
+2. TP=2.0x | SL=Extreme      | PF:     1.08 | Win Rate:  34.21% | RR:   2.00:1 | Expectancy:     3.43 pips
+3. TP=3.0x | SL=0.5x Box     | PF:     1.07 | Win Rate:  34.47% | RR:   2.00:1 | Expectancy:     4.35 pips
+4. TP=3.0x | SL=1.0x Box     | PF:     1.01 | Win Rate:  39.50% | RR:   1.50:1 | Expectancy:     0.63 pips
+5. TP=2.0x | SL=0.5x Box     | PF:     0.97 | Win Rate:  40.57% | RR:   1.33:1 | Expectancy:    -1.84 pips
+
+TOP 5 BY EXPECTANCY (Average profit per trade):
+------------------------------------------------------------------------------------------------------------------------
+1. TP=3.0x | SL=Extreme      | Exp:     9.69 pips | Win Rate:  28.96% | PF:     1.20 | Total:      462,985 pips
+2. TP=3.0x | SL=0.5x Box     | Exp:     4.35 pips | Win Rate:  34.47% | PF:     1.07 | Total:      207,653 pips
+3. TP=2.0x | SL=Extreme      | Exp:     3.43 pips | Win Rate:  34.21% | PF:     1.08 | Total:      164,103 pips
+4. TP=3.0x | SL=1.0x Box     | Exp:     0.63 pips | Win Rate:  39.50% | PF:     1.01 | Total:       30,177 pips
+5. TP=2.0x | SL=0.5x Box     | Exp:    -1.84 pips | Win Rate:  40.57% | PF:     0.97 | Total:      -87,849 pips
+
+TOP 5 BY TOTAL PIPS (Gross profitability):
+------------------------------------------------------------------------------------------------------------------------
+1. TP=3.0x | SL=Extreme      | Total:      462,985 pips | Trades: 47,771 | Win Rate:  28.96% | Expectancy:     9.69 pips
+2. TP=3.0x | SL=0.5x Box     | Total:      207,653 pips | Trades: 47,752 | Win Rate:  34.47% | Expectancy:     4.35 pips
+3. TP=2.0x | SL=Extreme      | Total:      164,103 pips | Trades: 47,789 | Win Rate:  34.21% | Expectancy:     3.43 pips
+4. TP=3.0x | SL=1.0x Box     | Total:       30,177 pips | Trades: 47,725 | Win Rate:  39.50% | Expectancy:     0.63 pips
+5. TP=2.0x | SL=0.5x Box     | Total:      -87,849 pips | Trades: 47,777 | Win Rate:  40.57% | Expectancy:    -1.84 pips
+
+========================================================================================================================
+BEST COMBINATIONS SUMMARY
+========================================================================================================================
+
+🥇 BEST FOR WIN RATE (Highest Probability):
+   TP=1.0x | SL=1.0x Box | Win Rate: 54.11%
+
+🥇 BEST FOR PROFIT FACTOR (Most Profitable Per Win/Loss):
+   TP=3.0x | SL=Extreme | Profit Factor: 1.20
+
+🥇 BEST FOR EXPECTANCY (Most Pips Per Trade):
+   TP=3.0x | SL=Extreme | Expectancy: 9.69 pips/trade
+
+🥇 BEST FOR TOTAL PROFIT (Total Pips All Trades):
+   TP=3.0x | SL=Extreme | Total Pips: 462,985
+
+========================================================================================================================
+END OF REPORT
+========================================================================================================================

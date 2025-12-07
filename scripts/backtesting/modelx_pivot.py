@@ -35,10 +35,10 @@ class Trade:
 
 def load_data(timeframe: str) -> pd.DataFrame:
     """Lädt die Parquet-Datei für das gegebene Timeframe (z.B. 'D', 'H1', 'H4', 'W', 'M', '3D')."""
-    fname = f"data/UTC/All_Pairs_{timeframe}_UTC.parquet"
+    from pathlib import Path
+    base_path = Path(__file__).parent.parent.parent.parent / "Data" / "Chartdata" / "Forex" / "Parquet"
+    fname = base_path / f"All_Pairs_{timeframe}_UTC.parquet"
     return pd.read_parquet(fname)
-
-
 def detect_pivots(df: pd.DataFrame, timeframe: str, pair: str) -> List[Pivot]:
     """Erkennt alle validen Pivots für ein Währungspaar in einem DataFrame."""
     pivots = []

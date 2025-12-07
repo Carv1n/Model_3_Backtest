@@ -19,7 +19,8 @@ TIMEFRAMES = ["H1", "H4", "D", "3D", "W", "M"]
 
 # PATHS
 PROJECT_ROOT = Path(__file__).parent
-DATA_PATH = PROJECT_ROOT / "data"
+BACKTEST_ROOT = PROJECT_ROOT.parent.parent  # /Users/carvin/Documents/Trading Backtests/
+DATA_PATH = BACKTEST_ROOT / "Data" / "Chartdata" / "Forex"
 RESULTS_PATH = PROJECT_ROOT / "results"
 
 # SETTINGS

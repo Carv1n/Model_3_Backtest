@@ -1,0 +1,130 @@
+
+================================================================================
+PIVOT QUALITY TEST
+================================================================================
+Body Ratio: 5% (filters extreme dojis)
+Entry: Direct Touch on pivot timeframe
+Gap Filter: 10-250 pips
+TP Levels: -1, -2, -3 Fib (1x, 2x, 3x Gap Size)
+SL Levels: Extreme, 0.5x Box, 1.0x Box
+Pairs: 28
+Timeframes: 3D, W, M
+================================================================================
+
+
+Testing: TP=1.0x (Fib -1), SL=Extreme
+--------------------------------------------------------------------------------
+  Trades: 47810 | Wins: 19282 | Losses: 28528
+  Win Rate:  40.33% | RR:  1.00 | PF:  0.76
+  Avg TP:     67 pips | Avg SL:     67 pips
+  Avg Gap:     67 pips | Min:    10 | Max:    250
+  Median Gap:     53 pips
+  Expectancy:  -9.18 pips/trade | Total:  -438962 pips
+
+Testing: TP=1.0x (Fib -1), SL=0.5x Box
+--------------------------------------------------------------------------------
+  Trades: 47806 | Wins: 22838 | Losses: 24968
+  Win Rate:  47.77% | RR:  0.67 | PF:  0.71
+  Avg TP:     67 pips | Avg SL:    101 pips
+  Avg Gap:     67 pips | Min:    10 | Max:    250
+  Median Gap:     53 pips
+  Expectancy: -14.43 pips/trade | Total:  -690036 pips
+
+Testing: TP=1.0x (Fib -1), SL=1.0x Box
+--------------------------------------------------------------------------------
+  Trades: 47799 | Wins: 25866 | Losses: 21933
+  Win Rate:  54.11% | RR:  0.50 | PF:  0.69
+  Avg TP:     67 pips | Avg SL:    135 pips
+  Avg Gap:     67 pips | Min:    10 | Max:    250
+  Median Gap:     53 pips
+  Expectancy: -17.34 pips/trade | Total:  -828798 pips
+
+Testing: TP=2.0x (Fib -2), SL=Extreme
+--------------------------------------------------------------------------------
+  Trades: 47789 | Wins: 16350 | Losses: 31439
+  Win Rate:  34.21% | RR:  2.00 | PF:  1.08
+  Avg TP:    135 pips | Avg SL:     67 pips
+  Avg Gap:     67 pips | Min:    10 | Max:    250
+  Median Gap:     53 pips
+  Expectancy:   3.43 pips/trade | Total:   164103 pips
+
+Testing: TP=2.0x (Fib -2), SL=0.5x Box
+--------------------------------------------------------------------------------
+  Trades: 47777 | Wins: 19383 | Losses: 28394
+  Win Rate:  40.57% | RR:  1.33 | PF:  0.97
+  Avg TP:    135 pips | Avg SL:    101 pips
+  Avg Gap:     67 pips | Min:    10 | Max:    250
+  Median Gap:     53 pips
+  Expectancy:  -1.84 pips/trade | Total:   -87849 pips
+
+Testing: TP=2.0x (Fib -2), SL=1.0x Box
+--------------------------------------------------------------------------------
+  Trades: 47756 | Wins: 22066 | Losses: 25690
+  Win Rate:  46.21% | RR:  1.00 | PF:  0.93
+  Avg TP:    135 pips | Avg SL:    135 pips
+  Avg Gap:     67 pips | Min:    10 | Max:    250
+  Median Gap:     53 pips
+  Expectancy:  -5.00 pips/trade | Total:  -238685 pips
+
+Testing: TP=3.0x (Fib -3), SL=Extreme
+--------------------------------------------------------------------------------
+  Trades: 47771 | Wins: 13833 | Losses: 33938
+  Win Rate:  28.96% | RR:  3.00 | PF:  1.20
+  Avg TP:    202 pips | Avg SL:     67 pips
+  Avg Gap:     67 pips | Min:    10 | Max:    250
+  Median Gap:     53 pips
+  Expectancy:   9.69 pips/trade | Total:   462985 pips
+
+Testing: TP=3.0x (Fib -3), SL=0.5x Box
+--------------------------------------------------------------------------------
+  Trades: 47752 | Wins: 16458 | Losses: 31294
+  Win Rate:  34.47% | RR:  2.00 | PF:  1.07
+  Avg TP:    202 pips | Avg SL:    101 pips
+  Avg Gap:     67 pips | Min:    10 | Max:    250
+  Median Gap:     53 pips
+  Expectancy:   4.35 pips/trade | Total:   207653 pips
+
+Testing: TP=3.0x (Fib -3), SL=1.0x Box
+--------------------------------------------------------------------------------
+  Trades: 47725 | Wins: 18849 | Losses: 28876
+  Win Rate:  39.50% | RR:  1.50 | PF:  1.01
+  Avg TP:    202 pips | Avg SL:    135 pips
+  Avg Gap:     67 pips | Min:    10 | Max:    250
+  Median Gap:     53 pips
+  Expectancy:   0.63 pips/trade | Total:    30177 pips
+
+================================================================================
+Results saved: /Users/carvin/Documents/Trading Backtests/03_Model X/pivot_analysis/results/pivot_quality_test_20251206_175038.csv
+================================================================================
+
+
+================================================================================
+TOP 5 BY WIN RATE
+================================================================================
+
+TP=1.0x | SL=1.0x Box
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/site-packages/pandas/core/indexes/base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'rr_ratio'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/carvin/Documents/Trading Backtests/03_Model X/pivot_analysis/pivot_analysis.py", line 318, in <module>
+  File "/Users/carvin/Documents/Trading Backtests/03_Model X/pivot_analysis/pivot_analysis.py", line 155, in run_quality_test
+    print(f"TP={row['tp_mult']}x | SL={row['sl_label']}")
+                                                      ^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/site-packages/pandas/core/series.py", line 1133, in __getitem__
+    return self._get_value(key)
+           ~~~~~~~~~~~~~~~^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/site-packages/pandas/core/series.py", line 1249, in _get_value
+    loc = self.index.get_loc(label)
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/site-packages/pandas/core/indexes/base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'rr_ratio'

@@ -24,9 +24,9 @@ from datetime import datetime
 import argparse
 import sys
 
-# Add validation folder to path for pivot detection
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'validation'))
-from export_pivot_gaps import detect_pivots_tv_style, load_data_with_fallback
+# Add pivot_analysis folder to path for pivot detection
+sys.path.insert(0, str(Path(__file__).parent.parent / 'pivot_analysis'))
+from pivot_quality_test import detect_pivots as detect_pivots_tv_style, load_pivot_data
 
 
 class Trade:
@@ -146,7 +146,9 @@ class BacktestEngine:
                 print(f"\nProcessing {pair} {timeframe}...")
                 
                 # Load data
-                df = load_data_with_fallback(timeframe, pair)
+                from pathlib import Path
+                data_dir = Path(__file__).parent.parent.parent.parent / "Data" / "Chartdata" / "Forex"
+                df = load_pivot_data(timeframe, pair, data_dir)
                 
                 if df is None or len(df) == 0:
                     print(f"  ⚠️  No data available for {pair} {timeframe}")
@@ -158,8 +160,8 @@ class BacktestEngine:
                 if end_date:
                     df = df[df['time'] <= pd.Timestamp(end_date)]
                 
-                # Detect pivots
-                pivots = detect_pivots_tv_style(df, pair=pair)
+                # Detect pivots (Body Ratio: 5% to filter extreme dojis only)
+                pivots = detect_pivots_tv_style(df, min_body_pct=5.0, pair=pair)
                 print(f"  Found {len(pivots)} pivots")
                 total_pivots += len(pivots)
                 
