@@ -1,0 +1,109 @@
+MODEL 3 - KOMPLETTE TECHNISCHE REGELN:
+PIVOT IDENTIFIKATION (nur 3D, W, M)
+Bullish Pivot:
+
+Kerze 1: Rot (bearish)
+Kerze 2: Grün (bullish)
+Pivot existiert erst nach Close von Kerze 2
+
+Bearish Pivot:
+
+Kerze 1: Grün (bullish)
+Kerze 2: Rot (bearish)
+Pivot existiert erst nach Close von Kerze 2
+
+Dojis: Ignorieren (noch zu klären wie genau)
+Pivot-Struktur:
+
+Pivot = Open der zweiten Kerze
+Pivot Extreme = Ende der längeren Wick (bullish: tiefster Low, bearish: höchster High)
+Pivot Near = Ende der kürzeren Wick (bullish: höherer Low, bearish: tieferer High)
+Pivot Gap = Box von Pivot bis Pivot Extreme
+Wick Difference = Box von Pivot Near bis Pivot Extreme
+
+VERFEINERUNGEN (1H, 4H, D, 3D, W)
+Suche innerhalb der Wick Difference:
+
+Vom TF der Hauptgap systematisch runter: M→W→3D→D→4H→1H
+Suche nach kleineren Pivots (gleiche 2-Kerzen-Regel)
+
+Gültig wenn:
+
+Größe max. 20% der kompletten Pivot Gap
+Liegt innerhalb der Wick Difference
+Pivot der Verfeinerung wurde noch nicht von nachfolgender Kerze berührt
+Ausnahme: High/Low liegt exakt auf Pivot Near → trotzdem gültig
+
+Prozess:
+
+Prüfe jeden TF von oben nach unten
+Wenn nicht valide → ignorieren, ein TF tiefer
+ALLE validen Verfeinerungen über alle TFs speichern
+Höchste Priorität = Verfeinerung auf höchstem TF
+
+Sonderfall Wick Diff unter 20%:
+
+Wenn Wick Diff schon unter 20% und keine kleinere Verfeinerung existiert → Wick Diff selbst als Entry nutzen
+
+ENTRY
+Standard (mit 1H Close):
+
+Warte auf Touch am High (bullish) / Low (bearish) der Verfeinerung (höchste TF Prio)
+Warte auf 1H Candle Close
+Bullish: Close muss ÜBER High sein → Entry bei Open nächster Candle
+Bearish: Close muss UNTER Low sein → Entry bei Open nächster Candle
+Wenn Close nicht bestätigt: Verfeinerung löschen, nächste Verfeinerung nutzen
+Alle durchbrochenen Verfeinerungen werden gelöscht
+Keine Verfeinerung mehr übrig: Kein Setup
+
+Zu testende Entry-Varianten:
+
+Mit 4H Close warten
+Mit 1H Close warten
+Ohne Close → direkter Entry bei Touch
+
+FIBONACCI & EXITS
+Bullish:
+
+Fib 0 = Pivot (oben)
+Fib 1 = Pivot Extreme (unten, tiefster Punkt)
+Fib 1.1 = unter Pivot Extreme
+
+Bearish:
+
+Fib 0 = Pivot (unten)
+Fib 1 = Pivot Extreme (oben, höchster Punkt)
+Fib 1.1 = über Pivot Extreme
+
+Stop Loss:
+
+Min. 60 Pips von Entry
+Min. über (bearish) / unter (bullish) 1.1 Fib Level (nicht auf, sondern darüber/darunter)
+
+Take Profit:
+
+Fix auf -1 Fib Level
+
+RISK/REWARD FILTER
+Minimum: 1 RR
+
+Wenn Setup unter 1 RR → ignorieren
+
+Maximum: 1.5 RR
+
+Wenn Setup über 1.5 RR → SL vergrößern bis genau 1.5 RR
+
+PIVOT OVERLAP REGEL
+Wenn 2-3 Pivots gleiche Pivot Extreme haben:
+
+Nur größere Pivot Gap nutzen (mehr Pips)
+Kleinere löschen
+Verfeinerungen könnten identisch sein → beide checken
+
+TIMEFRAMES & PAIRS
+
+Pivot TFs: 3D, W, M
+Verfeinerungs TFs: 1H, 4H, D, 3D, W
+Pairs: 28 Major Forex Pairs
+Daten ab: 2010
+
