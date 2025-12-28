@@ -115,6 +115,9 @@
 - **AUSNAHME:** Extreme der Verfeinerung liegt **EXAKT** auf HTF Pivot Near
   - = Verfeinerung außerhalb aber schneidet sich in einem Punkt
   - Alle anderen Bedingungen müssen trotzdem erfüllt sein
+- **WICHTIG:** Position-Check verwendet Tolerance (0.00001) wegen Floating-Point-Precision
+  - Alle Preise werden auf 5 Nachkommastellen gerundet
+  - Vergleiche berücksichtigen minimale Unterschiede durch Rundungsfehler
 
 **3. Unberührt-Regel:**
 - **WÄHREND Entstehung des HTF Pivots**: NEAR der Verfeinerung darf NICHT berührt werden

@@ -79,6 +79,13 @@ def load_tf_data(timeframe: str, pair: str) -> pd.DataFrame:
     elif df[time_col].dt.tz is None:
         df[time_col] = df[time_col].dt.tz_localize("UTC")
     df = df.rename(columns={time_col: "time"})
+
+    # Runde alle Preisspalten auf 5 Nachkommastellen
+    # Dies verhindert Floating-Point-Precision Probleme
+    for col in ["open", "high", "low", "close"]:
+        if col in df.columns:
+            df[col] = df[col].round(5)
+
     return df.sort_values("time").reset_index(drop=True)
 
 
@@ -223,14 +230,14 @@ def detect_htf_pivots(df: pd.DataFrame, min_body_pct: float = 5.0) -> List[Pivot
             continue
 
         if direction == "bullish":
-            extreme = min(k1["low"], k2["low"])
-            near = max(k1["low"], k2["low"])
+            extreme = round(min(k1["low"], k2["low"]), 5)
+            near = round(max(k1["low"], k2["low"]), 5)
         else:
-            extreme = max(k1["high"], k2["high"])
-            near = min(k1["high"], k2["high"])
+            extreme = round(max(k1["high"], k2["high"]), 5)
+            near = round(min(k1["high"], k2["high"]), 5)
 
-        pivot_level = k2["open"]  # kein Versatz, reines Open K2
-        gap_size = abs(pivot_level - extreme)
+        pivot_level = round(k2["open"], 5)  # kein Versatz, reines Open K2
+        gap_size = round(abs(pivot_level - extreme), 5)
 
         # Pivot ist valide NACH Close von K2 (= Open der nächsten Kerze)
         if i + 1 < len(df):
@@ -321,17 +328,17 @@ def detect_refinements(
 
         # Refinement-Struktur berechnen
         if direction == "bullish":
-            extreme = min(k1["low"], k2["low"])
-            near = max(k1["low"], k2["low"])
+            extreme = round(min(k1["low"], k2["low"]), 5)
+            near = round(max(k1["low"], k2["low"]), 5)
         else:
-            extreme = max(k1["high"], k2["high"])
-            near = min(k1["high"], k2["high"])
+            extreme = round(max(k1["high"], k2["high"]), 5)
+            near = round(min(k1["high"], k2["high"]), 5)
 
-        pivot_level = k2["open"]
+        pivot_level = round(k2["open"], 5)
 
         # WICHTIG: Size der Verfeinerung = EXTREME bis NEAR (Wick Diff!)
         # NICHT Pivot bis Extreme!
-        size = abs(extreme - near)
+        size = round(abs(extreme - near), 5)
 
         # Größen-Check: max 20% der HTF Pivot Gap (IMMER, keine Ausnahme!)
         if size > max_size or size == 0:

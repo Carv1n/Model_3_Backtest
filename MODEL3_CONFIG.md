@@ -60,12 +60,17 @@ REFINEMENT_VERSATZ = False  # Standard: KEINE Versatz-Regel
 - ✅ **Größe**: Wick Diff der Verfeinerung (Extreme bis Near) ≤ 20% der HTF Pivot **Gap** (NICHT Wick Diff!)
 - ✅ **Position**: Verfeinerung muss **KOMPLETT** innerhalb Wick Difference des HTF-Pivots liegen
   - **Ausnahme**: Extreme der Verfeinerung liegt EXAKT auf HTF Pivot Near (= Verfeinerung außerhalb aber schneidet sich in einem Punkt)
+  - **WICHTIG**: Position-Check mit Tolerance (0.00001) wegen Floating-Point-Precision
 - ✅ **Unberührt**: NEAR der Verfeinerung darf NICHT berührt werden zwischen Entstehung und HTF-Pivot valid_time
 - ✅ **Doji-Filter**: Body >= 5% (gleicher Filter wie HTF-Pivots)
 - ✅ **Versatz**: Standard OHNE (zum Backtesten aktivierbar)
 - ✅ **Priorität**:
   - Prio 1: Höchster Timeframe (W > 3D > D > H4 > H1)
   - Prio 2: Bei mehreren auf gleichem TF → Am nächsten zu HTF Pivot Near
+
+**Precision**:
+- Alle Preise werden auf **5 Nachkommastellen** gerundet
+- Vergleiche verwenden Tolerance von **0.00001** um Floating-Point-Fehler zu vermeiden
 
 ---
 

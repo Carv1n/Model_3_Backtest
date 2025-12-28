@@ -77,6 +77,6 @@ print("  - 2015-05-28 21:00:00")
 print("=" * 80)
 
 if len(refinements_h4) == 2:
-    print("✓ SUCCESS! Beide H4 Verfeinerungen erkannt!")
+    print("SUCCESS! Beide H4 Verfeinerungen erkannt!")
 else:
-    print(f"✗ FEHLER! Erwartet: 2, Gefunden: {len(refinements_h4)}")
+    print(f"FEHLER! Erwartet: 2, Gefunden: {len(refinements_h4)}")
