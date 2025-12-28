@@ -1,0 +1,9 @@
+backtesten mit standard einstellungen mit nur weekly timeframe.
+
+backtest muss immer in protfolio backtest sein, also datumsabhängig.
+
+verschjeidene stats welche wichtig?
+
+1. nur sample weise verscheide pivot gaps bzw verscheide trades exportieren, so dass ich sehe dass die logik richtig passt. also die setups bzw trades zu verschiedenen Daten. 2 zu unterschiednlichen daten zwischen 2010 udn 2025 auf jeweils w, m, 3d also insgesammt 6 testdaten.
+
+2. dann probedurchlauf miut allesn pairs auf kommpletten zeitraum nur weekly

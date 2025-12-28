@@ -1,0 +1,127 @@
+MODEL 3 - RANDOM PIVOT VALIDATION
+Generated: 2025-12-28 21:47:07
+Pairs: AUDNZD, GBPUSD
+HTF: W
+Zeitraum: 2010-01-01 bis 2025-12-31
+Pivots pro Pair: 1
+
+
+================================================================================
+PIVOT: AUDNZD W
+================================================================================
+
+--- HTF PIVOT ---
+K1 Time (Open): 2015-05-18 00:00:00+00:00
+K2 Time (Open): 2015-05-25 00:00:00+00:00
+Valid Time (K3 Open): 2015-06-01 00:00:00+00:00
+Direction: bullish
+
+--- LEVELS ---
+Pivot (Open K2): 1.07055
+Extreme: 1.05770
+Near: 1.06917
+
+--- GAPS ---
+Pivot Gap: 0.01285 (128.5 pips)
+Wick Difference: 0.01147 (114.7 pips, 89.3% von Pivot Gap)
+
+--- VERFEINERUNGEN ---
+Total: 1 Verfeinerung(en)
+
+H4: 1 Verfeinerung(en)
+  #1:
+    Time: 2015-05-28 21:00:00+00:00
+    Direction: bullish
+    Pivot (Open K2): 1.06667
+    Extreme: 1.06438
+    Near (Entry): 1.06490
+    Size: 0.00052 (5.2 pips, 4.0% von HTF Gap)
+
+================================================================================
+
+
+================================================================================
+PIVOT: GBPUSD W
+================================================================================
+
+--- HTF PIVOT ---
+K1 Time (Open): 2020-04-20 00:00:00+00:00
+K2 Time (Open): 2020-04-27 00:00:00+00:00
+Valid Time (K3 Open): 2020-05-04 00:00:00+00:00
+Direction: bullish
+
+--- LEVELS ---
+Pivot (Open K2): 1.23652
+Extreme: 1.22476
+Near: 1.23598
+
+--- GAPS ---
+Pivot Gap: 0.01176 (117.6 pips)
+Wick Difference: 0.01122 (112.2 pips, 95.4% von Pivot Gap)
+
+--- VERFEINERUNGEN ---
+Total: 8 Verfeinerung(en)
+
+H4: 4 Verfeinerung(en)
+  #1:
+    Time: 2020-04-21 17:00:00+00:00
+    Direction: bullish
+    Pivot (Open K2): 1.22700
+    Extreme: 1.22476
+    Near (Entry): 1.22620
+    Size: 0.00144 (14.4 pips, 12.2% von HTF Gap)
+  #2:
+    Time: 2020-04-22 05:00:00+00:00
+    Direction: bullish
+    Pivot (Open K2): 1.22806
+    Extreme: 1.22750
+    Near (Entry): 1.22783
+    Size: 0.00033 (3.3 pips, 2.8% von HTF Gap)
+  #3:
+    Time: 2020-04-24 09:00:00+00:00
+    Direction: bullish
+    Pivot (Open K2): 1.23158
+    Extreme: 1.22984
+    Near (Entry): 1.23138
+    Size: 0.00154 (15.4 pips, 13.1% von HTF Gap)
+  #4:
+    Time: 2020-04-24 17:00:00+00:00
+    Direction: bullish
+    Pivot (Open K2): 1.23313
+    Extreme: 1.23195
+    Near (Entry): 1.23260
+    Size: 0.00065 (6.5 pips, 5.5% von HTF Gap)
+
+H1: 4 Verfeinerung(en)
+  #1:
+    Time: 2020-04-21 16:00:00+00:00
+    Direction: bullish
+    Pivot (Open K2): 1.22626
+    Extreme: 1.22476
+    Near (Entry): 1.22618
+    Size: 0.00142 (14.2 pips, 12.1% von HTF Gap)
+  #2:
+    Time: 2020-04-22 05:00:00+00:00
+    Direction: bullish
+    Pivot (Open K2): 1.22806
+    Extreme: 1.22750
+    Near (Entry): 1.22783
+    Size: 0.00033 (3.3 pips, 2.8% von HTF Gap)
+  #3:
+    Time: 2020-04-24 09:00:00+00:00
+    Direction: bullish
+    Pivot (Open K2): 1.23158
+    Extreme: 1.22984
+    Near (Entry): 1.23138
+    Size: 0.00154 (15.4 pips, 13.1% von HTF Gap)
+  #4:
+    Time: 2020-04-24 17:00:00+00:00
+    Direction: bullish
+    Pivot (Open K2): 1.23313
+    Extreme: 1.23260
+    Near (Entry): 1.23282
+    Size: 0.00022 (2.2 pips, 1.9% von HTF Gap)
+
+================================================================================
+
+

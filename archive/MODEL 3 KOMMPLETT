@@ -85,6 +85,7 @@
 
 ### Timeframes für Verfeinerungen
 **1H, 4H, Daily, 3D, Weekly**
+**WICHTIG**: Höchster TF für Verfeinerungen ist **Weekly** (nicht Monthly!)
 
 ### Such-Prozess
 
@@ -101,27 +102,38 @@
 
 ### Gültigkeitsbedingungen (ALLE müssen erfüllt sein)
 
+**0. Zeitfenster:**
+- K2 der Verfeinerung muss >= HTF K1 OPEN und < HTF K3 OPEN (valid_time) sein
+- Alle Timestamps sind OPEN-Zeit der Bars!
+
 **1. Größenlimit:**
-- Verfeinerung max. **20% der kompletten Pivot Gap**
+- Verfeinerung max. **20% der kompletten Pivot Gap** (NICHT Wick Diff!)
 - Wenn Wick Diff < 20% → Wick Diff selbst als Entry nutzen (wenn keine kleinere Verfeinerung existiert)
 
 **2. Position:**
-- **Standard:** Liegt innerhalb der Wick Difference
-- **AUSNAHME:** High/Low der Verfeinerung liegt **exakt auf Pivot Near**
-  - Nur für Bedingung 2!
+- **Standard:** Verfeinerung muss **KOMPLETT** innerhalb der Wick Difference liegen
+- **AUSNAHME:** Extreme der Verfeinerung liegt **EXAKT** auf HTF Pivot Near
+  - = Verfeinerung außerhalb aber schneidet sich in einem Punkt
   - Alle anderen Bedingungen müssen trotzdem erfüllt sein
 
 **3. Unberührt-Regel:**
-- Verfeinerung darf **VOR Entstehung des HTF Pivots NICHT berührt** worden sein
-- Wird sie **nach** Entstehung berührt (während Trade-Prozess) → wird gelöscht
+- **WÄHREND Entstehung des HTF Pivots**: NEAR der Verfeinerung darf NICHT berührt werden
+  - Sobald NEAR der Verfeinerung berührt wird → Verfeinerung ungültig
+  - Gilt nur während K1/K2 des HTF-Pivots, bis HTF-Pivot valide ist
+  - Geprüft wird: NEAR berührt zwischen Verfeinerungs-Entstehung und HTF-Pivot valid_time
 
-**4. Doji- und Versatz-Filter:**
-- Gleiche Filter wie bei Pivots gelten auch für Verfeinerungen
+**4. Doji-Filter:**
+- **Body >= 5%** (gleicher Filter wie HTF-Pivots)
+
+**5. Versatz-Filter:**
+- **STANDARD: OHNE Versatz-Regel** (weder bei Pivots noch bei Verfeinerungen)
+- Versatz-Regel ist zum Backtesten aktivierbar, aber nicht Standard-Einstellung
 
 ### Priorität bei mehreren Verfeinerungen
-- **Höchster Timeframe = höchste Priorität**
-- Alle validen Verfeinerungen über alle TFs werden gespeichert
-- Verfeinerung auf höchstem TF wird zuerst für Entry verwendet
+- **Prio 1: Höchster Timeframe** (W > 3D > D > H4 > H1)
+- **Prio 2: Bei mehreren auf gleichem TF** → Am nächsten zu HTF Pivot Near
+- Alle validen Verfeinerungen werden gespeichert
+- Verfeinerung mit höchster Priorität wird zuerst für Entry verwendet
 
 ---
 
@@ -138,15 +150,15 @@
 **Entry-Ablauf:**
 
 **Bullish:**
-1. Preis berührt High der Verfeinerung (höchste TF Prio)
+1. Preis berührt Wick Diff der Verfeinerung (höchste TF Prio)
 2. Warte auf 1H Candle Close
-3. **Close muss ÜBER High der Verfeinerung sein**
+3. **Close muss ÜBER NEAR der Verfeinerung sein** (Körper jenseits, nur Wick in Verfeinerung)
 4. Entry bei Open der nächsten Candle
 
 **Bearish:**
-1. Preis berührt Low der Verfeinerung (höchste TF Prio)
+1. Preis berührt Wick Diff der Verfeinerung (höchste TF Prio)
 2. Warte auf 1H Candle Close
-3. **Close muss UNTER Low der Verfeinerung sein**
+3. **Close muss UNTER NEAR der Verfeinerung sein** (Körper jenseits, nur Wick in Verfeinerung)
 4. Entry bei Open der nächsten Candle
 
 **Wenn Close nicht bestätigt:**
@@ -162,9 +174,9 @@
 - Kein Setup → kein Trade
 
 ### Zu testende Entry-Varianten
-- Mit 4H Close Bestätigung
-- Mit 1H Close Bestätigung (Standard)
-- Direkter Entry bei Touch (ohne Close)
+- **Direkter Entry bei Touch** (Standard) - sofort bei Berührung der Verfeinerung
+- Mit 1H Close Bestätigung - Close muss ÜBER/UNTER NEAR sein
+- Mit 4H Close Bestätigung - Close muss ÜBER/UNTER NEAR sein
 
 ---
 
@@ -283,7 +295,7 @@
 ### Datenquellen
 - **API:** Oanda v20 (für exakte TradingView-Übereinstimmung)
 - **Zeitzone:** UTC+1 (Berlin)
-- **Historisch:** Maximal verfügbare Daten (ab ~2010)
+- **Historisch:** Maximal verfügbare Daten pro Asset (kein fixer Start-Zeitpunkt)
 
 ### Timeframes benötigt
 - **Pivot-Erkennung:** 3D, Weekly, Monthly
@@ -299,13 +311,14 @@ AUDCAD, AUDCHF, AUDJPY, AUDNZD, AUDUSD, CADCHF, CADJPY, CHFJPY, EURAUD, EURCAD, 
 
 ### Pivot-Filter Variationen
 - **Doji-Filter:** 5% (Standard), andere Werte testen
-- **Versatz-Platzierung:** Größere Box (Standard), Kleinere Box, Immer Close K1, Immer Open K2
-- **Versatz-Filter:** 2x (Standard), 1.5x, kein Filter
+- **Versatz-Regel:** AUS (Standard), EIN (zum Backtesten)
+  - Wenn EIN: Größere Box, Kleinere Box, Immer Close K1, Immer Open K2
+  - Versatz-Filter: 2x, 1.5x, kein Filter
 
 ### Entry Variationen
-- **1H Close** (Standard)
-- 4H Close
-- Direkter Touch (ohne Close)
+- **Direct Touch** (Standard) - sofort bei Berührung
+- 1H Close - Close ÜBER/UNTER NEAR
+- 4H Close - Close ÜBER/UNTER NEAR
 
 ### Verfeinerungs-Größe
 - **20% der Pivot Gap** (Standard)

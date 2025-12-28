@@ -1,8 +1,8 @@
-# Model X - Pivot Trading Backtest System
+# Model 3 - Multi-Timeframe Pivot Trading Backtest System
 
 ## 📊 Projekt-Übersicht
 
-**Model X** ist ein automatisiertes Pivot-basiertes Trading-System für 28 Forex-Paare über mehrere Timeframes (3D, W, M).
+**Model 3** ist ein komplexes Multi-Timeframe Pivot-Trading-System mit Verfeinerungs-Mechanismus für 28 Forex-Paare über mehrere Timeframes (3D, W, M für Pivots, 1H-W für Verfeinerungen).
 
 ### System-Architektur
 ```
@@ -22,7 +22,7 @@
 │       ├── All_Pairs_W_UTC.parquet
 │       └── All_Pairs_M_UTC.parquet
 │
-└── 03_Model X/                     ← PROJEKT-ORDNER
+└── 05_Model 3/                     ← PROJEKT-ORDNER
     ├── config.py                   ← Basis-Config (API, Pairs, Paths)
     ├── backtest_config.py          ← Backtest-Regeln (variabel)
     ├── PROJECT_README.md           ← DIESE DATEI
@@ -32,8 +32,7 @@
     │   │   └── 0_complete_fresh_download.py
     │   │
     │   ├── backtesting/            ← Backtest-System
-    │   │   ├── backtest_modelx.py      (Main Engine)
-    │   │   ├── modelx_pivot.py         (Pivot Logic)
+    │   │   ├── backtest_model3.py      (Main Engine - Model 3)
     │   │   ├── run_all_backtests.py    (Batch Runner)
     │   │   ├── backtest_ui.py          (Interactive UI)
     │   │   ├── view_results.py         (Results Viewer)
@@ -58,43 +57,66 @@
 
 ## 🎯 Trading-Strategie
 
-### Pivot-Erkennung
+### Pivot-Erkennung (HTF: 3D, W, M)
 **Pivot = 2-Candle Pattern:**
 - **Bullish Pivot:** Rote Kerze (C<O) → Grüne Kerze (C>O)
 - **Bearish Pivot:** Grüne Kerze (C>O) → Rote Kerze (C<O)
 
-**Gap-Box:**
-- **Bullish:** Gap = [pivot_level, pivot_extreme]
-  - `pivot_level` = High der roten Kerze
-  - `pivot_extreme` = Low der roten Kerze
-- **Bearish:** Gap = [pivot_extreme, pivot_level]
-  - `pivot_level` = Low der grünen Kerze
-  - `pivot_extreme` = High der grünen Kerze
+**Pivot-Struktur:**
+- **Pivot:** Open der zweiten Kerze
+- **Pivot Extreme:** Ende der längeren Wick (bullish: tiefster Low, bearish: höchster High)
+- **Pivot Near:** Ende der kürzeren Wick (bullish: höherer Low, bearish: niedrigerer High)
+- **Pivot Gap:** Box von Pivot bis Pivot Extreme
+- **Wick Difference:** Box von Pivot Near bis Pivot Extreme
 
 **Filter:**
 - **Doji-Filter:** Kerze ignorieren wenn Body < 5% der Range
-- **Gap-Größe:** 10-250 Pips (konfigurierbar)
-- **Validation:** Pivot valid ab **Open der 3. Candle** (nach 2 vollständigen Candles)
+- **Validation:** Pivot valid ab **Close der 2. Candle**
 
-### Entry & Exit Rules
+### Verfeinerungen (LTF: 1H, 4H, D, 3D, W)
 
-**Entry:**
-- **Type:** Direct Touch (auf Pivot-Timeframe)
-- **Level:**
-  - Bullish: Entry bei `gap_high` (High der grünen Kerze)
-  - Bearish: Entry bei `gap_low` (Low der roten Kerze)
+**Such-Prozess:**
+- Erst NACH HTF-Pivot-Entstehung (Kerze 2 geschlossen)
+- Systematisch von höherem TF nach unten: M→W→3D→D→4H→1H
+- Innerhalb der **Wick Difference** des HTF-Pivots suchen
 
-**Take Profit (TP):**
-- **Formula:** Entry - (3.0 × Gap Size)
-- Bullish: TP = `gap_low - 3.0 * (gap_high - gap_low)`
-- Bearish: TP = `gap_high + 3.0 * (gap_high - gap_low)`
+**Gültigkeitsbedingungen:**
+- Größe max. **20% der Pivot Gap**
+- Position innerhalb Wick Difference (Ausnahme: exakt auf Pivot Near erlaubt)
+- **Unberührt-Regel:** Vor HTF-Pivot-Entstehung nicht berührt
+- Doji-Filter (5% Body Minimum)
 
-**Stop Loss (SL):**
-- **Formula:** 0.5× Gap Size jenseits der Box
-- Bullish: SL = `gap_high + 0.5 * (gap_high - gap_low)`
-- Bearish: SL = `gap_low - 0.5 * (gap_high - gap_low)`
+### Entry Rules
 
-**Risk/Reward:** 1:6 (SL: 0.5x Box, TP: 3.0x Box)
+**Voraussetzungen:**
+1. HTF Pivot muss valide sein
+2. **Pivot Gap muss zuerst getriggert werden**
+3. Dann wird Verfeinerung relevant
+
+**Entry-Bestätigung (parametrisierbar):**
+- **1H Close** (Standard): Warte auf 1H Close über/unter Verfeinerungs-Level, Entry bei Open nächster Candle
+- **4H Close**: Warte auf 4H Close Bestätigung
+- **Direct Touch**: Sofortiger Entry bei Berührung (kein Close)
+
+**Invalidierung:**
+- Wenn Close nicht bestätigt → Verfeinerung gelöscht
+- Wenn Verfeinerung durchbrochen wird → nächste Verfeinerung
+
+### Exit Rules
+
+**Fibonacci-Levels:**
+- **Fib 0:** Pivot
+- **Fib 1:** Pivot Extreme
+- **Fib 1.1:** 0.1× Gap jenseits Extreme
+
+**Stop Loss:**
+- **Min. 60 Pips** von Entry
+- **Min. über/unter Fib 1.1**
+
+**Take Profit:**
+- **Fib -1** (1× Gap jenseits Pivot)
+
+**Risk/Reward:** 1.0 - 1.5 (variabel, SL wird angepasst)
 
 ---
 
@@ -146,28 +168,45 @@ MAX_GAP_SIZE_PIPS = 250
 
 ### 1. Daten-Download (falls nötig)
 ```bash
-python3 scripts/data_processing/0_complete_fresh_download.py
+python scripts/data_processing/0_complete_fresh_download.py
 ```
 Lädt frische Daten von Oanda API und erstellt Parquet-Files.
 
 ### 2. Backtest ausführen
 
-**Single Pair/Timeframe:**
+**Single Pair:**
 ```bash
-python3 scripts/backtesting/backtest_modelx.py \
+python scripts/backtesting/backtest_model3.py \
     --pairs EURUSD \
-    --timeframes W \
     --start-date 2020-01-01
+```
+
+**Mit Entry-Varianten:**
+```bash
+# 1H Close Bestätigung (Standard)
+python scripts/backtesting/backtest_model3.py --pairs EURUSD --entry-confirmation 1h_close
+
+# Direkter Touch (ohne Close)
+python scripts/backtesting/backtest_model3.py --pairs EURUSD --entry-confirmation direct_touch
+
+# 4H Close Bestätigung
+python scripts/backtesting/backtest_model3.py --pairs EURUSD --entry-confirmation 4h_close
 ```
 
 **Alle 28 Pairs:**
 ```bash
-python3 scripts/backtesting/run_all_backtests.py
+python scripts/backtesting/backtest_model3.py \
+    --start-date 2015-01-01 \
+    --output results/trades/model3_all.csv
 ```
 
-**Interactive UI:**
+**Nur bestimmte HTF-Timeframes:**
 ```bash
-python3 scripts/backtesting/backtest_ui.py
+# Nur Weekly Pivots
+python scripts/backtesting/backtest_model3.py --htf-timeframes W
+
+# Nur 3D und W
+python scripts/backtesting/backtest_model3.py --htf-timeframes 3D W
 ```
 
 ### 3. Ergebnisse visualisieren
@@ -264,12 +303,13 @@ pnl_pips, pnl_r, gap_size_pips, trade_duration_hours
 
 ## 🎯 Projektziele & Philosophie
 
-### Was ist Model X?
-Model X ist eine **vereinfachte Pivot-Gap-Strategie** ohne Verfeinerungen:
-- **Direkter Entry** bei Gap Touch (keine Multi-Timeframe-Optimierung)
-- **Fixe SL/TP** Levels (keine dynamischen Anpassungen)
-- **Set & Forget** Ansatz mit konstantem Risk/Reward
-- **Einfacher zu implementieren** und backtesten als komplexere Modelle
+### Was ist Model 3?
+Model 3 ist eine **komplexe Multi-Timeframe Pivot-Strategie** mit Verfeinerungen:
+- **Multi-TF Verfeinerungen** (systematische Suche von M bis 1H)
+- **Entry-Bestätigung** mit 1H Close (parametrisierbar)
+- **Dynamisches RR** (1.0-1.5, SL wird angepasst)
+- **Präzises Entry-Timing** durch Verfeinerungs-Hierarchie
+- **Komplexer** als Model X, dafür präzisere Entries
 
 ### Philosophie
 ⚠️ **WICHTIG:** Die Strategie basiert stark auf **Fundamentals** (COT, Seasonality, Valuation, Bonds)
@@ -286,14 +326,19 @@ Model X ist eine **vereinfachte Pivot-Gap-Strategie** ohne Verfeinerungen:
 ### 💡 Wichtige Erkenntnisse
 
 **Pivot-Validierung:**
-- Body-Filter von 10% auf 5% reduziert → mehr gültige Pivots, besser Qualität
-- Gap-Größe 10-250 Pips optimal (filtert Extremwerte)
-- Pivot valid erst ab **3. Candle** (nach 2 vollständigen Pattern-Candles)
+- Body-Filter: 5% (Standard für Model 3)
+- Pivot valid ab **Close der 2. Candle**
+- Wick Difference als Suchbereich für Verfeinerungen
 
-**Beste TP/SL Kombination (aus Pivot Quality Test):**
-- **TP: 3.0x Gap (Fib -3)** + **SL: Extreme** = Beste Expectancy (9.69 pips/trade)
-- Win Rate: 28.96% aber Profit Factor: 1.20
-- Alternative: TP 2.0x + SL Extreme für höhere Win Rate (34.21%)
+**Verfeinerungen:**
+- Max. 20% der Pivot Gap Größe
+- Höchster TF hat Priorität (M > W > 3D > D > H4 > H1)
+- Unberührt-Regel: Vor HTF-Pivot nicht berührt
+
+**Entry-Bestätigung:**
+- **1H Close** (Standard): Bessere Win Rate durch Bestätigung
+- **Direct Touch**: Mehr Setups, aber höhere Fehlsignale
+- **4H Close**: Noch selektiver, weniger Setups
 
 **Zeitstempel-Handling:**
 - Oanda gibt Close-Timestamp → Muss zu Open-Timestamp konvertiert werden

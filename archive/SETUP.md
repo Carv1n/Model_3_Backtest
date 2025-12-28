@@ -1,12 +1,10 @@
-# 🚀 Model X - Setup & Installation
+# 🚀 Model 3 - Setup & Installation
 
 ## Schnellstart nach Cloud-Download
 
-### 1. Repository klonen
+### 1. Zum Projekt navigieren
 ```bash
-cd "/Users/carvin/Documents/Trading Backtests"
-git clone https://github.com/Carv1n/Model_X_Backtest.git "03_Model X"
-cd "03_Model X"
+cd "/Users/carvin/Documents/Trading Backtests/05_Model 3"
 ```
 
 ### 2. Python Environment erstellen
@@ -47,13 +45,20 @@ cat config.py | grep DATA_PATH
 ### 5. Test-Run durchführen
 ```bash
 # Einzelner Pair-Test (schnell)
-python3 scripts/backtesting/backtest_modelx.py \
+python scripts/backtesting/backtest_model3.py \
     --pairs EURUSD \
-    --timeframes W \
     --start-date 2020-01-01
 
-# Wenn erfolgreich → Alle Pairs
-python3 scripts/backtesting/run_all_backtests.py
+# Mit Entry-Varianten testen
+python scripts/backtesting/backtest_model3.py \
+    --pairs EURUSD \
+    --entry-confirmation 1h_close \
+    --start-date 2020-01-01
+
+# Alle 28 Pairs
+python scripts/backtesting/backtest_model3.py \
+    --start-date 2015-01-01 \
+    --output results/trades/model3_all.csv
 ```
 
 ---
@@ -81,20 +86,30 @@ Dies führt aus:
 
 ### Einzelner Backtest
 ```bash
-python3 scripts/backtesting/backtest_modelx.py \
+python scripts/backtesting/backtest_model3.py \
     --pairs EURUSD GBPUSD \
-    --timeframes 3D W M \
     --start-date 2015-01-01
 ```
 
-### Alle 28 Pairs
+### Mit verschiedenen Entry-Modi
 ```bash
-python3 scripts/backtesting/run_all_backtests.py
+# 1H Close Bestätigung (Standard)
+python scripts/backtesting/backtest_model3.py --entry-confirmation 1h_close
+
+# Direkter Touch (ohne Close)
+python scripts/backtesting/backtest_model3.py --entry-confirmation direct_touch
+
+# 4H Close Bestätigung
+python scripts/backtesting/backtest_model3.py --entry-confirmation 4h_close
 ```
 
-### Interactive UI
+### Nur bestimmte HTF-Timeframes
 ```bash
-python3 scripts/backtesting/backtest_ui.py
+# Nur Weekly Pivots
+python scripts/backtesting/backtest_model3.py --htf-timeframes W
+
+# 3D und W
+python scripts/backtesting/backtest_model3.py --htf-timeframes 3D W
 ```
 
 ### Ergebnisse anzeigen
@@ -132,20 +147,22 @@ python3 pivot_quality_test.py
 ## 🗂️ Projekt-Struktur
 
 ```
-03_Model X/
+05_Model 3/
 ├── config.py                    # Basis-Config (API, Pairs, Pfade)
-├── backtest_config.py           # Backtest-Regeln (HIER anpassen!)
+├── backtest_config.py           # Backtest-Regeln (für Model X, Model 3 nutzt eigene Parameter)
 ├── requirements.txt             # Python Dependencies
 ├── PROJECT_README.md            # Hauptdokumentation
 ├── SETUP.md                     # Diese Datei
+├── claude.md                    # Claude AI Kontext-Datei
+├── MODEL 3 KOMMPLETT            # Vollständige Strategie-Dokumentation
+├── Model 3 Regeln übersicht     # Kurzübersicht Regeln
 │
 ├── scripts/
 │   ├── data_processing/         # Daten-Download & Processing
 │   │   └── 0_complete_fresh_download.py
 │   │
 │   └── backtesting/             # Backtest-System
-│       ├── backtest_modelx.py       (Main Engine)
-│       ├── modelx_pivot.py          (Pivot Logic)
+│       ├── backtest_model3.py       (Main Engine - Model 3) ✅
 │       ├── run_all_backtests.py     (Batch Runner)
 │       ├── backtest_ui.py           (Interactive UI)
 │       ├── view_results.py          (Results Viewer)
@@ -234,8 +251,13 @@ which python3
 1. **Daten-Pfad:** Zentrale Quelle in `Data/Chartdata/Forex/` - **NICHT** im Projekt-Ordner!
 2. **Timestamps:** Alle UTC (ohne TZ-Info im Parquet)
 3. **Virtual Environment:** Immer aktivieren vor Ausführung!
-4. **Git:** Nicht pushen ohne Tests!
+4. **Model 3 spezifisch:**
+   - Verwendet `backtest_model3.py` (nicht modelx!)
+   - Entry-Bestätigung: 1h_close (Standard), direct_touch, 4h_close
+   - HTF-Timeframes: 3D, W, M (alle drei per default)
+   - Doji-Filter: 5%
+   - Verfeinerungen: max 20% der Pivot Gap
 
 ---
 
-*Last Updated: 07.12.2025*
+*Last Updated: 28.12.2025*
