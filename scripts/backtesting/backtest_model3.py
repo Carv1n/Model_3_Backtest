@@ -350,10 +350,16 @@ def detect_refinements(
             ref_wick_high = extreme # höchster Punkt
 
         # Check 1: KOMPLETT innerhalb Wick Diff des HTF-Pivots?
-        completely_inside = (ref_wick_low >= wick_low and ref_wick_high <= wick_high)
+        # WICHTIG: Mit Tolerance wegen Floating-Point-Precision!
+        # Ein Wert ist >= wick_low wenn er größer ODER fast gleich ist
+        # Ein Wert ist <= wick_high wenn er kleiner ODER fast gleich ist
+        tol = 0.00001
+        ref_wick_low_ok = (ref_wick_low > wick_low) or np.isclose(ref_wick_low, wick_low, atol=tol)
+        ref_wick_high_ok = (ref_wick_high < wick_high) or np.isclose(ref_wick_high, wick_high, atol=tol)
+        completely_inside = ref_wick_low_ok and ref_wick_high_ok
 
         # Check 2: Extreme der Verfeinerung EXAKT auf HTF Pivot Near?
-        extreme_on_near = np.isclose(extreme, htf_pivot.near, atol=0.00001)
+        extreme_on_near = np.isclose(extreme, htf_pivot.near, atol=tol)
 
         if not (completely_inside or extreme_on_near):
             continue  # Weder komplett inside noch Extreme auf Near
