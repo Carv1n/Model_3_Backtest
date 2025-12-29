@@ -103,21 +103,28 @@
 ### Gültigkeitsbedingungen (ALLE müssen erfüllt sein)
 
 **0. Zeitfenster:**
-- K2 der Verfeinerung muss >= HTF K1 OPEN und < HTF K3 OPEN (valid_time) sein
+- K1 UND K2 der Verfeinerung müssen >= HTF K1 OPEN und < HTF K3 OPEN (valid_time) sein
 - Alle Timestamps sind OPEN-Zeit der Bars!
 
 **1. Größenlimit:**
 - Verfeinerung max. **20% der kompletten Pivot Gap** (NICHT Wick Diff!)
-- Wenn Wick Diff < 20% → Wick Diff selbst als Entry nutzen (wenn keine kleinere Verfeinerung existiert)
+- Wenn Wick Diff < 20% → Wick Diff selbst als Entry nutzen
+  - **Ausnahme**: Wenn Verfeinerung mit Extreme auf HTF Near existiert → Entry bei Verfeinerung (näher!)
 
 **2. Position:**
-- **Standard:** Verfeinerung muss **KOMPLETT** innerhalb der Wick Difference liegen
+- **Standard:** Verfeinerung muss zwischen HTF Extreme und HTF Near liegen
+  - Bullish: Verfeinerung Extreme >= HTF Extreme UND Verfeinerung Near <= HTF Near
+  - Bearish: Verfeinerung Extreme <= HTF Extreme UND Verfeinerung Near >= HTF Near
 - **AUSNAHME:** Extreme der Verfeinerung liegt **EXAKT** auf HTF Pivot Near
-  - = Verfeinerung außerhalb aber schneidet sich in einem Punkt
+  - = Verfeinerung außerhalb aber schneidet sich in einem Punkt (Near außerhalb erlaubt)
   - Alle anderen Bedingungen müssen trotzdem erfüllt sein
+- **DATEN-KORREKTUR:** Wenn Verfeinerung stärkeres Extreme als HTF hat:
+  - → Nutze HTF Extreme (H1/H4 Oanda-Daten können abweichen von D-M TradingView)
+  - Logisch unmöglich: Verfeinerung in K1+K2 kann nicht stärker sein als HTF Extreme
 - **WICHTIG:** Position-Check verwendet Tolerance (0.00001) wegen Floating-Point-Precision
   - Alle Preise werden auf 5 Nachkommastellen gerundet
   - Vergleiche berücksichtigen minimale Unterschiede durch Rundungsfehler
+  - **Datenqualität**: D-M exakt (TradingView), H1-H4 können abweichen (Oanda API)
 
 **3. Unberührt-Regel:**
 - **WÄHREND Entstehung des HTF Pivots**: NEAR der Verfeinerung darf NICHT berührt werden
@@ -146,9 +153,17 @@
 
 **Voraussetzungen:**
 1. HTF Pivot muss existieren (Kerze 2 geschlossen)
-2. Verfeinerung muss valide sein (alle Bedingungen erfüllt)
-3. **Pivot Gap muss ZUERST getriggert werden** (Preis berührt Pivot Gap)
-4. Dann erst wird Verfeinerung relevant
+2. **Pivot Gap muss ZUERST getriggert werden** (Preis berührt Pivot Gap)
+   - **WICHTIG**: Gap Touch wird auf **Daily-Daten** geprüft (genaueres Datum!)
+   - Gilt auch bei W/M Pivots - immer Daily für Gap Touch Check
+3. **TP-Check**: TP (-1 Fib) darf NICHT berührt worden sein nach Gap Touch
+   - Wenn TP berührt wurde VOR Entry → **Setup ungültig, kein Trade**
+   - Bei Multi-TF (3D, W, M): Wenn M ungültig → W/3D bleiben gültig (wenn deren TPs nicht berührt)
+4. Verfeinerung muss valide sein (alle Bedingungen erfüllt)
+5. **Entry-Level bestimmen**:
+   - Standard: Höchste Verfeinerung (nach Priorität)
+   - Bei Wick Diff < 20%: Entry bei Wick Diff (= HTF Near), außer Verfeinerung näher
+   - **RR-Check**: Entry muss >= 1 RR ergeben, sonst nächste nutzen
 
 **Entry-Ablauf:**
 

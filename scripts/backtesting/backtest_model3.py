@@ -336,6 +336,18 @@ def detect_refinements(
 
         pivot_level = round(k2["open"], 5)
 
+        # DATEN-KORREKTUR: Verfeinerung entsteht IN HTF K1+K2, kann nicht stärkeres Extreme haben
+        # Wenn Verfeinerung Extreme stärker als HTF → Daten-Abweichung → Nutze HTF Extreme
+        tol = 0.00001
+        if direction == "bullish":
+            # Bullish: Verfeinerung kann nicht tiefer sein als HTF Extreme
+            if extreme < htf_pivot.extreme - tol:
+                extreme = htf_pivot.extreme
+        else:
+            # Bearish: Verfeinerung kann nicht höher sein als HTF Extreme
+            if extreme > htf_pivot.extreme + tol:
+                extreme = htf_pivot.extreme
+
         # WICHTIG: Size der Verfeinerung = EXTREME bis NEAR (Wick Diff!)
         # NICHT Pivot bis Extreme!
         size = round(abs(extreme - near), 5)
@@ -344,32 +356,23 @@ def detect_refinements(
         if size > max_size or size == 0:
             continue
 
-        # Position-Check: Verfeinerung muss KOMPLETT in Wick Diff liegen
+        # Position-Check: Verfeinerung muss zwischen HTF Extreme und HTF Near liegen
         # ODER: Extreme der Verfeinerung liegt EXAKT auf HTF Pivot Near
         # (= Verfeinerung außerhalb aber schneidet sich in einem Punkt)
 
-        # Verfeinerung Wick Diff = von NEAR bis EXTREME der Verfeinerung
+        # Check 1: Liegt zwischen Extreme und Near?
         if direction == "bullish":
-            ref_wick_low = extreme  # tiefster Punkt der Verfeinerung
-            ref_wick_high = near    # höherer Punkt
-        else:  # bearish
-            ref_wick_low = near     # tieferer Punkt
-            ref_wick_high = extreme # höchster Punkt
-
-        # Check 1: KOMPLETT innerhalb Wick Diff des HTF-Pivots?
-        # WICHTIG: Mit Tolerance wegen Floating-Point-Precision!
-        # Ein Wert ist >= wick_low wenn er größer ODER fast gleich ist
-        # Ein Wert ist <= wick_high wenn er kleiner ODER fast gleich ist
-        tol = 0.00001
-        ref_wick_low_ok = (ref_wick_low > wick_low) or np.isclose(ref_wick_low, wick_low, atol=tol)
-        ref_wick_high_ok = (ref_wick_high < wick_high) or np.isclose(ref_wick_high, wick_high, atol=tol)
-        completely_inside = ref_wick_low_ok and ref_wick_high_ok
+            # Bullish: Extreme >= HTF Extreme UND Near <= HTF Near
+            between_extreme_near = (extreme >= htf_pivot.extreme - tol) and (near <= htf_pivot.near + tol)
+        else:
+            # Bearish: Extreme <= HTF Extreme UND Near >= HTF Near
+            between_extreme_near = (extreme <= htf_pivot.extreme + tol) and (near >= htf_pivot.near - tol)
 
         # Check 2: Extreme der Verfeinerung EXAKT auf HTF Pivot Near?
         extreme_on_near = np.isclose(extreme, htf_pivot.near, atol=tol)
 
-        if not (completely_inside or extreme_on_near):
-            continue  # Weder komplett inside noch Extreme auf Near
+        if not (between_extreme_near or extreme_on_near):
+            continue  # Weder zwischen Extreme/Near noch Extreme auf Near
 
         # "Unberührt"-Check: NEAR der Verfeinerung darf nicht berührt worden sein
         # zwischen ihrer Entstehung (k2["time"]) und HTF-Pivot valid_time
@@ -412,6 +415,119 @@ def detect_refinements(
         )
 
     return refinements
+
+
+# --------------------------------------------------------------------------- #
+# Entry Helper Functions
+# --------------------------------------------------------------------------- #
+
+
+def find_gap_touch_on_daily(df_daily: pd.DataFrame, pivot: Pivot, start_time: pd.Timestamp) -> Optional[pd.Timestamp]:
+    """
+    Findet Gap Touch auf Daily-Daten (genaueres Datum als Weekly/Monthly).
+
+    Args:
+        df_daily: Daily DataFrame für das Pair
+        pivot: HTF Pivot
+        start_time: Start-Zeitpunkt für Suche (= valid_time des Pivots)
+
+    Returns:
+        Timestamp des Gap Touch oder None
+    """
+    # Filtere ab valid_time
+    df_after = df_daily[df_daily["time"] >= start_time].copy()
+
+    if pivot.direction == "bullish":
+        # Gap Touch = Low erreicht Pivot Gap (zwischen Pivot und Extreme)
+        gap_low = min(pivot.pivot, pivot.extreme)
+        gap_high = max(pivot.pivot, pivot.extreme)
+
+        for _, row in df_after.iterrows():
+            if row["low"] <= gap_high and row["high"] >= gap_low:
+                return row["time"]
+    else:
+        # Bearish: Gap Touch = High erreicht Pivot Gap
+        gap_low = min(pivot.pivot, pivot.extreme)
+        gap_high = max(pivot.pivot, pivot.extreme)
+
+        for _, row in df_after.iterrows():
+            if row["high"] >= gap_low and row["low"] <= gap_high:
+                return row["time"]
+
+    return None
+
+
+def check_tp_touched_before_entry(
+    df: pd.DataFrame,
+    pivot: Pivot,
+    gap_touch_time: pd.Timestamp,
+    tp: float
+) -> bool:
+    """
+    Prüft ob TP (-1 Fib) berührt wurde NACH Gap Touch aber VOR Entry.
+
+    Wenn TP berührt wurde bevor Entry stattfinden konnte:
+    → Setup ungültig, kein Trade möglich
+
+    Args:
+        df: DataFrame (H1 für genaue Prüfung)
+        pivot: HTF Pivot
+        gap_touch_time: Wann wurde Gap berührt
+        tp: TP Level (-1 Fib)
+
+    Returns:
+        True wenn TP berührt wurde (Setup ungültig)
+    """
+    # Filtere ab Gap Touch
+    df_after_gap = df[df["time"] > gap_touch_time].copy()
+
+    if pivot.direction == "bullish":
+        # Bullish: TP oberhalb, prüfe ob High >= TP
+        for _, row in df_after_gap.iterrows():
+            if row["high"] >= tp:
+                return True
+    else:
+        # Bearish: TP unterhalb, prüfe ob Low <= TP
+        for _, row in df_after_gap.iterrows():
+            if row["low"] <= tp:
+                return True
+
+    return False
+
+
+def should_use_wick_diff_entry(pivot: Pivot, refinements: List) -> Tuple[bool, Optional[float]]:
+    """
+    Bestimmt ob Wick Diff als Entry genutzt werden soll (bei < 20% Wick Diff).
+
+    Regel:
+    - Wenn Wick Diff < 20% von Gap → Entry bei Wick Diff (= HTF Near)
+    - AUSNAHME: Wenn Verfeinerung mit Extreme auf HTF Near existiert
+      → Diese ist näher am Pivot, also Entry bei Verfeinerung
+
+    Args:
+        pivot: HTF Pivot
+        refinements: Liste aller Verfeinerungen
+
+    Returns:
+        (use_wick_diff, entry_level)
+        - use_wick_diff: True wenn Wick Diff Entry genutzt werden soll
+        - entry_level: Wick Diff Entry Level (HTF Near) oder None
+    """
+    wick_diff = abs(pivot.near - pivot.extreme)
+    wick_diff_pct = (wick_diff / pivot.gap_size * 100) if pivot.gap_size > 0 else 0
+
+    if wick_diff_pct >= 20:
+        return False, None  # Wick Diff groß genug, normale Verfeinerungen nutzen
+
+    # Wick Diff < 20%, prüfe ob Verfeinerung mit Extreme auf Near existiert
+    tol = 0.00001
+    for ref in refinements:
+        if np.isclose(ref.extreme, pivot.near, atol=tol):
+            # Verfeinerung hat Extreme auf Near → Verfeinerung ist näher
+            return False, None
+
+    # Keine Verfeinerung näher → Nutze Wick Diff Entry
+    return True, pivot.near
 
 
 # --------------------------------------------------------------------------- #

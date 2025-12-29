@@ -38,6 +38,9 @@ from scripts.backtesting.backtest_model3 import (
     detect_refinements,
     compute_sl_tp,
     price_per_pip,
+    find_gap_touch_on_daily,
+    check_tp_touched_before_entry,
+    should_use_wick_diff_entry,
 )
 
 # Seed für Reproduzierbarkeit
@@ -68,69 +71,90 @@ def simulate_trade(pair, pivot, refinements, ltf_cache):
     """
     Simuliert einen Trade für ein Pivot mit Verfeinerungen.
 
+    Neue Regeln:
+    1. Gap Touch auf Daily-Daten prüfen
+    2. TP-Check: Wenn TP berührt vor Entry → Setup ungültig
+    3. Wick Diff Entry bei < 20% (außer Verfeinerung näher)
+    4. RR-Check für alle Entry-Levels
+
     Returns: dict mit Trade-Details oder None wenn kein Trade
     """
-    if not refinements:
-        return None  # Keine Verfeinerungen → kein Trade
-
-    # Sortiere nach Priorität (höchster TF, dann nächster zu Near)
-    def ref_priority(ref):
-        tf_order = {"3D": 0, "D": 1, "H4": 2, "H1": 3}
-        tf_prio = tf_order.get(ref.timeframe, 99)
-        dist_to_near = abs(ref.near - pivot.near)
-        return (tf_prio, dist_to_near)
-
-    refinements_sorted = sorted(refinements, key=ref_priority)
-    best_ref = refinements_sorted[0]
-
-    # Lade H1 für Entry-Simulation
+    # Lade H1 und D für Checks
     h1_df = ltf_cache["H1"]
+    d_df = ltf_cache["D"]
 
-    # Gap Touch suchen (ZUERST muss Gap berührt werden)
-    gap_touch_time = None
-    gap_window = h1_df[h1_df["time"] >= pivot.valid_time].copy()
-
-    for idx, candle in gap_window.iterrows():
-        if pivot.direction == "bullish":
-            if candle["high"] >= pivot.pivot:
-                gap_touch_time = candle["time"]
-                break
-        else:  # bearish
-            if candle["low"] <= pivot.pivot:
-                gap_touch_time = candle["time"]
-                break
+    # 1. Gap Touch auf Daily-Daten prüfen (genaueres Datum)
+    gap_touch_time = find_gap_touch_on_daily(d_df, pivot, pivot.valid_time)
 
     if gap_touch_time is None:
         return None  # Gap nie berührt
 
-    # Entry suchen (nach Gap Touch)
+    # 2. Berechne TP (-1 Fib) für TP-Check
+    gap = pivot.gap_size
+    if pivot.direction == "bullish":
+        tp_price = pivot.pivot + gap
+    else:
+        tp_price = pivot.pivot - gap
+
+    # 3. TP-Check: Wurde TP berührt NACH Gap Touch (aber VOR Entry)?
+    tp_touched = check_tp_touched_before_entry(h1_df, pivot, gap_touch_time, tp_price)
+
+    if tp_touched:
+        return None  # Setup ungültig - TP berührt vor Entry
+
+    # 4. Entry-Level bestimmen
+    use_wick_diff, wick_diff_entry = should_use_wick_diff_entry(pivot, refinements)
+
+    # Sortiere Verfeinerungen nach Priorität
+    def ref_priority(ref):
+        tf_order = {"W": 0, "3D": 1, "D": 2, "H4": 3, "H1": 4}
+        tf_prio = tf_order.get(ref.timeframe, 99)
+        dist_to_near = abs(ref.near - pivot.near)
+        return (tf_prio, dist_to_near)
+
+    refinements_sorted = sorted(refinements, key=ref_priority) if refinements else []
+
+    # Bestimme Entry-Kandidaten (mit RR-Check)
+    entry_candidates = []
+
+    # Wick Diff Entry?
+    if use_wick_diff and wick_diff_entry is not None:
+        sl_tp_result = compute_sl_tp(pivot.direction, wick_diff_entry, pivot, pair)
+        if sl_tp_result is not None and sl_tp_result[2] >= 1.0:
+            entry_candidates.append(("wick_diff", wick_diff_entry, sl_tp_result, None))
+
+    # Verfeinerungen als Entry
+    for ref in refinements_sorted:
+        sl_tp_result = compute_sl_tp(pivot.direction, ref.near, pivot, pair)
+        if sl_tp_result is not None and sl_tp_result[2] >= 1.0:
+            entry_candidates.append((ref.timeframe, ref.near, sl_tp_result, ref))
+            break  # Nur die beste Verfeinerung nehmen
+
+    if not entry_candidates:
+        return None  # Kein valider Entry mit >= 1 RR
+
+    # Nutze ersten Kandidaten (mit höchster Prio)
+    entry_type, entry_price, sl_tp_result, best_ref = entry_candidates[0]
+    sl_price, tp_price, rr = sl_tp_result
+
+    # 5. Entry suchen (nach Gap Touch)
     entry_time = None
-    entry_price = None
 
     entry_window = h1_df[h1_df["time"] >= gap_touch_time].copy()
 
     for idx, candle in entry_window.iterrows():
         # Direct Touch Entry
         if pivot.direction == "bullish":
-            if candle["low"] <= best_ref.near:
+            if candle["low"] <= entry_price:
                 entry_time = candle["time"]
-                entry_price = best_ref.near
                 break
         else:  # bearish
-            if candle["high"] >= best_ref.near:
+            if candle["high"] >= entry_price:
                 entry_time = candle["time"]
-                entry_price = best_ref.near
                 break
 
     if entry_time is None:
         return None  # Entry nie erreicht
-
-    # SL/TP berechnen
-    sl_tp_result = compute_sl_tp(pivot.direction, entry_price, pivot, pair)
-    if sl_tp_result is None:
-        return None  # SL/TP nicht valide
-
-    sl_price, tp_price, rr = sl_tp_result
 
     # Exit simulieren
     exit_window = h1_df[h1_df["time"] > entry_time].copy()
@@ -183,16 +207,12 @@ def simulate_trade(pair, pivot, refinements, ltf_cache):
     risk_pips = abs(entry_price - sl_price) / pip_value
     pnl_r = pnl_pips / risk_pips if risk_pips > 0 else 0
 
-    return {
+    # Trade-Details zusammenstellen
+    trade_dict = {
         "gap_touch_time": gap_touch_time,
-        "refinement_tf": best_ref.timeframe,
-        "refinement_time": best_ref.time,
-        "refinement_pivot": best_ref.pivot_level,
-        "refinement_extreme": best_ref.extreme,
-        "refinement_near": best_ref.near,
-        "refinement_size": best_ref.size,
         "entry_time": entry_time,
         "entry_price": entry_price,
+        "entry_type": entry_type,  # "wick_diff" oder TF der Verfeinerung
         "sl_price": sl_price,
         "tp_price": tp_price,
         "rr": rr,
@@ -202,6 +222,29 @@ def simulate_trade(pair, pivot, refinements, ltf_cache):
         "pnl_pips": pnl_pips,
         "pnl_r": pnl_r,
     }
+
+    # Wenn Verfeinerung genutzt wurde, füge Details hinzu
+    if best_ref is not None:
+        trade_dict.update({
+            "refinement_tf": best_ref.timeframe,
+            "refinement_time": best_ref.time,
+            "refinement_pivot": best_ref.pivot_level,
+            "refinement_extreme": best_ref.extreme,
+            "refinement_near": best_ref.near,
+            "refinement_size": best_ref.size,
+        })
+    else:
+        # Wick Diff Entry
+        trade_dict.update({
+            "refinement_tf": "wick_diff",
+            "refinement_time": None,
+            "refinement_pivot": None,
+            "refinement_extreme": pivot.extreme,
+            "refinement_near": pivot.near,
+            "refinement_size": abs(pivot.near - pivot.extreme),
+        })
+
+    return trade_dict
 
 
 def format_trade_output(f, pair, htf_tf, pivot, refinements, trade):

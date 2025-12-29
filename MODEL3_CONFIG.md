@@ -55,12 +55,14 @@ REFINEMENT_VERSATZ = False  # Standard: KEINE Versatz-Regel
 ```
 
 **Gültigkeits-Bedingungen**:
-- ✅ **Zeitfenster**: K2 der Verfeinerung muss >= HTF K1 OPEN und < HTF K3 OPEN (valid_time) sein
+- ✅ **Zeitfenster**: K1 UND K2 der Verfeinerung müssen >= HTF K1 OPEN und < HTF K3 OPEN (valid_time) sein
   - **WICHTIG**: Alle Timestamps = OPEN-Zeit der Bars!
 - ✅ **Größe**: Wick Diff der Verfeinerung (Extreme bis Near) ≤ 20% der HTF Pivot **Gap** (NICHT Wick Diff!)
-- ✅ **Position**: Verfeinerung muss **KOMPLETT** innerhalb Wick Difference des HTF-Pivots liegen
-  - **Ausnahme**: Extreme der Verfeinerung liegt EXAKT auf HTF Pivot Near (= Verfeinerung außerhalb aber schneidet sich in einem Punkt)
-  - **WICHTIG**: Position-Check mit Tolerance (0.00001) wegen Floating-Point-Precision
+- ✅ **Position**: Verfeinerung muss zwischen HTF Extreme und HTF Near liegen
+  - Bullish: Verfeinerung Extreme >= HTF Extreme UND Verfeinerung Near <= HTF Near
+  - Bearish: Verfeinerung Extreme <= HTF Extreme UND Verfeinerung Near >= HTF Near
+  - **Ausnahme**: Extreme der Verfeinerung liegt EXAKT auf HTF Pivot Near (auch wenn Near außerhalb)
+  - **Daten-Korrektur**: Wenn Verfeinerung stärkeres Extreme als HTF → Nutze HTF Extreme (H1/H4 Oanda-Daten können abweichen)
 - ✅ **Unberührt**: NEAR der Verfeinerung darf NICHT berührt werden zwischen Entstehung und HTF-Pivot valid_time
 - ✅ **Doji-Filter**: Body >= 5% (gleicher Filter wie HTF-Pivots)
 - ✅ **Versatz**: Standard OHNE (zum Backtesten aktivierbar)
@@ -71,6 +73,7 @@ REFINEMENT_VERSATZ = False  # Standard: KEINE Versatz-Regel
 **Precision**:
 - Alle Preise werden auf **5 Nachkommastellen** gerundet
 - Vergleiche verwenden Tolerance von **0.00001** um Floating-Point-Fehler zu vermeiden
+- **Datenqualität**: D-M Daten (TradingView) sind exakt, H1-H4 (Oanda API) können abweichen
 
 ---
 
@@ -87,14 +90,22 @@ ENTRY_CONFIRMATION = "direct_touch"  # Standard: Direkter Entry bei Touch (kein 
 
 **Entry-Prozess**:
 1. **Gap-Trigger**: HTF-Pivot-Gap muss ZUERST berührt werden
-2. **Verfeinerung**: Suche höchste gültige Verfeinerung
-3. **Touch**: Preis berührt Wick Diff der Verfeinerung
-4. **Bestätigung**:
+   - **WICHTIG**: Gap Touch wird auf **Daily-Daten** geprüft (genaueres Datum, auch bei W/M Pivots!)
+2. **TP-Check**: Prüfe ob TP (-1 Fib) bereits berührt wurde NACH Gap Touch
+   - **Wenn TP berührt VOR Entry**: Setup **ungültig**, kein Trade möglich
+   - **Multi-TF**: Wenn M-Pivot ungültig → W/3D bleiben gültig (wenn TPs noch nicht berührt)
+3. **Entry-Level bestimmen**:
+   - **Standard**: Höchste Verfeinerung (nach Priorität)
+   - **Bei Wick Diff < 20%**: Entry bei Wick Diff (= HTF Near)
+     - **Ausnahme**: Wenn Verfeinerung mit Extreme auf HTF Near existiert → Entry bei Verfeinerung (näher!)
+   - **RR-Check**: Entry muss >= 1 RR ergeben, sonst nächste Verfeinerung/Wick Diff verwerfen
+4. **Touch**: Preis berührt Entry-Level
+5. **Bestätigung**:
    - `direct_touch`: Entry sofort (Standard)
    - `1h_close`: Warte auf 1H Close ÜBER (bullish) / UNTER (bearish) NEAR → Entry bei Open nächster Candle
    - `4h_close`: Warte auf 4H Close ÜBER (bullish) / UNTER (bearish) NEAR → Entry bei Open nächster Candle
    - **Wichtig bei Close-Modi**: Close muss JENSEITS NEAR sein (nur Wick in Verfeinerung, nicht der Körper!)
-5. **Invalidierung**: Wenn Close nicht bestätigt → nächste Verfeinerung
+6. **Invalidierung**: Wenn Close nicht bestätigt → nächste Verfeinerung
 
 ---
 
