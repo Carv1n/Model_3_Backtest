@@ -85,22 +85,51 @@ python Backtest/01_test/01_Validation/validation_trades.py
 - TP-Check korrekt?
 - Entry/SL/TP korrekt?
 
-### 2. Baseline-Backtest (nach Validation)
+### 2. Baseline-Backtest (NÄCHSTER SCHRITT) 🎯
 
 ```bash
-# Nur Weekly, alle Pairs, alle verfügbaren Daten
-python scripts/backtesting/backtest_model3.py \
-    --htf-timeframes W \
-    --output Backtest/02_technical/baseline_W.csv
+# Weekly only, alle 28 Pairs, direct_touch
+python scripts/backtesting/backtest_weekly_baseline.py
 ```
+
+**Output**:
+- `Backtest/02_W_test/baseline_report.txt` - Kompletter Text-Report
+- `Backtest/02_W_test/baseline_report.html` - QuantStats HTML Report mit Charts
+- `Backtest/02_W_test/trades.csv` - Alle Trade-Details
+- `Backtest/02_W_test/equity_curve.csv` - Portfolio Value über Zeit
+
+**Zweck**: Ersten Überblick bekommen - funktioniert die Strategie?
+
+**Erwartungen**:
+- Min. 50-100 Trades für Aussagekraft
+- Win Rate ~45-55%
+- Profit Factor >1.5
+- Max DD <20%
+- Sharpe >1.5
 
 ---
 
 ## 📊 Test-Phasen
 
-1. **01_test** - Validation (Logik prüfen)
-2. **02_technical** - Baseline & Entry-Varianten
-3. **03_fundamentals** - COT, Seasonality (später)
+### Phase 1: Validation ✅ ABGESCHLOSSEN
+- **Ordner**: `Backtest/01_test/01_Validation/`
+- **Zweck**: Logik validieren mit 6 Sample-Trades
+- **Status**: ✅ Alle Regeln korrekt implementiert
+
+### Phase 2: Weekly Baseline 🎯 AKTUELL
+- **Ordner**: `Backtest/02_W_test/`
+- **Zweck**: Erster vollständiger Backtest mit Weekly Pivots
+- **Config**: W only, alle 28 Pairs, direct_touch, 2010-2024
+- **Output**: TXT + HTML Reports, CSV Exports
+
+### Phase 3: Full Backtest (später)
+- **Ordner**: `Backtest/03_full/`
+- **Zweck**: Alle HTF (3D, W, M), Entry-Varianten testen
+- **Config**: Alle Kombinationen, Optimization
+
+### Phase 4: Fundamentals (viel später)
+- **Ordner**: `Backtest/04_fundamentals/`
+- **Zweck**: COT, Seasonality, Correlation-Filter
 
 ---
 

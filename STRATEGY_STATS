@@ -1,0 +1,186 @@
+ALTE STATS VON CLAUDE AKJTUELLE SIND IN BACKTST_STATISTICS
+
+Ich recherchiere für dich die professionellen Standards und wichtigen Metriken für Backtesting.Hier ist eine umfassende Übersicht aller wichtigen Backtest-Statistiken und praktischen Aspekte für professionelles Trading:
+
+## **📊 TRADE-STATISTIKEN**
+
+### Basis-Metriken
+- **Total Trades** - Gesamtanzahl aller Trades (mehr Trades = statistisch aussagekräftiger)
+- **Win Rate / Hit Rate** - Prozentsatz profitabler Trades
+- **Loss Rate** - Prozentsatz verlustbringender Trades
+- **Average Winner** - Durchschnittlicher Gewinn pro profitable Trade
+- **Average Loser** - Durchschnittlicher Verlust pro Verlust-Trade
+- **Largest Winner** - Größter einzelner Gewinn
+- **Largest Loser** - Größter einzelner Verlust
+- **Average Trade** - Durchschnittlicher Profit/Loss pro Trade
+- **Average Trade Duration** - Durchschnittliche Haltedauer
+- **Profit Factor** - Verhältnis Gesamtgewinn zu Gesamtverlust (>1.75 ist gut, >2.0 sehr gut)
+- **Payoff Ratio** - Durchschnittlicher Gewinn / Durchschnittlicher Verlust
+- **Expectancy** - Erwarteter Gewinn pro Trade
+
+### Fortgeschrittene Trade-Metriken
+- **Consecutive Wins** - Längste Gewinnserie
+- **Consecutive Losses** - Längste Verlustserie
+- **Average Bars in Trade** - Durchschnittliche Anzahl Bars/Kerzen pro Trade
+- **Trade Frequency** - Trades pro Tag/Woche/Monat
+- **Long vs Short Performance** - Separate Analyse für Long/Short-Trades
+- **Time in Market** - Prozentsatz der Zeit mit offenen Positionen (Exposure)
+
+## **💼 PORTFOLIO & PERFORMANCE STATISTIKEN**
+
+### Return-Metriken
+- **Total Return / Net Profit** - Gesamtrendite absolut
+- **CAGR (Compound Annual Growth Rate)** - Jährliche durchschnittliche Rendite
+- **Annual Return** - Jährliche Rendite
+- **Monthly Returns** - Monatliche Rendite-Übersicht
+- **Best/Worst Day/Week/Month/Year** - Extremwerte
+- **Cumulative Returns** - Kumulierte Rendite über Zeit
+
+### Risiko-Metriken (KRITISCH!)
+- **Maximum Drawdown (MDD)** - Größter Rückgang vom Peak (SEHR WICHTIG!)
+- **Maximum Drawdown Duration** - Längste Drawdown-Phase
+- **Average Drawdown** - Durchschnittlicher Drawdown
+- **Recovery Factor** - Net Profit / Max Drawdown
+- **Ulcer Index** - Misst Tiefe und Dauer von Drawdowns
+- **Calmar Ratio** - CAGR / Max Drawdown (>3.0 ist exzellent)
+
+### Risiko-Adjustierte Renditen (PROFESSIONELL!)
+- **Sharpe Ratio** - (Return - Risk-free Rate) / Volatility (>1.0 gut, >2.0 sehr gut, >3.0 exzellent)
+- **Sortino Ratio** - Wie Sharpe, aber nur Downside-Volatilität (>2.0 ist gut)
+- **Omega Ratio** - Verhältnis von Gains zu Losses über Schwellenwert
+- **Information Ratio** - Alpha / Tracking Error
+- **Treynor Ratio** - (Return - Risk-free) / Beta
+
+### Volatilitäts-Metriken
+- **Annualized Volatility / Standard Deviation** - Jährliche Schwankung
+- **Downside Deviation** - Nur negative Schwankungen
+- **Skewness** - Schiefe der Renditeverteilung
+- **Kurtosis** - "Fat Tails" der Renditeverteilung
+- **Value at Risk (VaR)** - Maximaler erwarteter Verlust bei X% Konfidenz
+- **Conditional VaR (CVaR) / Expected Shortfall** - Durchschnittlicher Verlust über VaR hinaus
+
+### Benchmark-Vergleich
+- **Alpha** - Überrendite gegenüber Benchmark
+- **Beta** - Korrelation zur Benchmark
+- **Correlation** - Korrelation zu Markt/Benchmark
+- **R-Squared** - Wie viel Varianz durch Benchmark erklärt wird
+- **Tracking Error** - Abweichung von Benchmark
+
+### Portfolio-Effizienz
+- **Portfolio Turnover** - Umschlaghäufigkeit des Portfolios
+- **Gross Leverage** - Gesamtes eingesetztes Kapital relativ zu NAV
+- **Net Leverage** - Netto-Exposition
+- **Position Concentration** - Verteilung auf einzelne Positionen
+- **Sector/Asset Exposure** - Verteilung nach Sektoren/Assets
+
+## **📈 ROBUSTHEIT & VALIDIERUNG**
+
+### Statistische Tests
+- **T-Test** - Ist die Performance statistisch signifikant?
+- **Monte Carlo Simulation** - Simulation verschiedener Szenarien
+- **Walk-Forward Analysis** - Out-of-sample Testing
+- **Cross-Validation** - Verschiedene Zeitperioden testen
+- **Parameter Sensitivity** - Wie sensibel auf Parameter-Änderungen
+- **Overfitting Checks** - In-sample vs Out-of-sample Performance
+
+### Zusätzliche Validierung
+- **Market Regime Analysis** - Performance in Bull/Bear/Sideways Markets
+- **Stress Testing** - Verhalten in Krisen (2008, 2020, etc.)
+- **Slippage Analysis** - Realistische Ausführungskosten
+- **Commission Impact** - Einfluss von Gebühren auf Performance
+
+## **🎯 FUNDED ACCOUNT SPEZIFISCH**
+
+### Multi-Account Management (28+ Forex Pairs)
+Für funded Accounts mit Trade-Copying über mehrere Konten solltest du 1-3 Sekunden Verzögerung zwischen den Trades auf verschiedenen Accounts einbauen, um Risk-Management-Systeme der Prop Firms nicht zu triggern
+
+### Position Sizing & Risk
+- **Max Simultaneous Positions** - Prop Firms limitieren oft die Anzahl gleichzeitiger Kontrakte pro Account (z.B. Topstep maximal 5 Accounts)
+- **Correlation Management** - Bei 28 Pairs: Achte auf Currency-Korrelationen (EUR/USD vs EUR/GBP)
+- **Risk per Trade** - Meist 1-2% max pro Trade bei Prop Firms
+- **Daily Drawdown Limits** - Typisch 4-5% Daily Loss Limit
+- **Total Drawdown Limits** - Meist 8-10% Max Drawdown
+
+### Realistische Backtest-Gestaltung
+
+**1. Datenqualität:**
+- Tick-Daten oder mindestens 1-Minute-Daten für Forex
+- Bid/Ask Spreads berücksichtigen
+- Vermeide Yahoo Finance für professionelles Backtesting - Daten sind nicht Survivorship-Bias-frei
+
+**2. Transaktionskosten:**
+- **Spreads:** 0.5-2 Pips je nach Pair und Broker
+- **Commissions:** Falls zutreffend (RAW Spreads)
+- **Slippage:** 0.5-1 Pip realistisch bei Market Orders
+- **Overnight Financing:** Swap-Gebühren bei Positionen über Nacht
+
+**3. Execution Constraints:**
+- Latenz: 50-200ms realistisch
+- Partial Fills bei großen Orders
+- Reject Rate: 1-2% der Orders können rejected werden
+
+**4. Risk Management Implementation:**
+```python
+# Beispiel: Multi-Account Risk Management
+accounts = 10  # Anzahl Prop Accounts
+risk_per_account = 0.01  # 1% pro Trade
+max_daily_loss_per_account = 0.04  # 4% Daily Limit
+max_total_drawdown_per_account = 0.08  # 8% Total Limit
+
+# Correlation Matrix für 28 Pairs
+correlation_threshold = 0.7  # Nicht mehr als X korrelierte Trades gleichzeitig
+max_correlated_positions = 3
+```
+
+**5. Realistic Capacity Limits:**
+- Bei Millionenkapital über mehrere Accounts:
+  - Nicht mehr als 2-3% des durchschnittlichen 5-Min-Volumens traden
+  - Market Impact berücksichtigen
+  - Trade-Copier mit Ratio-Methode nutzen für unterschiedliche Account-Größen
+
+## **🐍 PYTHON LIBRARIES**
+
+**Für umfassende Statistiken:**
+- **QuantStats** - Moderne, umfassende Library (HTML Reports)
+- **PyFolio** - Professionelle Tearsheets (von Quantopian)
+- **Backtrader** - Vollständiges Backtesting Framework
+- **Empyrical** - Einzelne Risk-Metriken berechnen
+
+**Code-Beispiel:**
+```python
+import quantstats as qs
+import pandas as pd
+
+# Deine Returns laden
+returns = pd.Series(...)
+
+# Vollständiger HTML Report
+qs.reports.html(returns, 
+                benchmark='SPY',
+                output='backtest_report.html',
+                title='Forex Multi-Strategy')
+
+# Einzelne Metriken
+sharpe = qs.stats.sharpe(returns)
+max_dd = qs.stats.max_drawdown(returns)
+cagr = qs.stats.cagr(returns)
+```
+
+## **⚠️ KRITISCHE ASPEKTE**
+
+1. **Walk-Forward Optimierung** statt einfacher Backtest
+2. **Out-of-Sample Testing** mindestens 30% der Daten
+3. **Slippage & Commissions** IMMER einrechnen
+4. **Correlation zwischen Strategies** bei Multi-Strategy Portfolio
+5. **Monte Carlo** für Robustheit-Checks
+6. **Live vs Backtest Tracking** - Performance-Diskrepanzen überwachen
+
+**Minimum für professionelle Bewertung:**
+- Sharpe > 1.5
+- Calmar Ratio > 2.0
+- Win Rate > 45% (bei Payoff Ratio > 1.5)
+- Max DD < 20%
+- Min. 200 Trades für statistische Signifikanz
+- Profitabel in verschiedenen Market Regimes
+
+Möchtest du, dass ich dir ein Python-Script erstelle, das all diese Metriken für dein spezifisches Setup berechnet?
