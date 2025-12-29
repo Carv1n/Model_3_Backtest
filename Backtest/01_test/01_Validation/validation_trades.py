@@ -43,12 +43,19 @@ from scripts.backtesting.backtest_model3 import (
 # Seed für Reproduzierbarkeit
 random.seed(int(datetime.now().timestamp()))
 
-# Config
-PAIRS = ["AUDNZD", "GBPUSD"]
-HTF_TF = "W"
+# Config - 6 verschiedene Pivots mit verschiedenen HTF
+# Format: (pair, htf_tf)
+PIVOT_CONFIGS = [
+    ("AUDNZD", "M"),    # Monthly
+    ("GBPUSD", "M"),    # Monthly
+    ("EURUSD", "W"),    # Weekly
+    ("USDJPY", "W"),    # Weekly
+    ("NZDCAD", "3D"),   # 3-Day
+    ("GBPJPY", "3D"),   # 3-Day
+]
 START_DATE = "2010-01-01"
 END_DATE = "2025-12-31"
-PIVOTS_PER_PAIR = 2  # 2 Pivots pro Pair = 4 Trades total
+PIVOTS_PER_CONFIG = 1  # 1 Pivot pro Config = 6 Trades total
 ENTRY_CONFIRMATION = "direct_touch"
 
 # Output
@@ -237,7 +244,8 @@ def format_trade_output(f, pair, htf_tf, pivot, refinements, trade):
 
         f.write(f"Total: {len(refinements)} Verfeinerung(en)\n\n")
 
-        for tf in ["3D", "D", "H4", "H1"]:
+        # Zeige alle TFs in Prioritäts-Reihenfolge (W kann bei M-Pivots vorkommen!)
+        for tf in ["W", "3D", "D", "H4", "H1"]:
             if tf not in by_tf:
                 continue
 
@@ -300,10 +308,11 @@ def run_validation():
     print("=" * 80)
     print("MODEL 3 - TRADE VALIDATION")
     print("=" * 80)
-    print(f"Pairs: {PAIRS}")
-    print(f"HTF: {HTF_TF}")
+    print(f"Configs: {len(PIVOT_CONFIGS)} verschiedene Pivots")
+    for pair, htf in PIVOT_CONFIGS:
+        print(f"  - {pair} {htf}")
     print(f"Zeitraum: {START_DATE} bis {END_DATE}")
-    print(f"Pivots pro Pair: {PIVOTS_PER_PAIR}")
+    print(f"Pivots pro Config: {PIVOTS_PER_CONFIG}")
     print(f"Entry Confirmation: {ENTRY_CONFIRMATION}")
     print(f"Output: {OUTPUT_FILE}")
     print("=" * 80)
@@ -314,45 +323,57 @@ def run_validation():
     with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
         f.write("MODEL 3 - TRADE VALIDATION\n")
         f.write(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-        f.write(f"Pairs: {', '.join(PAIRS)}\n")
-        f.write(f"HTF: {HTF_TF}\n")
+        f.write(f"Configs: {len(PIVOT_CONFIGS)} verschiedene Pivots\n")
+        for pair, htf in PIVOT_CONFIGS:
+            f.write(f"  - {pair} {htf}\n")
         f.write(f"Zeitraum: {START_DATE} bis {END_DATE}\n")
-        f.write(f"Pivots pro Pair: {PIVOTS_PER_PAIR}\n")
+        f.write(f"Pivots pro Config: {PIVOTS_PER_CONFIG}\n")
         f.write(f"Entry Confirmation: {ENTRY_CONFIRMATION}\n")
         f.write("\n\n")
 
-        for pair in PAIRS:
+        for pair, htf_tf in PIVOT_CONFIGS:
             print(f"{'='*60}")
-            print(f"LADE DATEN: {pair}")
+            print(f"LADE DATEN: {pair} {htf_tf}")
             print(f"{'='*60}")
 
             try:
                 # Lade HTF-Daten
-                htf_df = load_tf_data(HTF_TF, pair)
+                htf_df = load_tf_data(htf_tf, pair)
 
                 # Filter Zeitraum
                 start_ts = pd.Timestamp(START_DATE, tz="UTC")
                 end_ts = pd.Timestamp(END_DATE, tz="UTC")
                 htf_df = htf_df[(htf_df["time"] >= start_ts) & (htf_df["time"] <= end_ts)].copy()
 
-                print(f"  {HTF_TF} Daten: {len(htf_df)} Kerzen")
+                print(f"  {htf_tf} Daten: {len(htf_df)} Kerzen")
 
                 # Finde alle Pivots
                 pivots = detect_htf_pivots(htf_df, min_body_pct=5.0)
                 print(f"  {len(pivots)} Pivots gefunden")
 
                 if len(pivots) == 0:
-                    print(f"  [!] Keine Pivots für {pair}!")
+                    print(f"  [!] Keine Pivots für {pair} {htf_tf}!")
                     continue
 
                 # Wähle zufällige Pivots
-                selected_pivots = random.sample(pivots, min(PIVOTS_PER_PAIR, len(pivots)))
+                selected_pivots = random.sample(pivots, min(PIVOTS_PER_CONFIG, len(pivots)))
                 print(f"  {len(selected_pivots)} zufällig ausgewählt")
 
-                # Lade LTF-Daten
+                # Lade LTF-Daten (abhängig von HTF!)
                 print(f"  Lade LTF-Daten...")
                 ltf_cache = {}
-                for tf in ["3D", "D", "H4", "H1"]:
+
+                # Bestimme welche LTFs basierend auf HTF
+                if htf_tf == "M":
+                    ltf_list = ["W", "3D", "D", "H4", "H1"]
+                elif htf_tf == "W":
+                    ltf_list = ["3D", "D", "H4", "H1"]
+                elif htf_tf == "3D":
+                    ltf_list = ["D", "H4", "H1"]
+                else:
+                    ltf_list = ["H4", "H1"]
+
+                for tf in ltf_list:
                     ltf_df = load_tf_data(tf, pair)
                     ltf_df = ltf_df[(ltf_df["time"] >= start_ts) & (ltf_df["time"] <= end_ts)].copy()
                     ltf_cache[tf] = ltf_df
@@ -361,7 +382,7 @@ def run_validation():
                 for pivot in selected_pivots:
                     refinements = []
 
-                    for tf in ["3D", "D", "H4", "H1"]:
+                    for tf in ltf_list:
                         ref_list = detect_refinements(
                             ltf_cache[tf],
                             pivot,
@@ -373,7 +394,7 @@ def run_validation():
 
                     # Sortiere nach Priorität
                     def tf_priority(tf: str) -> int:
-                        order = {"3D": 0, "D": 1, "H4": 2, "H1": 3}
+                        order = {"W": 0, "3D": 1, "D": 2, "H4": 3, "H1": 4}
                         return order.get(tf, 99)
 
                     refinements.sort(key=lambda r: tf_priority(r.timeframe))
@@ -382,7 +403,7 @@ def run_validation():
                     trade = simulate_trade(pair, pivot, refinements, ltf_cache)
 
                     # Ausgabe
-                    format_trade_output(f, pair, HTF_TF, pivot, refinements, trade)
+                    format_trade_output(f, pair, htf_tf, pivot, refinements, trade)
 
                     status = "TRADE" if trade else "NO TRADE"
                     pnl_str = f" ({trade['pnl_r']:.2f}R)" if trade else ""
@@ -392,6 +413,7 @@ def run_validation():
                     if trade:
                         all_trades.append({
                             "pair": pair,
+                            "htf": htf_tf,
                             "pivot_time": pivot.time,
                             "direction": pivot.direction,
                             "entry_time": trade["entry_time"],
@@ -401,7 +423,7 @@ def run_validation():
                         })
 
             except Exception as e:
-                print(f"  [ERROR] {pair}: {e}")
+                print(f"  [ERROR] {pair} {htf_tf}: {e}")
                 import traceback
                 traceback.print_exc()
                 continue
