@@ -18,27 +18,26 @@ Performance-Analyse der technischen Model 3 Strategie OHNE fundamentale Filter.
 
 #### Befehle
 ```bash
-# 1H Close (Standard)
-python scripts/backtesting/backtest_model3.py \
-    --htf-timeframes W \
-    --entry-confirmation 1h_close \
-    --start-date 2010-01-01 \
-    --output Backtest/02_technical/entry_1h_close.csv
-
-# Direct Touch
+# Direct Touch (Standard)
 python scripts/backtesting/backtest_model3.py \
     --htf-timeframes W \
     --entry-confirmation direct_touch \
-    --start-date 2010-01-01 \
     --output Backtest/02_technical/entry_direct_touch.csv
+
+# 1H Close
+python scripts/backtesting/backtest_model3.py \
+    --htf-timeframes W \
+    --entry-confirmation 1h_close \
+    --output Backtest/02_technical/entry_1h_close.csv
 
 # 4H Close
 python scripts/backtesting/backtest_model3.py \
     --htf-timeframes W \
     --entry-confirmation 4h_close \
-    --start-date 2010-01-01 \
     --output Backtest/02_technical/entry_4h_close.csv
 ```
+
+**WICHTIG**: START_DATE = None (nutzt alle verfügbaren Daten pro Asset!)
 
 #### Vergleichs-Metriken
 - **Total Trades**: Mehr bei Direct Touch?
@@ -65,24 +64,20 @@ python scripts/backtesting/backtest_model3.py \
 # Nur W
 python scripts/backtesting/backtest_model3.py \
     --htf-timeframes W \
-    --entry-confirmation 1h_close \
-    --start-date 2010-01-01 \
     --output Backtest/02_technical/htf_W.csv
 
 # Nur 3D
 python scripts/backtesting/backtest_model3.py \
     --htf-timeframes 3D \
-    --entry-confirmation 1h_close \
-    --start-date 2010-01-01 \
     --output Backtest/02_technical/htf_3D.csv
 
 # Alle (3D+W+M)
 python scripts/backtesting/backtest_model3.py \
     --htf-timeframes 3D W M \
-    --entry-confirmation 1h_close \
-    --start-date 2010-01-01 \
     --output Backtest/02_technical/htf_all.csv
 ```
+
+**WICHTIG**: Alle verfügbaren Daten werden genutzt (kein fixer Start!)
 
 #### Vergleichs-Metriken
 - **Total Trades**: Mehr Setups = besser?
@@ -140,8 +135,8 @@ python scripts/backtesting/backtest_model3.py \
 ## Erwartete Erkenntnisse
 
 ### Entry-Varianten
-- **1H Close**: Wahrscheinlich höhere Win Rate, weniger Setups
-- **Direct Touch**: Mehr Setups, aber mehr Fehlsignale
+- **Direct Touch** (Standard): Sofort bei Touch, mehr Setups
+- **1H Close**: Höhere Win Rate, weniger Setups
 - **4H Close**: Höchste Win Rate, wenigste Setups
 
 ### HTF-Timeframes
@@ -154,7 +149,7 @@ python scripts/backtesting/backtest_model3.py \
 ## Performance-Ziele
 
 **Ohne Fundamentals erwarten wir**:
-- Win Rate: 40-50% (bei 1H Close)
+- Win Rate: 40-50% (bei direct_touch)
 - Expectancy: 0-2 R (neutral bis leicht positiv)
 - Profit Factor: 0.9-1.2
 
@@ -162,6 +157,12 @@ python scripts/backtesting/backtest_model3.py \
 - Win Rate: 50-60%
 - Expectancy: 2-4 R
 - Profit Factor: 1.5-2.0
+
+**Neue Regeln implementiert**:
+- Gap Touch auf Daily-Daten (auch bei W/M!)
+- TP-Check vor Entry (Setup ungültig wenn TP berührt)
+- Wick Diff Entry bei < 20%
+- RR-Check für alle Entries
 
 ---
 
@@ -172,6 +173,8 @@ Nach Abschluss 02_technical:
 2. **Baseline dokumentieren**: Performance ohne Fundamentals
 3. **Weiter zu 03_fundamentals**: COT, Seasonality hinzufügen
 
+**WICHTIG**: Siehe `STRATEGIE_REGELN.md` für alle technischen Regeln!
+
 ---
 
-*Last Updated: 28.12.2025*
+*Last Updated: 29.12.2025*

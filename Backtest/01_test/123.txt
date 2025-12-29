@@ -1,6 +1,0 @@
-auß0erdem noch eine sache, D-M data ist direkte chartdata von tradingview und ist genau so korrekt. 1h und 4h habe ich mit oanada api gedownloadad also kann sein dass diese oft nicht kopmmplett passt.
-wie geasgt muss eine verfeinerung IN der wick difference kliegen abe da die data nicht 100% koreekt ist kann das extreme der verfeinerung teilweise außerhal liegen. wenn die verfeinerung aber vom datum her innehalb des pivot genreation liegt, dann MUSS das extrem innerhalb der wick diff liegen.!
-
-regel 1: rr check genrell sien, sonst andere verfeinerung nehmen 
-
-ja ist d check und ist auch wichtg

@@ -4,6 +4,8 @@
 
 Diese Datei definiert die **Standard-Einstellungen** für Model 3 Backtests.
 
+**Für komplette Strategie-Regeln siehe**: `STRATEGIE_REGELN.md`
+
 ---
 
 ## ⚙️ STANDARD-EINSTELLUNGEN
@@ -54,22 +56,6 @@ REFINEMENT_VERSATZ = False  # Standard: KEINE Versatz-Regel
 # Höchster TF hat Priorität (Max = Weekly!)
 ```
 
-**Gültigkeits-Bedingungen**:
-- ✅ **Zeitfenster**: K1 UND K2 der Verfeinerung müssen >= HTF K1 OPEN und < HTF K3 OPEN (valid_time) sein
-  - **WICHTIG**: Alle Timestamps = OPEN-Zeit der Bars!
-- ✅ **Größe**: Wick Diff der Verfeinerung (Extreme bis Near) ≤ 20% der HTF Pivot **Gap** (NICHT Wick Diff!)
-- ✅ **Position**: Verfeinerung muss zwischen HTF Extreme und HTF Near liegen
-  - Bullish: Verfeinerung Extreme >= HTF Extreme UND Verfeinerung Near <= HTF Near
-  - Bearish: Verfeinerung Extreme <= HTF Extreme UND Verfeinerung Near >= HTF Near
-  - **Ausnahme**: Extreme der Verfeinerung liegt EXAKT auf HTF Pivot Near (auch wenn Near außerhalb)
-  - **Daten-Korrektur**: Wenn Verfeinerung stärkeres Extreme als HTF → Nutze HTF Extreme (H1/H4 Oanda-Daten können abweichen)
-- ✅ **Unberührt**: NEAR der Verfeinerung darf NICHT berührt werden zwischen Entstehung und HTF-Pivot valid_time
-- ✅ **Doji-Filter**: Body >= 5% (gleicher Filter wie HTF-Pivots)
-- ✅ **Versatz**: Standard OHNE (zum Backtesten aktivierbar)
-- ✅ **Priorität**:
-  - Prio 1: Höchster Timeframe (W > 3D > D > H4 > H1)
-  - Prio 2: Bei mehreren auf gleichem TF → Am nächsten zu HTF Pivot Near
-
 **Precision**:
 - Alle Preise werden auf **5 Nachkommastellen** gerundet
 - Vergleiche verwenden Tolerance von **0.00001** um Floating-Point-Fehler zu vermeiden
@@ -88,24 +74,14 @@ ENTRY_CONFIRMATION = "direct_touch"  # Standard: Direkter Entry bei Touch (kein 
 # - "4h_close": 4H Close Bestätigung
 ```
 
-**Entry-Prozess**:
-1. **Gap-Trigger**: HTF-Pivot-Gap muss ZUERST berührt werden
-   - **WICHTIG**: Gap Touch wird auf **Daily-Daten** geprüft (genaueres Datum, auch bei W/M Pivots!)
-2. **TP-Check**: Prüfe ob TP (-1 Fib) bereits berührt wurde NACH Gap Touch
-   - **Wenn TP berührt VOR Entry**: Setup **ungültig**, kein Trade möglich
-   - **Multi-TF**: Wenn M-Pivot ungültig → W/3D bleiben gültig (wenn TPs noch nicht berührt)
-3. **Entry-Level bestimmen**:
-   - **Standard**: Höchste Verfeinerung (nach Priorität)
-   - **Bei Wick Diff < 20%**: Entry bei Wick Diff (= HTF Near)
-     - **Ausnahme**: Wenn Verfeinerung mit Extreme auf HTF Near existiert → Entry bei Verfeinerung (näher!)
-   - **RR-Check**: Entry muss >= 1 RR ergeben, sonst nächste Verfeinerung/Wick Diff verwerfen
-4. **Touch**: Preis berührt Entry-Level
-5. **Bestätigung**:
-   - `direct_touch`: Entry sofort (Standard)
-   - `1h_close`: Warte auf 1H Close ÜBER (bullish) / UNTER (bearish) NEAR → Entry bei Open nächster Candle
-   - `4h_close`: Warte auf 4H Close ÜBER (bullish) / UNTER (bearish) NEAR → Entry bei Open nächster Candle
-   - **Wichtig bei Close-Modi**: Close muss JENSEITS NEAR sein (nur Wick in Verfeinerung, nicht der Körper!)
-6. **Invalidierung**: Wenn Close nicht bestätigt → nächste Verfeinerung
+**Wichtige Hinweise**:
+- Gap Touch wird auf **Daily-Daten** geprüft (auch bei W/M Pivots!)
+- TP-Check: Wenn TP berührt **zwischen Gap Touch und Entry** → Setup ungültig
+  - Check-Fenster: `max(Valid Time, Gap Touch)` **bis** `Entry Time`
+  - Check endet BEI Entry, nicht danach!
+  - TP Touch NACH Entry = normaler Trade-Verlauf (valide)
+- Wick Diff Entry: Bei < 20% Wick Diff → Entry bei HTF Near (außer Verfeinerung näher)
+- RR-Check: >= 1 RR erforderlich für alle Entries
 
 ---
 
@@ -139,6 +115,7 @@ MAX_RR = 1.5  # SL vergrößern wenn RR > 1.5
 # RR-Anpassung:
 # - Wenn RR > 1.5: SL nach außen verschieben bis RR = 1.5
 # - Entry und TP bleiben unverändert
+# - WICHTIG: Nach SL-Anpassung muss RR = 1.5 gesetzt werden (nicht altes RR returnen!)
 ```
 
 ---
@@ -157,7 +134,6 @@ END_DATE = None  # Bis zum Ende der verfügbaren Daten
   - 1H @ 20:00 → Opens 20:00, closes 20:59
   - Daily @ 18.06 → Opens 18.06 00:00, closes 18.06 23:59
   - Weekly @ 16.06 (Montag) → Opens Mo 16.06 00:00, closes Fr 20.06 23:59
-- Verfeinerungen: Entstehung = K2 Open-Zeit muss < HTF-Pivot valid_time sein
 
 #### Pairs
 ```python
@@ -230,7 +206,6 @@ PAIRS = PAIRS_ALL  # Alle 28 Pairs
 python scripts/backtesting/backtest_model3.py \
     --htf-timeframes W \
     --entry-confirmation 1h_close \
-    --start-date 2010-01-01 \
     --output Backtest/02_technical/standard_W_1h_close.csv
 ```
 
@@ -242,7 +217,7 @@ python scripts/backtesting/backtest_model3.py \
 ```python
 HTF_TIMEFRAMES = ["3D", "W", "M"]  # Alle drei
 ENTRY_CONFIRMATION = "1h_close"
-START_DATE = "2010-01-01"
+START_DATE = None  # Max verfügbare Daten
 PAIRS = PAIRS_ALL
 ```
 
@@ -251,7 +226,6 @@ PAIRS = PAIRS_ALL
 python scripts/backtesting/backtest_model3.py \
     --htf-timeframes 3D W M \
     --entry-confirmation 1h_close \
-    --start-date 2010-01-01 \
     --output Backtest/02_technical/all_htf_1h_close.csv
 ```
 
@@ -263,7 +237,7 @@ python scripts/backtesting/backtest_model3.py \
 ```python
 HTF_TIMEFRAMES = ["W"]
 ENTRY_CONFIRMATION = "direct_touch"  # Ohne Close-Bestätigung
-START_DATE = "2010-01-01"
+START_DATE = None  # Max verfügbare Daten
 PAIRS = PAIRS_ALL
 ```
 
@@ -272,7 +246,6 @@ PAIRS = PAIRS_ALL
 python scripts/backtesting/backtest_model3.py \
     --htf-timeframes W \
     --entry-confirmation direct_touch \
-    --start-date 2010-01-01 \
     --output Backtest/02_technical/direct_touch.csv
 ```
 
@@ -347,7 +320,7 @@ HTF_VARIATIONS = [
 ## 📝 Empfohlene Vorgehensweise
 
 ### Phase 1: Validation ✅ JETZT
-1. **Profil 1** verwenden (nur W, 1h_close)
+1. **Profil 1** verwenden (nur W, direct_touch)
 2. **6 Sample-Tests** durchführen (siehe `01_test/kurze übersicht.txt`)
 3. **Manuell validieren**: Setups korrekt?
 
@@ -373,4 +346,4 @@ HTF_VARIATIONS = [
 
 ---
 
-*Last Updated: 28.12.2025*
+*Last Updated: 29.12.2025*

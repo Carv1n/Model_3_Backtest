@@ -56,8 +56,9 @@ PIVOT_CONFIGS = [
     ("NZDCAD", "3D"),   # 3-Day
     ("GBPJPY", "3D"),   # 3-Day
 ]
-START_DATE = "2010-01-01"
-END_DATE = "2025-12-31"
+# Nutze gesamten verfügbaren Zeitraum (nicht None wegen Filter-Logik)
+START_DATE = "2005-01-01"  # Früh genug um alle Daten zu erfassen
+END_DATE = "2025-12-31"    # Bis aktuell
 PIVOTS_PER_CONFIG = 1  # 1 Pivot pro Config = 6 Trades total
 ENTRY_CONFIRMATION = "direct_touch"
 
@@ -89,20 +90,7 @@ def simulate_trade(pair, pivot, refinements, ltf_cache):
     if gap_touch_time is None:
         return None  # Gap nie berührt
 
-    # 2. Berechne TP (-1 Fib) für TP-Check
-    gap = pivot.gap_size
-    if pivot.direction == "bullish":
-        tp_price = pivot.pivot + gap
-    else:
-        tp_price = pivot.pivot - gap
-
-    # 3. TP-Check: Wurde TP berührt NACH Gap Touch (aber VOR Entry)?
-    tp_touched = check_tp_touched_before_entry(h1_df, pivot, gap_touch_time, tp_price)
-
-    if tp_touched:
-        return None  # Setup ungültig - TP berührt vor Entry
-
-    # 4. Entry-Level bestimmen
+    # 2. Entry-Level bestimmen
     use_wick_diff, wick_diff_entry = should_use_wick_diff_entry(pivot, refinements)
 
     # Sortiere Verfeinerungen nach Priorität
@@ -137,7 +125,7 @@ def simulate_trade(pair, pivot, refinements, ltf_cache):
     entry_type, entry_price, sl_tp_result, best_ref = entry_candidates[0]
     sl_price, tp_price, rr = sl_tp_result
 
-    # 5. Entry suchen (nach Gap Touch)
+    # 3. Entry suchen (nach Gap Touch)
     entry_time = None
 
     entry_window = h1_df[h1_df["time"] >= gap_touch_time].copy()
@@ -155,6 +143,13 @@ def simulate_trade(pair, pivot, refinements, ltf_cache):
 
     if entry_time is None:
         return None  # Entry nie erreicht
+
+    # 4. TP-Check: Wurde TP berührt NACH Gap Touch aber VOR Entry?
+    # WICHTIG: Entry Time ist jetzt bekannt, jetzt können wir prüfen!
+    tp_touched = check_tp_touched_before_entry(h1_df, pivot, gap_touch_time, entry_time, tp_price)
+
+    if tp_touched:
+        return None  # Setup ungültig - TP berührt vor Entry
 
     # Exit simulieren
     exit_window = h1_df[h1_df["time"] > entry_time].copy()

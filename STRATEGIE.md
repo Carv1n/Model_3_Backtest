@@ -13,7 +13,7 @@
    - Pivot Gap = von Pivot bis Extreme
 
 2. **Wick Difference** = Bereich zwischen den beiden Dochten
-   - Near = Ende der kürzeren Wick
+   - Near = Ende der kürzeren Wick (höherer Low bei bullish / tieferer High bei bearish)
    - Wick Diff = von Near bis Extreme
 
 3. **Verfeinerung suchen** (1H, 4H, D, 3D, W)
@@ -118,10 +118,14 @@ PAIRS = 28  # Alle Forex Pairs
 
 ### Pivot-Struktur (IMMER)
 - **Pivot** = Open K2
-- **Extreme** = Ende längere Wick (tiefster Low / höchster High)
+- **Extreme** = Ende längere Wick
+  - Bullish: tiefster Low (min von K1 Low, K2 Low)
+  - Bearish: höchster High (max von K1 High, K2 High)
 - **Near** = Ende kürzere Wick
+  - Bullish: höherer Low (max von K1 Low, K2 Low)
+  - Bearish: tieferer High (min von K1 High, K2 High)
 - **Gap** = Pivot bis Extreme
-- **Wick Diff** = Near bis Extreme
+- **Wick Diff** = Near bis Extreme (Zone zwischen den beiden Wicks)
 
 ### SL-Berechnung
 - **Min. 60 Pips von Entry** (nicht von Extreme!)

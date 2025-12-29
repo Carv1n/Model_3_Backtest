@@ -1,0 +1,402 @@
+MODEL 3 - TRADE VALIDATION
+Generated: 2025-12-29 15:37:42
+Configs: 6 verschiedene Pivots
+  - AUDNZD M
+  - GBPUSD M
+  - EURUSD W
+  - USDJPY W
+  - NZDCAD 3D
+  - GBPJPY 3D
+Zeitraum: 2005-01-01 bis 2025-12-31
+Pivots pro Config: 1
+Entry Confirmation: direct_touch
+
+
+================================================================================
+TRADE: AUDNZD M
+================================================================================
+
+--- HTF PIVOT ---
+K1 Time (Open): 2009-07-01 00:00:00+00:00
+K2 Time (Open): 2009-08-03 00:00:00+00:00
+Valid Time (K3 Open): 2009-09-01 00:00:00+00:00
+Direction: bearish
+
+--- LEVELS ---
+Pivot (Open K2): 1.26601
+Extreme: 1.27017
+Near: 1.26742
+
+--- GAPS ---
+Pivot Gap: 0.00416 (41.6 pips)
+Wick Difference: 0.00275 (27.5 pips, 66.1% von Pivot Gap)
+
+--- ALLE VERFEINERUNGEN ---
+KEINE gültigen Verfeinerungen!
+
+--- KEIN TRADE ---
+Grund: Gap nicht getriggert oder Entry nicht erreicht oder Trade noch offen
+
+
+================================================================================
+
+
+================================================================================
+TRADE: GBPUSD M
+================================================================================
+
+--- HTF PIVOT ---
+K1 Time (Open): 2005-12-01 00:00:00+00:00
+K2 Time (Open): 2006-01-02 00:00:00+00:00
+Valid Time (K3 Open): 2006-02-01 00:00:00+00:00
+Direction: bullish
+
+--- LEVELS ---
+Pivot (Open K2): 1.72150
+Extreme: 1.71320
+Near: 1.71885
+
+--- GAPS ---
+Pivot Gap: 0.00830 (83.0 pips)
+Wick Difference: 0.00565 (56.5 pips, 68.1% von Pivot Gap)
+
+--- ALLE VERFEINERUNGEN ---
+Total: 4 Verfeinerung(en)
+
+D: 1 Verfeinerung(en)
+  #1:
+    Time: 2006-01-03 00:00:00+00:00
+    Pivot (Open K2): 1.72015
+    Extreme: 1.71885
+    Near (Entry): 1.71960
+    Size: 0.00075 (7.5 pips, 9.0% von HTF Gap)
+
+H4: 2 Verfeinerung(en)
+  #1:
+    Time: 2005-12-30 18:00:00+00:00
+    Pivot (Open K2): 1.71870
+    Extreme: 1.71660
+    Near (Entry): 1.71760
+    Size: 0.00100 (10.0 pips, 12.0% von HTF Gap)
+  #2:
+    Time: 2006-01-02 22:00:00+00:00
+    Pivot (Open K2): 1.72005
+    Extreme: 1.71885
+    Near (Entry): 1.72015
+    Size: 0.00130 (13.0 pips, 15.7% von HTF Gap)
+
+H1: 1 Verfeinerung(en)
+  #1:
+    Time: 2005-12-28 20:00:00+00:00
+    Pivot (Open K2): 1.71480
+    Extreme: 1.71420
+    Near (Entry): 1.71480
+    Size: 0.00060 (6.0 pips, 7.2% von HTF Gap)
+
+--- TRADE DETAILS ---
+
+VERWENDETE VERFEINERUNG:
+  TF: D
+  Time: 2006-01-03 00:00:00+00:00
+  Pivot (Open K2): 1.72015
+  Extreme: 1.71885
+  Near (Entry Level): 1.71960
+  Size: 0.00075 (7.5 pips)
+
+GAP TOUCH:
+  Time: 2008-10-09 00:00:00+00:00
+
+ENTRY:
+  Time: 2008-10-09 01:00:00+00:00
+  Price: 1.71960
+  Entry Confirmation: direct_touch
+
+SL/TP:
+  SL Price: 1.71237
+  TP Price: 1.72980
+  RR Ratio: 1.41
+
+EXIT:
+  Time: 2008-10-09 02:00:00+00:00
+  Price: 1.72980
+  Reason: TP
+
+ERGEBNIS:
+  PnL (Pips): 102.0
+  PnL (R): 1.41
+  Status: WIN
+
+================================================================================
+
+
+================================================================================
+TRADE: EURUSD W
+================================================================================
+
+--- HTF PIVOT ---
+K1 Time (Open): 2012-02-13 00:00:00+00:00
+K2 Time (Open): 2012-02-20 00:00:00+00:00
+Valid Time (K3 Open): 2012-02-27 00:00:00+00:00
+Direction: bullish
+
+--- LEVELS ---
+Pivot (Open K2): 1.31806
+Extreme: 1.29746
+Near: 1.31736
+
+--- GAPS ---
+Pivot Gap: 0.02060 (206.0 pips)
+Wick Difference: 0.01990 (199.0 pips, 96.6% von Pivot Gap)
+
+--- ALLE VERFEINERUNGEN ---
+Total: 8 Verfeinerung(en)
+
+H4: 2 Verfeinerung(en)
+  #1:
+    Time: 2012-02-16 14:00:00+00:00
+    Pivot (Open K2): 1.29936
+    Extreme: 1.29748
+    Near (Entry): 1.29936
+    Size: 0.00188 (18.8 pips, 9.1% von HTF Gap)
+  #2:
+    Time: 2012-02-17 06:00:00+00:00
+    Pivot (Open K2): 1.31327
+    Extreme: 1.31154
+    Near (Entry): 1.31243
+    Size: 0.00089 (8.9 pips, 4.3% von HTF Gap)
+
+H1: 6 Verfeinerung(en)
+  #1:
+    Time: 2012-02-16 13:00:00+00:00
+    Pivot (Open K2): 1.29853
+    Extreme: 1.29748
+    Near (Entry): 1.29774
+    Size: 0.00026 (2.6 pips, 1.3% von HTF Gap)
+  #2:
+    Time: 2012-02-16 19:00:00+00:00
+    Pivot (Open K2): 1.31029
+    Extreme: 1.31015
+    Near (Entry): 1.31021
+    Size: 0.00006 (0.6 pips, 0.3% von HTF Gap)
+  #3:
+    Time: 2012-02-17 07:00:00+00:00
+    Pivot (Open K2): 1.31171
+    Extreme: 1.31154
+    Near (Entry): 1.31163
+    Size: 0.00009 (0.9 pips, 0.4% von HTF Gap)
+  #4:
+    Time: 2012-02-17 09:00:00+00:00
+    Pivot (Open K2): 1.31224
+    Extreme: 1.31185
+    Near (Entry): 1.31221
+    Size: 0.00036 (3.6 pips, 1.7% von HTF Gap)
+  #5:
+    Time: 2012-02-17 12:00:00+00:00
+    Pivot (Open K2): 1.31390
+    Extreme: 1.31292
+    Near (Entry): 1.31328
+    Size: 0.00036 (3.6 pips, 1.7% von HTF Gap)
+  #6:
+    Time: 2012-02-19 22:00:00+00:00
+    Pivot (Open K2): 1.31812
+    Extreme: 1.31736
+    Near (Entry): 1.31771
+    Size: 0.00035 (3.5 pips, 1.7% von HTF Gap)
+
+--- TRADE DETAILS ---
+
+VERWENDETE VERFEINERUNG:
+  TF: H4
+  Time: 2012-02-17 06:00:00+00:00
+  Pivot (Open K2): 1.31327
+  Extreme: 1.31154
+  Near (Entry Level): 1.31243
+  Size: 0.00089 (8.9 pips)
+
+GAP TOUCH:
+  Time: 2012-03-05 00:00:00+00:00
+
+ENTRY:
+  Time: 2012-03-06 14:00:00+00:00
+  Price: 1.31243
+  Entry Confirmation: direct_touch
+
+SL/TP:
+  SL Price: 1.29494
+  TP Price: 1.33866
+  RR Ratio: 1.50
+
+EXIT:
+  Time: 2012-05-09 12:00:00+00:00
+  Price: 1.29494
+  Reason: SL
+
+ERGEBNIS:
+  PnL (Pips): -174.9
+  PnL (R): -1.00
+  Status: LOSS
+
+================================================================================
+
+
+================================================================================
+TRADE: USDJPY W
+================================================================================
+
+--- HTF PIVOT ---
+K1 Time (Open): 2008-06-30 00:00:00+00:00
+K2 Time (Open): 2008-07-07 00:00:00+00:00
+Valid Time (K3 Open): 2008-07-14 00:00:00+00:00
+Direction: bearish
+
+--- LEVELS ---
+Pivot (Open K2): 106.75500
+Extreme: 107.75500
+Near: 106.93500
+
+--- GAPS ---
+Pivot Gap: 1.00000 (10000.0 pips)
+Wick Difference: 0.82000 (8200.0 pips, 82.0% von Pivot Gap)
+
+--- ALLE VERFEINERUNGEN ---
+Total: 10 Verfeinerung(en)
+
+D: 2 Verfeinerung(en)
+  #1:
+    Time: 2008-07-09 00:00:00+00:00
+    Pivot (Open K2): 107.50400
+    Extreme: 107.66700
+    Near (Entry): 107.54500
+    Size: 0.12200 (1220.0 pips, 12.2% von HTF Gap)
+  #2:
+    Time: 2008-07-11 00:00:00+00:00
+    Pivot (Open K2): 107.07400
+    Extreme: 107.44000
+    Near (Entry): 107.30200
+    Size: 0.13800 (1380.0 pips, 13.8% von HTF Gap)
+
+H4: 3 Verfeinerung(en)
+  #1:
+    Time: 2008-07-07 13:00:00+00:00
+    Pivot (Open K2): 107.55100
+    Extreme: 107.75500
+    Near (Entry): 107.68400
+    Size: 0.07100 (710.0 pips, 7.1% von HTF Gap)
+  #2:
+    Time: 2008-07-09 09:00:00+00:00
+    Pivot (Open K2): 107.55000
+    Extreme: 107.66700
+    Near (Entry): 107.57600
+    Size: 0.09100 (910.0 pips, 9.1% von HTF Gap)
+  #3:
+    Time: 2008-07-11 09:00:00+00:00
+    Pivot (Open K2): 107.20000
+    Extreme: 107.30200
+    Near (Entry): 107.21800
+    Size: 0.08400 (840.0 pips, 8.4% von HTF Gap)
+
+H1: 5 Verfeinerung(en)
+  #1:
+    Time: 2008-07-07 14:00:00+00:00
+    Pivot (Open K2): 107.73200
+    Extreme: 107.75500
+    Near (Entry): 107.75200
+    Size: 0.00300 (30.0 pips, 0.3% von HTF Gap)
+  #2:
+    Time: 2008-07-09 09:00:00+00:00
+    Pivot (Open K2): 107.55000
+    Extreme: 107.66700
+    Near (Entry): 107.57600
+    Size: 0.09100 (910.0 pips, 9.1% von HTF Gap)
+  #3:
+    Time: 2008-07-09 12:00:00+00:00
+    Pivot (Open K2): 107.54400
+    Extreme: 107.57400
+    Near (Entry): 107.55900
+    Size: 0.01500 (150.0 pips, 1.5% von HTF Gap)
+  #4:
+    Time: 2008-07-10 12:00:00+00:00
+    Pivot (Open K2): 107.30000
+    Extreme: 107.44000
+    Near (Entry): 107.35300
+    Size: 0.08700 (870.0 pips, 8.7% von HTF Gap)
+  #5:
+    Time: 2008-07-11 07:00:00+00:00
+    Pivot (Open K2): 107.24900
+    Extreme: 107.30200
+    Near (Entry): 107.27800
+    Size: 0.02400 (240.0 pips, 2.4% von HTF Gap)
+
+--- KEIN TRADE ---
+Grund: Gap nicht getriggert oder Entry nicht erreicht oder Trade noch offen
+
+
+================================================================================
+
+
+================================================================================
+TRADE: NZDCAD 3D
+================================================================================
+
+--- HTF PIVOT ---
+K1 Time (Open): 2015-07-06 00:00:00+00:00
+K2 Time (Open): 2015-07-09 00:00:00+00:00
+Valid Time (K3 Open): 2015-07-14 00:00:00+00:00
+Direction: bearish
+
+--- LEVELS ---
+Pivot (Open K2): 0.85774
+Extreme: 0.86040
+Near: 0.85901
+
+--- GAPS ---
+Pivot Gap: 0.00266 (26.6 pips)
+Wick Difference: 0.00139 (13.9 pips, 52.3% von Pivot Gap)
+
+--- ALLE VERFEINERUNGEN ---
+Total: 1 Verfeinerung(en)
+
+H4: 1 Verfeinerung(en)
+  #1:
+    Time: 2015-07-10 09:00:00+00:00
+    Pivot (Open K2): 0.85842
+    Extreme: 0.85966
+    Near (Entry): 0.85940
+    Size: 0.00026 (2.6 pips, 9.8% von HTF Gap)
+
+--- KEIN TRADE ---
+Grund: Gap nicht getriggert oder Entry nicht erreicht oder Trade noch offen
+
+
+================================================================================
+
+
+================================================================================
+TRADE: GBPJPY 3D
+================================================================================
+
+--- HTF PIVOT ---
+K1 Time (Open): 2005-03-10 00:00:00+00:00
+K2 Time (Open): 2005-03-15 00:00:00+00:00
+Valid Time (K3 Open): 2005-03-18 00:00:00+00:00
+Direction: bullish
+
+--- LEVELS ---
+Pivot (Open K2): 2.21902
+Extreme: 2.21270
+Near: 2.21727
+
+--- GAPS ---
+Pivot Gap: 0.00632 (63.2 pips)
+Wick Difference: 0.00457 (45.7 pips, 72.3% von Pivot Gap)
+
+--- ALLE VERFEINERUNGEN ---
+KEINE gültigen Verfeinerungen!
+
+--- KEIN TRADE ---
+Grund: Gap nicht getriggert oder Entry nicht erreicht oder Trade noch offen
+
+
+================================================================================
+
+

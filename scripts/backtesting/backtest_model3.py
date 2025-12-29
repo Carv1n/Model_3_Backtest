@@ -461,34 +461,45 @@ def check_tp_touched_before_entry(
     df: pd.DataFrame,
     pivot: Pivot,
     gap_touch_time: pd.Timestamp,
+    entry_time: pd.Timestamp,
     tp: float
 ) -> bool:
     """
     Prüft ob TP (-1 Fib) berührt wurde NACH Gap Touch aber VOR Entry.
 
-    Wenn TP berührt wurde bevor Entry stattfinden konnte:
-    → Setup ungültig, kein Trade möglich
+    WICHTIGE REGEL:
+    - Check startet ab max(K3 Open, Gap Touch)
+    - Check endet BEI Entry Time (nicht danach!)
+    - Nur relevant wenn Gap BEREITS berührt wurde
+    - Wenn Gap berührt → TP berührt → Entry passiert → Setup ungültig (potenzielle Wirkung schon passiert)
+    - Wenn TP berührt OHNE Gap Touch → egal (irrelevant)
+    - Wenn TP berührt NACH Entry → egal (normaler Trade-Verlauf)
 
     Args:
         df: DataFrame (H1 für genaue Prüfung)
         pivot: HTF Pivot
         gap_touch_time: Wann wurde Gap berührt
+        entry_time: Wann Entry passiert ist
         tp: TP Level (-1 Fib)
 
     Returns:
-        True wenn TP berührt wurde (Setup ungültig)
+        True wenn TP berührt wurde NACH Gap Touch aber VOR Entry (Setup ungültig)
     """
-    # Filtere ab Gap Touch
-    df_after_gap = df[df["time"] > gap_touch_time].copy()
+    # Check startet ab max(Valid Time, Gap Touch)
+    # Frühestens ab K3 Open, aber nur relevant nach Gap Touch
+    start_time = max(pivot.valid_time, gap_touch_time)
+
+    # Check endet BEI Entry (nicht danach!)
+    df_check_window = df[(df["time"] >= start_time) & (df["time"] < entry_time)].copy()
 
     if pivot.direction == "bullish":
         # Bullish: TP oberhalb, prüfe ob High >= TP
-        for _, row in df_after_gap.iterrows():
+        for _, row in df_check_window.iterrows():
             if row["high"] >= tp:
                 return True
     else:
         # Bearish: TP unterhalb, prüfe ob Low <= TP
-        for _, row in df_after_gap.iterrows():
+        for _, row in df_check_window.iterrows():
             if row["low"] <= tp:
                 return True
 
@@ -581,6 +592,7 @@ def compute_sl_tp(
             sl = entry - reward / 1.5
         else:
             sl = entry + reward / 1.5
+        rr = 1.5  # RR ist jetzt exakt 1.5
     return sl, tp, rr
 
 

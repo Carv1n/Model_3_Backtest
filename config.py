@@ -25,7 +25,7 @@ RESULTS_PATH = PROJECT_ROOT / "results"
 
 # SETTINGS
 INITIAL_CAPITAL = 100000
-START_DATE = "2010-01-01"
+START_DATE = None  # None = Max verfügbare Daten pro Asset nutzen
 
 # MODEL X SETTINGS
 DOJI_THRESHOLD = 5.0

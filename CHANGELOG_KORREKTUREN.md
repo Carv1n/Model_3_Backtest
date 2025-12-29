@@ -1,8 +1,12 @@
-# Model 3 - Korrekturen & Anpassungen (28.12.2025)
+# Model 3 - Korrekturen & Anpassungen
 
 ## 📝 Übersicht
 
 Dieses Dokument listet alle Korrekturen auf, die basierend auf der finalen Klärung der Strategie-Regeln vorgenommen wurden.
+
+**Letzte Updates**:
+- 28.12.2025: Initiale Korrekturen
+- 29.12.2025: TP-Check Korrektur
 
 ---
 
@@ -115,9 +119,163 @@ Versatz-Regel ist:
 
 ---
 
-## 🔧 CODE-KORREKTUREN NÖTIG
+### 8. RR Berechnung Bug behoben (29.12.2025) ✅
+
+**Problem**: Nach SL-Anpassung (wenn RR > 1.5) wurde `rr` nicht aktualisiert
+
+**Bug**:
+```python
+if rr > 1.5:
+    sl = entry + reward / 1.5  # SL angepasst
+return sl, tp, rr  # ❌ rr ist noch der ALTE Wert!
+```
+
+**Fix**:
+```python
+if rr > 1.5:
+    sl = entry + reward / 1.5
+    rr = 1.5  # ✅ RR auf 1.5 setzen!
+return sl, tp, rr
+```
+
+**Beispiel (AUDNZD M Juli 2018)**:
+- Entry: 1.09737
+- Reward: 98.5 pips (zu TP)
+- Risk initial: 59.8 pips → RR = 1.64
+- SL erweitert auf 65.7 pips → RR sollte 1.5 sein
+- **VORHER**: Return (..., ..., 1.64) ❌
+- **JETZT**: Return (..., ..., 1.5) ✅
+
+**Betroffen**:
+- ✅ `scripts/backtesting/backtest_model3.py` - `compute_sl_tp()` Zeile 595
+
+---
+
+### 7. TP-Check Logik korrigiert (29.12.2025) ✅ FINAL
+
+**Problem 1 - Zeitpunkt falsch**: TP-Check startete ab Gap Touch
+**Lösung 1**: Check startet ab **max(Valid Time, Gap Touch)**
+
+**Problem 2 - Check-Fenster falsch**: TP-Check prüfte die gesamte Zeit nach Gap Touch (ohne Ende)
+**Lösung 2**: Check endet **BEI Entry Time** (nicht danach!)
+
+**Problem 3 - Reihenfolge falsch**: TP-Check wurde VOR Entry-Suche durchgeführt
+**Lösung 3**: Check wird NACH Entry-Suche durchgeführt (Entry Time muss bekannt sein!)
+
+**FINALE LOGIK**:
+1. Gap Touch finden
+2. Entry-Kandidaten bestimmen (mit RR-Check)
+3. Entry suchen (jetzt kennen wir Entry Time!)
+4. TP-Check: Prüfe ob TP berührt zwischen **max(Valid Time, Gap Touch)** und **Entry Time**
+5. Wenn TP berührt in diesem Fenster → Setup ungültig
+6. Wenn TP berührt NACH Entry → egal (normaler Trade-Verlauf)
+
+**Wichtig**:
+- TP darf NICHT berührt werden zwischen Gap Touch und Entry
+- Wenn TP vor Gap Touch berührt → egal (irrelevant)
+- Wenn TP nach Entry berührt → egal (normaler Trade)
+- Check-Fenster: `max(Valid Time, Gap Touch)` bis `Entry Time`
+
+**Beispiel (AUDNZD M Juni/Juli 2018)**:
+- Gap Touch: 01.08.2018 00:00
+- Entry: 01.08.2018 01:00
+- TP berührt: 29.08.2018 14:00 (28 Tage NACH Entry!)
+- **VORHER**: Setup ungültig ❌ (falsch - TP-Check hatte kein Ende!)
+- **JETZT**: Setup gültig ✅ (TP nach Entry ist ok!)
+
+**Betroffen**:
+- ✅ `scripts/backtesting/backtest_model3.py` - Funktion `check_tp_touched_before_entry()` korrigiert (+entry_time Parameter)
+- ✅ `Backtest/01_test/01_Validation/validation_trades.py` - Reihenfolge korrigiert (TP-Check nach Entry-Suche)
+- ✅ `STRATEGIE_REGELN.md` - TP-Check Beschreibung präzisiert
+- ✅ `MODEL3_CONFIG.md` - Entry-Hinweise aktualisiert
+
+---
+
+## 🔧 CODE-KORREKTUREN
 
 ### `scripts/backtesting/backtest_model3.py`
+
+#### 0a. RR Berechnung korrigieren (29.12.2025 - ERLEDIGT ✅)
+```python
+# In compute_sl_tp() Funktion:
+
+# ❌ VORHER (Zeile 586-595):
+rr = reward / risk
+if rr < 1.0:
+    return None
+if rr > 1.5:
+    if direction == "bullish":
+        sl = entry - reward / 1.5
+    else:
+        sl = entry + reward / 1.5
+return sl, tp, rr  # ❌ Bug: rr ist noch alt (z.B. 1.64)!
+
+# ✅ JETZT:
+rr = reward / risk
+if rr < 1.0:
+    return None
+if rr > 1.5:
+    if direction == "bullish":
+        sl = entry - reward / 1.5
+    else:
+        sl = entry + reward / 1.5
+    rr = 1.5  # ✅ Fix: rr auf 1.5 setzen!
+return sl, tp, rr
+```
+
+#### 0b. TP-Check Logik korrigieren (29.12.2025 - ERLEDIGT ✅)
+```python
+def check_tp_touched_before_entry(
+    df: pd.DataFrame,
+    pivot: Pivot,
+    gap_touch_time: pd.Timestamp,
+    entry_time: pd.Timestamp,  # ✅ NEU: Entry Time hinzugefügt!
+    tp: float
+) -> bool:
+    # ❌ VORHER: Filtere ab Gap Touch (ohne Ende!)
+    df_after_gap = df[df["time"] > gap_touch_time].copy()
+    # Problem: Prüft ALLE Zeit nach Gap Touch, auch nach Entry!
+
+    # ✅ JETZT: Check-Fenster von max(Valid Time, Gap Touch) BIS Entry
+    start_time = max(pivot.valid_time, gap_touch_time)
+    df_check_window = df[(df["time"] >= start_time) & (df["time"] < entry_time)].copy()
+
+    # Prüfe ob TP im Check-Fenster berührt wurde
+    for _, row in df_check_window.iterrows():
+        if pivot.direction == "bullish":
+            if row["high"] >= tp:
+                return True  # TP vor Entry → ungültig
+        else:
+            if row["low"] <= tp:
+                return True  # TP vor Entry → ungültig
+
+    return False  # TP nicht im Fenster → valide
+```
+
+**Zusätzlich in `validation_trades.py`**:
+```python
+# ❌ VORHER: TP-Check VOR Entry-Suche (Entry Time unbekannt!)
+tp_touched = check_tp_touched_before_entry(h1_df, pivot, gap_touch_time, tp_price)
+if tp_touched:
+    return None
+
+# ... später Entry suchen ...
+
+# ✅ JETZT: TP-Check NACH Entry-Suche (Entry Time bekannt!)
+# 1. Entry suchen
+for idx, candle in entry_window.iterrows():
+    if ...:
+        entry_time = candle["time"]
+        break
+
+if entry_time is None:
+    return None
+
+# 2. JETZT TP-Check mit Entry Time
+tp_touched = check_tp_touched_before_entry(h1_df, pivot, gap_touch_time, entry_time, tp_price)
+if tp_touched:
+    return None  # TP vor Entry berührt → ungültig
+```
 
 #### 1. Refinement Dataclass erweitern
 ```python
@@ -214,11 +372,22 @@ else:  # bearish
 ## 🎯 NÄCHSTE SCHRITTE
 
 1. ✅ Dokumentation korrigiert
-2. ⏳ Code korrigieren (`backtest_model3.py`)
-3. ⏳ Validation-Test durchführen
-4. ⏳ Manuell validieren (TradingView)
-5. ⏳ Falls korrekt → Full Backtest
+2. ✅ TP-Check Code korrigiert (29.12.2025) - FINALE VERSION
+   - ✅ Entry Time Parameter hinzugefügt
+   - ✅ Check-Fenster mit Ende definiert (bis Entry)
+   - ✅ Reihenfolge in validation_trades.py korrigiert
+3. ✅ RR Berechnung Bug behoben (29.12.2025)
+   - ✅ `rr = 1.5` nach SL-Anpassung setzen
+4. ✅ Validation-Test durchgeführt (AUDNZD M Juli 2018)
+   - ✅ Trade gefunden mit korrekten Werten
+   - ✅ RR = 1.50 (exakt wie TradingView)
+   - ✅ Entry bei W Verfeinerung (1.09737), nicht HTF Near
+   - ✅ Exit: SL mit -1.00R
+5. ⏳ Weitere Validation-Tests durchführen (random Pivots)
+6. ⏳ Manuell validieren (TradingView)
+7. ⏳ Falls korrekt → Full Backtest
+8. ⏳ Weitere Code-Korrekturen (#1-6) implementieren
 
 ---
 
-*Last Updated: 28.12.2025*
+*Last Updated: 29.12.2025*
