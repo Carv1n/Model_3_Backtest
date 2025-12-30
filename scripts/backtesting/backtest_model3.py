@@ -374,9 +374,12 @@ def detect_refinements(
         if not (between_extreme_near or extreme_on_near):
             continue  # Weder zwischen Extreme/Near noch Extreme auf Near
 
-        # "Unberührt"-Check: NEAR der Verfeinerung darf nicht berührt worden sein
+        # "Unberührt"-Check: OPEN K2 der Verfeinerung darf nicht berührt worden sein
         # zwischen ihrer Entstehung (k2["time"]) und HTF-Pivot valid_time
+        # WICHTIG: NICHT Near, sondern k2["open"] (Pivot Level)!
+        # Ab Valid Time spielt k2 open keine Rolle mehr, nur Near für Entry
         refinement_created = k2["time"]
+        k2_open_level = pivot_level  # k2["open"] = Pivot Level der Verfeinerung
 
         # Hole nur Candles im relevanten Zeitfenster (Optimierung!)
         touch_window = df[
@@ -384,22 +387,22 @@ def detect_refinements(
             (df["time"] <= htf_pivot.valid_time)
         ]
 
-        # Check ob NEAR der Verfeinerung berührt wurde
+        # Check ob OPEN K2 der Verfeinerung berührt wurde
         was_touched = False
         for _, candle in touch_window.iterrows():
             if direction == "bullish":
-                # Bullish: NEAR berührt wenn candle low <= near
-                if candle["low"] <= near:
+                # Bullish: K2 Open berührt wenn candle low <= k2_open
+                if candle["low"] <= k2_open_level:
                     was_touched = True
                     break
             else:  # bearish
-                # Bearish: NEAR berührt wenn candle high >= near
-                if candle["high"] >= near:
+                # Bearish: K2 Open berührt wenn candle high >= k2_open
+                if candle["high"] >= k2_open_level:
                     was_touched = True
                     break
 
         if was_touched:
-            continue  # NEAR wurde berührt -> Verfeinerung ungültig
+            continue  # K2 Open wurde berührt -> Verfeinerung ungültig
 
         # Alle Checks bestanden -> gültige Refinement
         refinements.append(
@@ -705,7 +708,8 @@ class Model3Backtester:
         if h1_after.empty:
             return
 
-        # OPTIMIERUNG: Vectorized Gap-Touch Detection
+        # Gap Touch auf H1 prüfen (Vectorized)
+        gap_low, gap_high = pivot.gap_low, pivot.gap_high
         gap_touched = (h1_after["low"] <= gap_high) & (h1_after["high"] >= gap_low)
         if not gap_touched.any():
             if debug:
@@ -723,90 +727,150 @@ class Model3Backtester:
                 print(f"  [DEBUG] Gap Touch VOR valid_time -> Skip (sollte nicht passieren!)")
             return  # Sollte nicht passieren, aber Sicherheitscheck
 
-        # ab Gap-Trigger nach Verfeinerung suchen
-        if debug:
-            print(f"  [DEBUG] Suche Entry ab Gap-Touch, {len(refinements)} Verfeinerung(en) verfuegbar")
-            print(f"  [DEBUG] Erste Verfeinerung: TF={refinements[0].timeframe}, Entry-Level (NEAR)={refinements[0].entry_level:.5f}")
+        # Prüfe ob Wick Diff Entry verwendet werden soll (< 20% Regel)
+        use_wick_diff, wick_diff_entry = should_use_wick_diff_entry(pivot, refinements)
 
-        for idx in range(gap_touch_idx, len(h1_after)):
-            row = h1_after.iloc[idx]
-            # aktuelle Verfeinerung
-            if current_ref_idx >= len(refinements):
+        # Entry-Kandidaten mit RR-Check VORHER filtern
+        entry_candidates = []
+
+        if use_wick_diff and wick_diff_entry is not None:
+            # Wick Diff Entry: HTF Near verwenden
+            sl_tp_result = compute_sl_tp(pivot.direction, wick_diff_entry, pivot, pair)
+            if sl_tp_result is not None and sl_tp_result[2] >= 1.0:
+                entry_candidates.append(("wick_diff", wick_diff_entry, sl_tp_result))
                 if debug:
-                    print(f"  [DEBUG] Alle Verfeinerungen aufgebraucht, kein Trade")
-                break
-            ref = refinements[current_ref_idx]
+                    print(f"  [DEBUG] Wick Diff Entry Kandidat: Entry={wick_diff_entry:.5f}, RR={sl_tp_result[2]:.2f}")
+        else:
+            # Standard: Verfeinerungen durchgehen (nach Priorität sortiert)
+            for ref in refinements:
+                sl_tp_result = compute_sl_tp(pivot.direction, ref.near, pivot, pair)
+                if sl_tp_result is not None and sl_tp_result[2] >= 1.0:
+                    entry_candidates.append((ref.timeframe, ref.near, sl_tp_result))
+                    if debug:
+                        print(f"  [DEBUG] Verfeinerung Entry Kandidat: TF={ref.timeframe}, Entry={ref.near:.5f}, RR={sl_tp_result[2]:.2f}")
+                    break  # Nur höchste Verfeinerung mit RR >= 1
 
-            # Verfeinerung invalidieren, wenn Preis sie schon durchschlägt
-            ref_low = min(ref.pivot_level, ref.extreme, ref.near)
-            ref_high = max(ref.pivot_level, ref.extreme, ref.near)
+        if not entry_candidates:
+            if debug:
+                print(f"  [DEBUG] Keine Entry-Kandidaten mit RR >= 1.0 -> Skip")
+            return
 
-            # Entry-Touch prüfen (Entry = NEAR der Verfeinerung!)
-            touched = row["low"] <= ref.entry_level <= row["high"]
+        entry_type, entry_level, (sl_price, tp_price, rr_value) = entry_candidates[0]
+
+        if debug:
+            print(f"  [DEBUG] Entry-Kandidat ausgewählt: Type={entry_type}, Entry={entry_level:.5f}, RR={rr_value:.2f}")
+
+        # Ab Gap-Touch nach Entry suchen
+        # H1 Daten ab Gap Touch filtern
+        h1_from_gap = h1_after[h1_after["time"] >= gap_touch_time].reset_index(drop=True)
+        if h1_from_gap.empty:
+            if debug:
+                print(f"  [DEBUG] Keine H1 Daten nach Gap Touch")
+            return
+
+        if debug:
+            print(f"  [DEBUG] Suche Entry ab Gap-Touch für Entry-Level={entry_level:.5f}")
+
+        for idx in range(len(h1_from_gap)):
+            row = h1_from_gap.iloc[idx]
+
+            # Entry-Touch prüfen
+            touched = row["low"] <= entry_level <= row["high"]
 
             if touched:
                 if debug:
-                    print(f"  [DEBUG] Verfeinerung berührt @ {row['time']}, Entry-Level={ref.entry_level:.5f}")
+                    print(f"  [DEBUG] Entry-Level berührt @ {row['time']}, Entry-Level={entry_level:.5f}")
+
                 # Entry-Bestätigung abhängig von Modus
                 if self.entry_confirmation == "direct_touch":
                     # Direkter Entry ohne Close-Bestätigung
-                    entry_price = ref.entry_level
+                    entry_price = entry_level
                     entry_time = row["time"]
                     entry_confirmed = True
+
                 elif self.entry_confirmation == "1h_close":
                     # 1H Close Bestätigung
                     if pivot.direction == "bullish":
-                        entry_confirmed = row["close"] > ref.entry_level
+                        entry_confirmed = row["close"] > entry_level
                     else:
-                        entry_confirmed = row["close"] < ref.entry_level
+                        entry_confirmed = row["close"] < entry_level
 
                     if entry_confirmed:
                         # Entry bei Open der nächsten Candle
-                        if idx + 1 >= len(h1_after):
-                            current_ref_idx += 1
-                            continue
-                        next_candle = h1_after.iloc[idx + 1]
+                        if idx + 1 >= len(h1_from_gap):
+                            return  # Keine nächste Candle verfügbar
+                        next_candle = h1_from_gap.iloc[idx + 1]
                         entry_price = next_candle["open"]
                         entry_time = next_candle["time"]
                     else:
-                        # Close nicht bestätigt → Verfeinerung löschen
-                        current_ref_idx += 1
+                        # Close nicht bestätigt
                         continue
+
                 elif self.entry_confirmation == "4h_close":
                     # 4H Close Bestätigung (vereinfacht: prüfe ob 1H close bestätigt, sonst skip)
-                    # TODO: Für vollständige 4H-Implementierung müsste man 4H-Daten nutzen
                     if pivot.direction == "bullish":
-                        entry_confirmed = row["close"] > ref.entry_level
+                        entry_confirmed = row["close"] > entry_level
                     else:
-                        entry_confirmed = row["close"] < ref.entry_level
+                        entry_confirmed = row["close"] < entry_level
 
                     if entry_confirmed:
-                        if idx + 1 >= len(h1_after):
-                            current_ref_idx += 1
-                            continue
-                        next_candle = h1_after.iloc[idx + 1]
+                        if idx + 1 >= len(h1_from_gap):
+                            return
+                        next_candle = h1_from_gap.iloc[idx + 1]
                         entry_price = next_candle["open"]
                         entry_time = next_candle["time"]
                     else:
-                        current_ref_idx += 1
                         continue
+
                 else:
                     # Default: direct touch
-                    entry_price = ref.entry_level
+                    entry_price = entry_level
                     entry_time = row["time"]
                     entry_confirmed = True
 
                 if entry_confirmed:
                     direction = pivot.direction
-                    sl_tp = compute_sl_tp(direction, entry_price, pivot, pair)
-                    if sl_tp is None:
+
+                    # TP-Check BEVOR SL/TP berechnet wird
+                    # TP-Kandidat ist bereits berechnet (tp_price aus entry_candidates)
+                    tp_candidate = tp_price
+
+                    # Prüfe ob TP zwischen Gap Touch und Entry berührt wurde
+                    tp_touched = check_tp_touched_before_entry(
+                        h1_after, pivot, gap_touch_time, entry_time, tp_candidate
+                    )
+
+                    if tp_touched:
                         if debug:
-                            print(f"  [DEBUG] SL/TP Setup ungültig (RR < 1.0 oder SL zu nah) -> nächste Verfeinerung")
-                        current_ref_idx += 1
-                        continue
-                    sl, tp, rr = sl_tp
+                            print(f"  [DEBUG] TP wurde zwischen Gap Touch und Entry berührt -> Setup ungültig")
+                        return  # Kein Trade
+
+                    # TP-Check bestanden, verwende bereits berechnete SL/TP Werte
+                    sl = sl_price
+                    tp = tp_price
+                    rr = rr_value
+
                     if debug:
                         print(f"  [DEBUG] Entry bestätigt! SL={sl:.5f}, TP={tp:.5f}, RR={rr:.2f}")
+
+                    # Trade erstellen
+                    # Refinement Info: Wenn Wick Diff Entry, dann keine Verfeinerung
+                    if entry_type == "wick_diff":
+                        refinement_tf = "wick_diff"
+                        refinement_pivot = pivot.pivot
+                        refinement_extreme = pivot.extreme
+                        refinement_entry = pivot.near
+                    else:
+                        # Entry type ist TF der Verfeinerung
+                        ref = next((r for r in refinements if r.timeframe == entry_type), None)
+                        if ref is None:
+                            if debug:
+                                print(f"  [DEBUG] ERROR: Refinement mit TF={entry_type} nicht gefunden!")
+                            return
+                        refinement_tf = ref.timeframe
+                        refinement_pivot = ref.pivot_level
+                        refinement_extreme = ref.extreme
+                        refinement_entry = ref.entry_level
 
                     trade = Trade(
                         pair=pair,
@@ -829,21 +893,18 @@ class Model3Backtester:
                         # Gap Touch
                         gap_touch_time=gap_touch_time,
                         # Refinement Info
-                        refinement_tf=ref.timeframe,
-                        refinement_pivot=ref.pivot_level,
-                        refinement_extreme=ref.extreme,
-                        refinement_entry=ref.entry_level,
+                        refinement_tf=refinement_tf,
+                        refinement_pivot=refinement_pivot,
+                        refinement_extreme=refinement_extreme,
+                        refinement_entry=refinement_entry,
                     )
 
-                    exit_info = self._simulate_trade(h1_after, idx + 1, trade)
+                    # Simulate Trade ab nächster Candle
+                    # h1_from_gap hat eigenen Index, also idx+1 verwenden
+                    exit_info = self._simulate_trade(h1_from_gap, idx + 1, trade)
                     if exit_info:
                         self.trades.append(exit_info)
-                    break
-            else:
-                # wenn Kerze die Verfeinerung durchbricht, nächstes Refinement
-                if row["high"] > ref_high and row["low"] < ref_low:
-                    current_ref_idx += 1
-                    continue
+                    return  # Trade erstellt, fertig
 
     def _simulate_trade(self, h1_after: pd.DataFrame, start_idx: int, trade: Trade) -> Optional[Trade]:
         for i in range(start_idx, len(h1_after)):

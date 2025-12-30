@@ -36,8 +36,8 @@
    - Größe: Wick Diff ≤ 20% HTF Gap
    - 7 Gültigkeitsbedingungen
 3. Entry-Voraussetzungen:
-   - Gap Touch auf Daily (auch bei W/M Pivots!)
-   - TP-Check: TP nicht berührt zwischen Gap Touch und Entry
+   - Gap Touch auf H1
+   - TP-Check: TP nicht berührt zwischen max(Valid Time, Gap Touch) und Entry
    - RR-Check: >= 1 RR erforderlich
 4. Entry: direct_touch (Standard), alternativ 1h_close/4h_close
 5. SL: Min. 60 Pips von Entry + jenseits Fib 1.1
@@ -177,9 +177,10 @@ python scripts/backtesting/backtest_model3.py --start-date 2020-01-01 --end-date
 - **Timestamps** = ALLE OPEN-Zeit der Bars!
 
 ### Entry-Voraussetzungen
-- Gap Touch auf **Daily-Daten** prüfen (auch bei W/M!)
-- TP-Check: TP nicht berührt **zwischen Gap Touch und Entry**
+- Gap Touch auf **H1-Daten** prüfen
+- TP-Check: TP nicht berührt **zwischen max(Valid Time, Gap Touch) und Entry**
   - Check-Fenster: `max(Valid Time, Gap Touch)` bis `Entry Time`
+  - Prüfung auf H1 für Präzision
 - Wick Diff Entry bei < 20% (außer Verfeinerung näher)
 - RR-Check: >= 1 RR erforderlich
 
@@ -194,4 +195,4 @@ python scripts/backtesting/backtest_model3.py --start-date 2020-01-01 --end-date
 
 ---
 
-*Last Updated: 29.12.2025*
+*Last Updated: 30.12.2025*

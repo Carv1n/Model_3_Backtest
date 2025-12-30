@@ -82,9 +82,11 @@ Verfeinerung = Kleinerer Pivot innerhalb HTF Pivot Wick Diff
 - **Grund**: D-M Daten (TradingView) exakt, H1-H4 (Oanda API) können Abweichungen haben
 
 **5. Unberührt:**
-- NEAR der Verfeinerung darf NICHT berührt werden
+- **OPEN K2** der Verfeinerung darf NICHT berührt werden
 - Zeitraum: Zwischen Verfeinerung Entstehung und HTF Valid Time
 - Bei Touch → Verfeinerung ungültig
+- **WICHTIG**: NICHT Near, sondern k2["open"] (Pivot Level)!
+- **Ab Valid Time**: k2 open spielt keine Rolle mehr, nur Near für Entry
 
 **6. Doji-Filter:**
 - Body >= 5% (BEIDE Kerzen)
@@ -109,10 +111,11 @@ Bei mehreren Verfeinerungen:
 
 ### Voraussetzungen
 
-**1. Gap Touch (auf Daily!)**
+**1. Gap Touch (auf H1!)**
 - HTF Pivot Gap muss ZUERST berührt werden
-- **WICHTIG**: Prüfung auf Daily-Daten (genaueres Datum)
-- Gilt auch bei W/M Pivots - immer Daily prüfen!
+- **WICHTIG**: Prüfung auf H1-Daten (stunden-genau, nicht nur Datum!)
+- Vorteil: H1 gibt exakte Stunde, Daily nur Datum
+- Gilt auch bei W/M Pivots - immer auf H1 prüfen!
 
 **2. TP-Check**
 - TP (-1 Fib) darf NICHT berührt werden **zwischen Gap Touch und Entry**
@@ -244,8 +247,8 @@ Bei gleichzeitigen Pivots (3D, W, M):
 - [ ] Body >= 5% (beide)?
 
 **Trade:**
-- [ ] Gap Touch auf Daily?
-- [ ] TP nicht berührt vor Entry?
+- [ ] Gap Touch auf H1?
+- [ ] TP nicht berührt zwischen max(Valid Time, Gap Touch) und Entry?
 - [ ] Entry-Level korrekt (Verf./Wick Diff)?
 - [ ] RR >= 1?
 - [ ] SL >= 60 Pips + jenseits Fib 1.1?
