@@ -1,0 +1,81 @@
+================================================================================
+MODEL 3 - BACKTEST REPORT (PURE STRATEGY)
+================================================================================
+Report Generated: 2025-12-30 18:07:59
+Test Period: 2010-01-01 to 2024-12-31
+Pairs Tested: 28
+HTF Timeframe: W
+Entry Type: direct_touch
+Risk per Trade: 1.0%
+Starting Capital: $100,000
+Transaction Costs: NONE (Pure Strategy)
+================================================================================
+
+--- PERFORMANCE SUMMARY ---
+Total Trades: 1864
+Long Trades: 922 (49.5%)
+Short Trades: 942 (50.5%)
+Long/Short Ratio: 0.98:1
+
+Winning Trades: 781 (41.9%)
+Long Win Rate: 43.3%
+Short Win Rate: 40.6%
+Losing Trades: 1083 (58.1%)
+
+Average Winner: +1.39R
+Max Winner: +1.50R
+Average Loser: -1.00R
+Max Loser: -1.00R
+
+Profit Factor: 1.00
+Payoff Ratio: 1.39
+Expectancy: +0.00R per trade
+
+Average Trade Duration: 7.5 days
+Trades per Month: 10.4
+
+--- PORTFOLIO METRICS ---
+Starting Capital: $100,000
+Ending Capital: $101,048
+Total Return: +1.0%
+CAGR: 0.1%
+
+Maximum Drawdown: -37.5%
+Max DD Duration: 867 trades
+Average Drawdown: -17.1%
+Recovery Factor: 0.03
+Calmar Ratio: 0.00
+
+Max Consecutive Wins: 10
+Max Consecutive Losses: 17
+
+Average Concurrent Trades: 2.7
+Max Concurrent Trades: 9
+
+--- RISK-ADJUSTED RETURNS ---
+Sharpe Ratio: 0.01 [FAIL] (>1.5 target)
+Sortino Ratio: 0.00 [FAIL] (>2.0 target)
+Annualized Volatility: 1319.6%
+
+--- FUNDED ACCOUNT VIABILITY ---
+[FAIL] Max Drawdown < 10%: FAIL (37.5%)
+[FAIL] Avg Drawdown < 7%: FAIL (17.1%)
+[OK] Worst Day Loss < 4%: PASS (1.0%)
+[FAIL] Sharpe Ratio > 1.5: FAIL (0.01)
+[FAIL] Calmar Ratio > 2.0: FAIL (0.00)
+[OK] Min. 200 Trades: PASS (1864)
+
+OVERALL VERDICT: [FAIL] FUNDED ACCOUNT NOT VIABLE
+
+--- MAX FAVORABLE/ADVERSE EXCURSION ---
+Average MFE (All): 104.1 pips
+Average MFE (Winners): 161.0 pips
+Average MFE (Losers): 63.0 pips
+
+Average MAE (All): 91.9 pips
+Average MAE (Winners): 42.5 pips
+Average MAE (Losers): 127.5 pips
+
+================================================================================
+END OF REPORT
+================================================================================

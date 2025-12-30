@@ -1,0 +1,85 @@
+================================================================================
+MODEL 3 - BACKTEST REPORT (CONSERVATIVE)
+================================================================================
+Report Generated: 2025-12-30 18:09:52
+Test Period: 2010-01-01 to 2024-12-31
+Pairs Tested: 28
+HTF Timeframe: W
+Entry Type: direct_touch
+Risk per Trade: 1.0%
+Starting Capital: $100,000
+Transaction Costs: Variable Spreads (avg 1.46 pips) + $5/lot Commission
+================================================================================
+
+--- PERFORMANCE SUMMARY ---
+Total Trades: 1864
+Long Trades: 922 (49.5%)
+Short Trades: 942 (50.5%)
+Long/Short Ratio: 0.98:1
+
+Winning Trades: 781 (41.9%)
+Long Win Rate: 43.3%
+Short Win Rate: 40.6%
+Losing Trades: 1083 (58.1%)
+
+Average Winner: +1.35R
+Max Winner: +1.49R
+Average Loser: -1.04R
+Max Loser: -1.09R
+
+Profit Factor: 0.94
+Payoff Ratio: 1.30
+Expectancy: -0.04R per trade
+
+Average Trade Duration: 7.5 days
+Trades per Month: 10.4
+
+Total Commission Paid: $8,745.85
+Avg Commission per Trade: $4.69
+Avg Lots per Trade: 0.94
+
+--- PORTFOLIO METRICS ---
+Starting Capital: $100,000
+Ending Capital: $29,300
+Total Return: -70.7%
+CAGR: -7.9%
+
+Maximum Drawdown: -87.2%
+Max DD Duration: 1618 trades
+Average Drawdown: -42.5%
+Recovery Factor: -0.81
+Calmar Ratio: -0.09
+
+Max Consecutive Wins: 10
+Max Consecutive Losses: 17
+
+Average Concurrent Trades: 2.7
+Max Concurrent Trades: 9
+
+--- RISK-ADJUSTED RETURNS ---
+Sharpe Ratio: -0.36 [FAIL] (>1.5 target)
+Sortino Ratio: -23.57 [FAIL] (>2.0 target)
+Annualized Volatility: 1319.2%
+
+--- FUNDED ACCOUNT VIABILITY ---
+[FAIL] Max Drawdown < 10%: FAIL (87.2%)
+[FAIL] Avg Drawdown < 7%: FAIL (42.5%)
+[OK] Worst Day Loss < 4%: PASS (1.1%)
+[FAIL] Sharpe Ratio > 1.5: FAIL (-0.36)
+[FAIL] Calmar Ratio > 2.0: FAIL (-0.09)
+[OK] Min. 200 Trades: PASS (1864)
+
+OVERALL VERDICT: [FAIL] FUNDED ACCOUNT NOT VIABLE
+
+--- MAX FAVORABLE/ADVERSE EXCURSION ---
+Average MFE (All): 104.1 pips
+Average MFE (Winners): 161.0 pips
+Average MFE (Losers): 63.0 pips
+
+Average MAE (All): 91.9 pips
+Average MAE (Winners): 42.5 pips
+Average MAE (Losers): 127.5 pips
+
+================================================================================
+END OF REPORT
+================================================================================
