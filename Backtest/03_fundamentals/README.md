@@ -204,4 +204,13 @@ python scripts/backtesting/backtest_model3.py \
 
 ---
 
-*Last Updated: 28.12.2025*
+## Voraussetzung
+
+**Erst nach Abschluss von Phase 2** (02_technical):
+- W, 3D, M Backtests abgeschlossen
+- Beste technische Baseline identifiziert
+- Dann COT Integration starten
+
+---
+
+*Last Updated: 30.12.2025*

@@ -1,0 +1,81 @@
+================================================================================
+MODEL 3 - BACKTEST REPORT (PURE STRATEGY)
+================================================================================
+Report Generated: 2025-12-30 17:55:27
+Test Period: 2010-01-01 to 2024-12-31
+Pairs Tested: 28
+HTF Timeframe: W
+Entry Type: direct_touch
+Risk per Trade: 1.0%
+Starting Capital: $100,000
+Transaction Costs: NONE (Pure Strategy)
+================================================================================
+
+--- PERFORMANCE SUMMARY ---
+Total Trades: 2608
+Long Trades: 1294 (49.6%)
+Short Trades: 1314 (50.4%)
+Long/Short Ratio: 0.98:1
+
+Winning Trades: 1052 (40.3%)
+Long Win Rate: 39.6%
+Short Win Rate: 41.1%
+Losing Trades: 1556 (59.7%)
+
+Average Winner: +1.43R
+Max Winner: +1.50R
+Average Loser: -1.00R
+Max Loser: -1.00R
+
+Profit Factor: 0.97
+Payoff Ratio: 1.43
+Expectancy: -0.02R per trade
+
+Average Trade Duration: 10.7 days
+Trades per Month: 14.6
+
+--- PORTFOLIO METRICS ---
+Starting Capital: $100,000
+Ending Capital: $47,545
+Total Return: -52.5%
+CAGR: -4.9%
+
+Maximum Drawdown: -74.7%
+Max DD Duration: 1341 trades
+Average Drawdown: -25.9%
+Recovery Factor: -0.70
+Calmar Ratio: -0.07
+
+Max Consecutive Wins: 11
+Max Consecutive Losses: 20
+
+Average Concurrent Trades: 5.7
+Max Concurrent Trades: 18
+
+--- RISK-ADJUSTED RETURNS ---
+Sharpe Ratio: -0.22 [FAIL] (>1.5 target)
+Sortino Ratio: 0.00 [FAIL] (>2.0 target)
+Annualized Volatility: 1580.4%
+
+--- FUNDED ACCOUNT VIABILITY ---
+[FAIL] Max Drawdown < 10%: FAIL (74.7%)
+[FAIL] Avg Drawdown < 7%: FAIL (25.9%)
+[OK] Worst Day Loss < 4%: PASS (1.0%)
+[FAIL] Sharpe Ratio > 1.5: FAIL (-0.22)
+[FAIL] Calmar Ratio > 2.0: FAIL (-0.07)
+[OK] Min. 200 Trades: PASS (2608)
+
+OVERALL VERDICT: [FAIL] FUNDED ACCOUNT NOT VIABLE
+
+--- MAX FAVORABLE/ADVERSE EXCURSION ---
+Average MFE (All): 125.8 pips
+Average MFE (Winners): 205.6 pips
+Average MFE (Losers): 71.9 pips
+
+Average MAE (All): 108.7 pips
+Average MAE (Winners): 54.5 pips
+Average MAE (Losers): 145.4 pips
+
+================================================================================
+END OF REPORT
+================================================================================

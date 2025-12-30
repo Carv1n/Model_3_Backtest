@@ -1,13 +1,13 @@
 """
-Model 3 - Weekly Mini Test
----------------------------
+Model 3 - 3-Day Full Test (28 Pairs)
+--------------------------------------
 
-Mini-Backtest mit 2 Pairs für Performance-Test:
-- Pairs: EURUSD, AUDNZD
-- HTF: Weekly
+Vollständiger Backtest mit allen 28 Forex Pairs:
+- Pairs: Alle 28 Major/Cross Pairs
+- HTF: 3-Day
 - Entry: direct_touch
 - Zeitraum: 2010-2024
-- NO caching (Runtime-Test)
+- Optimized (Vectorized, NO Cache needed)
 
 Output:
 - TXT Report mit allen Statistiken (BACKTEST_STATISTICS_FINAL.md)
@@ -154,15 +154,14 @@ def detect_refinements_fast(df, htf_pivot, timeframe, max_size_frac=0.2, min_bod
     pivot_levels_result = pivot_levels_final[valid_position]
     sizes_result = sizes_final[valid_position]
 
-    # "Unberührt" check: OPEN K2 must not be touched between creation and HTF valid_time
-    # WICHTIG: NICHT Near, sondern k2["open"] (Pivot Level)!
-    # Ab Valid Time spielt k2 open keine Rolle mehr, nur Near für Entry
+    # "Unberührt" check: NEAR must not be touched between creation and HTF valid_time
+    # This needs to be done per-refinement, but we can still optimize it
     refinements = []
     for i in range(len(df_k2_result)):
         refinement_created = df_k2_result.iloc[i]['time']
-        k2_open_level = pivot_levels_result[i]  # k2["open"] = Pivot Level
+        near_level = nears_result[i]
 
-        # Check if OPEN K2 was touched after refinement creation
+        # Check if NEAR was touched after refinement creation
         touch_window = df_window[
             (df_window["time"] > refinement_created) &
             (df_window["time"] <= htf_pivot.valid_time)
@@ -171,14 +170,14 @@ def detect_refinements_fast(df, htf_pivot, timeframe, max_size_frac=0.2, min_bod
         if len(touch_window) == 0:
             was_touched = False
         else:
-            # Vectorized touch check for K2 OPEN
+            # Vectorized touch check
             if direction == "bullish":
-                was_touched = (touch_window["low"] <= k2_open_level).any()
+                was_touched = (touch_window["low"] <= near_level).any()
             else:
-                was_touched = (touch_window["high"] >= k2_open_level).any()
+                was_touched = (touch_window["high"] >= near_level).any()
 
         if was_touched:
-            continue  # K2 Open was touched -> refinement invalid
+            continue  # NEAR was touched -> refinement invalid
 
         # Valid refinement
         ref = Refinement(
@@ -187,7 +186,7 @@ def detect_refinements_fast(df, htf_pivot, timeframe, max_size_frac=0.2, min_bod
             direction=direction,
             pivot_level=round(pivot_levels_result[i], 5),
             extreme=round(extremes_result[i], 5),
-            near=round(nears_result[i], 5),
+            near=round(near_level, 5),
             size=round(sizes_result[i], 5),
         )
         refinements.append(ref)
@@ -216,14 +215,9 @@ def find_gap_touch_on_daily_fast(df_daily, pivot, start_time):
 
 
 def check_tp_touched_before_entry_fast(df, pivot, gap_touch_time, entry_time, tp):
-    """Vectorized version of TP touch check
-
-    WICHTIG: Check-Fenster: max(Valid Time, Gap Touch) BIS Entry Time
-    Check startet frühestens ab Valid Time (K3 Open)
-    """
-    # Check startet ab max(Valid Time, Gap Touch)
-    start_time = max(pivot.valid_time, gap_touch_time)
-    df_check_window = df[(df["time"] >= start_time) & (df["time"] < entry_time)].copy()
+    """Vectorized version of TP touch check"""
+    # TP check starts after gap touch (gap_touch_time is always >= valid_time)
+    df_check_window = df[(df["time"] >= gap_touch_time) & (df["time"] < entry_time)].copy()
 
     if len(df_check_window) == 0:
         return False
@@ -237,8 +231,21 @@ def check_tp_touched_before_entry_fast(df, pivot, gap_touch_time, entry_time, tp
 # CONFIGURATION
 # ============================================================================
 
-PAIRS = ["EURUSD", "AUDNZD"]
-HTF_TIMEFRAMES = ["W"]
+PAIRS = [
+    # Majors
+    "EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "USDCAD", "NZDUSD",
+    # EUR Crosses
+    "EURGBP", "EURJPY", "EURAUD", "EURCHF", "EURCAD", "EURNZD",
+    # GBP Crosses
+    "GBPJPY", "GBPAUD", "GBPCAD", "GBPNZD", "GBPCHF",
+    # JPY Crosses
+    "AUDJPY", "NZDJPY", "CHFJPY", "CADJPY",
+    # AUD/NZD Crosses
+    "AUDNZD", "AUDCAD", "AUDCHF",
+    # NZD/CAD Crosses
+    "NZDCAD", "NZDCHF", "CADCHF"
+]
+HTF_TIMEFRAMES = ["3D"]
 ENTRY_CONFIRMATION = "direct_touch"
 START_DATE = "2010-01-01"
 END_DATE = "2024-12-31"
@@ -252,9 +259,18 @@ DOJI_FILTER = 5.0  # Min body % for pivots
 REFINEMENT_MAX_SIZE = 0.20  # Max 20% of HTF gap
 
 # Output
-OUTPUT_DIR = Path(__file__).parent.parent / "results"
-OUTPUT_DIR.mkdir(exist_ok=True)
-TIMESTAMP = datetime.now().strftime('%Y%m%d_%H%M%S')
+RESULTS_DIR = Path(__file__).parent.parent / "results"
+TRADES_DIR = RESULTS_DIR / "Trades"
+PURE_DIR = RESULTS_DIR / "Pure_Strategy"
+CONS_DIR = RESULTS_DIR / "Conservative"
+
+# Create directories
+TRADES_DIR.mkdir(parents=True, exist_ok=True)
+PURE_DIR.mkdir(parents=True, exist_ok=True)
+CONS_DIR.mkdir(parents=True, exist_ok=True)
+
+# Timeframe identifier
+TIMEFRAME = "3D"
 
 # Transaction Costs - FOR CONSERVATIVE REPORT ONLY (not used in backtest!)
 # Variable spreads: range 0.4-2.5 pips, average ~1.0-1.5 pips
@@ -422,7 +438,7 @@ def simulate_single_trade(pair, pivot, refinements, ltf_cache):
         exit_reason = "tp"
 
     # Calculate MFE/MAE up to exit (OPTIMIZED: vectorized)
-    # IMPORTANT: Include entry candle itself for accurate MFE/MAE
+    # FIXED: Include entry candle itself for accurate MFE/MAE
     trade_window = h1_df[(h1_df["time"] >= entry_time) & (h1_df["time"] <= exit_time)].copy()
 
     if len(trade_window) == 0:
@@ -982,10 +998,9 @@ def main():
     stats_pure = calc_stats(trades_df, STARTING_CAPITAL, RISK_PER_TRADE, 0, 0)
     report_pure = format_report(stats_pure, "PURE STRATEGY", report_config)
 
-    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-    pure_file = OUTPUT_DIR / f"report_PURE_STRATEGY_{ts}.txt"
+    pure_file = PURE_DIR / f"{TIMEFRAME}_pure.txt"
     pure_file.write_text(report_pure, encoding='utf-8')
-    print(f"   [OK] Saved: {pure_file.name}")
+    print(f"   [OK] Saved: {pure_file}")
 
     # REPORT 2: Conservative (apply transaction costs)
     print("\n2. Conservative Report (applying variable spreads + commission)...")
@@ -997,9 +1012,9 @@ def main():
     stats_cons = calc_stats(trades_conservative, STARTING_CAPITAL, RISK_PER_TRADE, total_commission, avg_spread)
     report_cons = format_report(stats_cons, "CONSERVATIVE", report_config)
 
-    cons_file = OUTPUT_DIR / f"report_CONSERVATIVE_{ts}.txt"
+    cons_file = CONS_DIR / f"{TIMEFRAME}_conservative.txt"
     cons_file.write_text(report_cons, encoding='utf-8')
-    print(f"   [OK] Saved: {cons_file.name}")
+    print(f"   [OK] Saved: {cons_file}")
 
     # Generate 2 separate CSV files
     print("\n3. Generating CSV files...")
@@ -1013,14 +1028,14 @@ def main():
             trades_conservative[col] = pd.to_datetime(trades_conservative[col]).dt.tz_localize(None)
 
     # Save Pure Strategy CSV
-    pure_csv = OUTPUT_DIR / f"trades_pure_{ts}.csv"
+    pure_csv = TRADES_DIR / f"{TIMEFRAME}_pure.csv"
     trades_df.to_csv(pure_csv, index=False)
-    print(f"   [OK] Saved: {pure_csv.name}")
+    print(f"   [OK] Saved: {pure_csv}")
 
     # Save Conservative CSV
-    cons_csv = OUTPUT_DIR / f"trades_conservative_{ts}.csv"
+    cons_csv = TRADES_DIR / f"{TIMEFRAME}_conservative.csv"
     trades_conservative.to_csv(cons_csv, index=False)
-    print(f"   [OK] Saved: {cons_csv.name}")
+    print(f"   [OK] Saved: {cons_csv}")
 
     print("\n" + "="*80)
     print("REPORTS GENERATED SUCCESSFULLY")

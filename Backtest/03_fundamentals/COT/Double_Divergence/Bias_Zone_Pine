@@ -1,0 +1,226 @@
+//@version=6
+indicator("COT Bias-Zone", overlay = false, precision = 0)
+import TradingView/LibraryCOT/2 as cot
+
+// === Paarliste intern
+var string[] pairs = array.new_string()
+if bar_index == 0
+    array.push(pairs, "AUDCAD")
+    array.push(pairs, "AUDCHF")
+    array.push(pairs, "AUDJPY")
+    array.push(pairs, "AUDNZD")
+    array.push(pairs, "AUDUSD")
+    array.push(pairs, "CADCHF")
+    array.push(pairs, "CADJPY")
+    array.push(pairs, "CHFJPY")
+    array.push(pairs, "EURAUD")
+    array.push(pairs, "EURCAD")
+    array.push(pairs, "EURCHF")
+    array.push(pairs, "EURGBP")
+    array.push(pairs, "EURJPY")
+    array.push(pairs, "EURNZD")
+    array.push(pairs, "EURUSD")
+    array.push(pairs, "GBPAUD")
+    array.push(pairs, "GBPCAD")
+    array.push(pairs, "GBPCHF")
+    array.push(pairs, "GBPJPY")
+    array.push(pairs, "GBPNZD")
+    array.push(pairs, "GBPUSD")
+    array.push(pairs, "NZDCAD")
+    array.push(pairs, "NZDCHF")
+    array.push(pairs, "NZDJPY")
+    array.push(pairs, "NZDUSD")
+    array.push(pairs, "USDCAD")
+    array.push(pairs, "USDCHF")
+    array.push(pairs, "USDJPY")
+
+// === Dropdown-Auswahl
+pair = input.string("AUDUSD", title="Währungspaar auswählen", options=["AUDCAD","AUDCHF","AUDJPY","AUDNZD","AUDUSD","CADCHF","CADJPY","CHFJPY","EURAUD","EURCAD","EURCHF","EURGBP","EURJPY","EURNZD","EURUSD","GBPAUD","GBPCAD","GBPCHF","GBPJPY","GBPNZD","GBPUSD","NZDCAD","NZDCHF","NZDJPY","NZDUSD","USDCAD","USDCHF","USDJPY"])
+
+// === codeBase / codeQuote
+string codeBase = switch pair
+    "AUDCAD" => "232741"
+    "AUDCHF" => "232741"
+    "AUDJPY" => "232741"
+    "AUDNZD" => "232741"
+    "AUDUSD" => "232741"
+    "CADCHF" => "090741"
+    "CADJPY" => "090741"
+    "CHFJPY" => "092741"
+    "EURAUD" => "099741"
+    "EURCAD" => "099741"
+    "EURCHF" => "099741"
+    "EURGBP" => "099741"
+    "EURJPY" => "099741"
+    "EURNZD" => "099741"
+    "EURUSD" => "099741"
+    "GBPAUD" => "096742"
+    "GBPCAD" => "096742"
+    "GBPCHF" => "096742"
+    "GBPJPY" => "096742"
+    "GBPNZD" => "096742"
+    "GBPUSD" => "096742"
+    "NZDCAD" => "112741"
+    "NZDCHF" => "112741"
+    "NZDJPY" => "112741"
+    "NZDUSD" => "112741"
+    "USDCAD" => "098662"
+    "USDCHF" => "098662"
+    "USDJPY" => "098662"
+    => "INVALID"
+
+string codeQuote = switch pair
+    "AUDCAD" => "090741"
+    "AUDCHF" => "092741"
+    "AUDJPY" => "097741"
+    "AUDNZD" => "112741"
+    "AUDUSD" => "098662"
+    "CADCHF" => "092741"
+    "CADJPY" => "097741"
+    "CHFJPY" => "097741"
+    "EURAUD" => "232741"
+    "EURCAD" => "090741"
+    "EURCHF" => "092741"
+    "EURGBP" => "096742"
+    "EURJPY" => "097741"
+    "EURNZD" => "112741"
+    "EURUSD" => "098662"
+    "GBPAUD" => "232741"
+    "GBPCAD" => "090741"
+    "GBPCHF" => "092741"
+    "GBPJPY" => "097741"
+    "GBPNZD" => "112741"
+    "GBPUSD" => "098662"
+    "NZDCAD" => "090741"
+    "NZDCHF" => "092741"
+    "NZDJPY" => "097741"
+    "NZDUSD" => "098662"
+    "USDCAD" => "090741"
+    "USDCHF" => "092741"
+    "USDJPY" => "097741"
+    => "INVALID"
+
+// === Schwellenwert-Funktion
+getThreshold(p) =>
+    if p == "AUDCAD"
+        140
+    else if p == "AUDCHF"
+        110
+    else if p == "AUDJPY"
+        130
+    else if p == "AUDNZD"
+        130
+    else if p == "AUDUSD"
+        120
+    else if p == "CADCHF"
+        120
+    else if p == "CADJPY"
+        130
+    else if p == "CHFJPY"
+        130
+    else if p == "EURAUD"
+        150
+    else if p == "EURCAD"
+        180
+    else if p == "EURCHF"
+        150
+    else if p == "EURGBP"
+        170
+    else if p == "EURJPY"
+        170
+    else if p == "EURNZD"
+        140
+    else if p == "EURUSD"
+        160
+    else if p == "GBPAUD"
+        100
+    else if p == "GBPCAD"
+        190
+    else if p == "GBPCHF"
+        160
+    else if p == "GBPJPY"
+        170
+    else if p == "GBPNZD"
+        140
+    else if p == "GBPUSD"
+        180
+    else if p == "NZDCAD"
+        110
+    else if p == "NZDCHF"
+        150
+    else if p == "NZDJPY"
+        130
+    else if p == "NZDUSD"
+        190
+    else if p == "USDCAD"
+        150
+    else if p == "USDCHF"
+        170
+    else if p == "USDJPY"
+        190
+    else
+        150
+
+// === Schwellenwert-Steuerung: Automatisch oder manuell
+useCustom = input.bool(false, "Schwellenwert manuell setzen?")
+manualThreshold = input.int(150, "Manueller Schwellenwert (nur wenn aktiviert)")
+biasThreshold = useCustom ? manualThreshold : getThreshold(pair)
+
+indexLength = input.int(26, "WillCo Index-Zeitraum", minval=1)
+biasDurationWeeks = input.int(8, "Bias-Dauer (Wochen)", minval=1)
+
+// === WillCo
+willco(src, len) =>
+    max_ = ta.highest(src, len)
+    min_ = ta.lowest(src, len)
+    max_ != min_ ? 100 * (src - min_) / (max_ - min_) : na
+
+// === Nettopositionen
+getNetPositions(code) =>
+    commLong  = request.security(cot.COTTickerid("Legacy", code, false, "Commercial Positions", "Long", "All"), "W", close)
+    commShort = request.security(cot.COTTickerid("Legacy", code, false, "Commercial Positions", "Short", "All"), "W", close)
+    smallLong  = request.security(cot.COTTickerid("Legacy", code, false, "Nonreportable Positions", "Long", "All"), "W", close)
+    smallShort = request.security(cot.COTTickerid("Legacy", code, false, "Nonreportable Positions", "Short", "All"), "W", close)
+    [commLong - commShort, smallLong - smallShort]
+
+[commNetBase, smallNetBase]   = getNetPositions(codeBase)
+[commNetQuote, smallNetQuote] = getNetPositions(codeQuote)
+
+commIdxBase   = willco(commNetBase, indexLength)
+smallIdxBase  = willco(smallNetBase, indexLength)
+divBase       = commIdxBase - smallIdxBase
+
+commIdxQuote  = willco(commNetQuote, indexLength)
+smallIdxQuote = willco(smallNetQuote, indexLength)
+divQuote      = commIdxQuote - smallIdxQuote
+
+biasDelta = divBase - divQuote
+
+// === Biaslogik (jetzt ohne zusätzliche 1-Wochen-Verschiebung)
+startLongBias  = biasDelta >= biasThreshold
+startShortBias = biasDelta <= -biasThreshold
+
+var int biasCountdown = 0
+var string biasType = ""
+
+newLong  = biasCountdown == 0 and startLongBias
+newShort = biasCountdown == 0 and startShortBias
+
+if newLong
+    biasCountdown := biasDurationWeeks
+    biasType := "long"
+else if newShort
+    biasCountdown := biasDurationWeeks
+    biasType := "short"
+else if biasCountdown > 0
+    biasCountdown -= 1
+    if biasCountdown == 0
+        biasType := ""
+
+biasLong  = biasCountdown > 0 and biasType == "long"
+biasShort = biasCountdown > 0 and biasType == "short"
+
+// === Darstellung
+plot(biasLong ? 1 : na, title="Long Bias Aktiv", style=plot.style_columns, color=color.new(color.green, 60))
+plot(biasShort ? -1 : na, title="Short Bias Aktiv", style=plot.style_columns, color=color.new(color.red, 60))
+bgcolor(biasLong ? color.new(color.green, 85) : biasShort ? color.new(color.red, 85) : na)

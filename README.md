@@ -1,27 +1,52 @@
 # Model 3 - Multi-Timeframe Pivot Trading System
 
-## 📁 Projekt-Struktur
+## 📁 Projekt-Struktur (AKTUALISIERT 30.12.2025)
 
 ```
 05_Model 3/
 ├── README.md                    ← DIESE DATEI (Projekt-Übersicht)
 ├── STRATEGIE_REGELN.md          ← KOMPLETTE TECHNISCHE REGELN
-├── STRATEGIE.md                 ← Strategie-Überblick & Settings
-├── MODEL3_CONFIG.md             ← Detaillierte Konfiguration
 ├── claude.md                    ← Claude Kontext
+├── CHANGELOG.md                 ← Änderungshistorie
 │
-├── scripts/backtesting/
-│   └── backtest_model3.py       ← Haupt-Backtest-Script
+├── scripts/
+│   └── backtesting/
+│       └── backtest_model3.py   ← Core-Backtest-Engine
 │
 ├── Backtest/
-│   ├── 01_test/01_Validation/   ← Validation
-│   │   ├── validation_trades.py ← Trade-Validierung (6 Pivots)
-│   │   └── README.md
-│   ├── 02_technical/            ← Technical Tests
-│   └── 03_fundamentals/         ← Fundamental Tests (später)
+│   ├── 01_test/                 ← ABGESCHLOSSEN ✅
+│   │   ├── 01_Validation/       ← 6 Sample Trades (Validierung)
+│   │   └── 02_W_test/           ← Weekly Tests (OLD STRUCTURE)
+│   │
+│   ├── 02_technical/            ← AKTUELL 🎯
+│   │   └── 01_DEFAULT/
+│   │       └── 01_Single_TF/    ← Einzelne Timeframes (W, 3D, M)
+│   │           ├── scripts/
+│   │           │   ├── backtest_W.py
+│   │           │   ├── backtest_3D.py
+│   │           │   ├── backtest_M.py
+│   │           │   └── report_helpers.py
+│   │           └── results/
+│   │               ├── Trades/
+│   │               │   ├── W_pure.csv
+│   │               │   ├── W_conservative.csv
+│   │               │   ├── 3D_pure.csv
+│   │               │   ├── 3D_conservative.csv
+│   │               │   ├── M_pure.csv
+│   │               │   └── M_conservative.csv
+│   │               ├── Pure_Strategy/
+│   │               │   ├── W_pure.txt
+│   │               │   ├── 3D_pure.txt
+│   │               │   └── M_pure.txt
+│   │               └── Conservative/
+│   │                   ├── W_conservative.txt
+│   │                   ├── 3D_conservative.txt
+│   │                   └── M_conservative.txt
+│   │
+│   └── 03_fundamentals/         ← SPÄTER (COT, Seasonality)
+│       └── COT/
 │
 └── archive/                     ← Archivierte Dateien
-    └── MODEL 3 KOMMPLETT        ← Vollständige Strategie-Doku
 ```
 
 ---
@@ -44,68 +69,61 @@
 6. TP: -1 Fib, RR: 1.0-1.5
 
 **Alle technischen Regeln:** Siehe `STRATEGIE_REGELN.md`
-**Übersicht & Settings:** Siehe `STRATEGIE.md`
 
 ---
 
 ## ⚙️ Standard-Einstellungen
 
 ```python
-HTF_TIMEFRAMES = ["3D", "W", "M"]
+HTF_TIMEFRAMES = ["W"]  # oder ["3D"] oder ["M"]
 ENTRY_CONFIRMATION = "direct_touch"
 DOJI_FILTER = 5.0
-REFINEMENT_MAX_SIZE = 20.0
+REFINEMENT_MAX_SIZE = 0.20  # 20%
 MIN_SL_DISTANCE = 60
 MIN_RR = 1.0
 MAX_RR = 1.5
+RISK_PER_TRADE = 0.01  # 1%
+STARTING_CAPITAL = 100000  # $100k
 ```
 
 ---
 
 ## 🚀 Quick Start
 
-### 1. Validation (JETZT) ✅
+### Phase 1: Validation ✅ ABGESCHLOSSEN
 
 ```bash
 cd "05_Model 3"
 python Backtest/01_test/01_Validation/validation_trades.py
 ```
 
-**Output**: `results/trade_validation_*.txt` mit 6 Sample-Trades
-- 6 verschiedene Pivots (M, W, 3D)
-- 6 verschiedene Pairs
-- Komplette Trade-Simulation mit **korrigierter Logik**:
-  - ✅ TP-Check mit Entry Time (nur bis Entry!)
-  - ✅ RR Berechnung korrigiert (RR = 1.5 nach SL-Anpassung)
+**Output**: 6 Sample-Trades validiert
+- Alle Regeln korrekt implementiert
+- Trade-Flow geprüft
 
-**Manuell validieren**:
-- Pivot korrekt? (K1, K2, Extreme, Near)
-- Verfeinerungen korrekt? (7 Bedingungen)
-- Gap Touch auf Daily?
-- TP-Check korrekt?
-- Entry/SL/TP korrekt?
+### Phase 2: Single Timeframe Tests 🎯 AKTUELL
 
-### 2. Baseline-Backtest (NÄCHSTER SCHRITT) 🎯
-
+**Weekly:**
 ```bash
-# Weekly only, alle 28 Pairs, direct_touch
-python scripts/backtesting/backtest_weekly_baseline.py
+cd "05_Model 3/Backtest/02_technical/01_DEFAULT/01_Single_TF"
+python scripts/backtest_W.py
 ```
 
-**Output**:
-- `Backtest/02_W_test/baseline_report.txt` - Kompletter Text-Report
-- `Backtest/02_W_test/baseline_report.html` - QuantStats HTML Report mit Charts
-- `Backtest/02_W_test/trades.csv` - Alle Trade-Details
-- `Backtest/02_W_test/equity_curve.csv` - Portfolio Value über Zeit
+**3-Day:**
+```bash
+python scripts/backtest_3D.py
+```
 
-**Zweck**: Ersten Überblick bekommen - funktioniert die Strategie?
+**Monthly:**
+```bash
+python scripts/backtest_M.py
+```
 
-**Erwartungen**:
-- Min. 50-100 Trades für Aussagekraft
-- Win Rate ~45-55%
-- Profit Factor >1.5
-- Max DD <20%
-- Sharpe >1.5
+**Output:**
+- `results/Trades/{TF}_pure.csv` - Trade-Liste (ohne Kosten)
+- `results/Trades/{TF}_conservative.csv` - Trade-Liste (mit Spreads + Commission)
+- `results/Pure_Strategy/{TF}_pure.txt` - Vollständiger Report
+- `results/Conservative/{TF}_conservative.txt` - Report mit Transaktionskosten
 
 ---
 
@@ -116,51 +134,70 @@ python scripts/backtesting/backtest_weekly_baseline.py
 - **Zweck**: Logik validieren mit 6 Sample-Trades
 - **Status**: ✅ Alle Regeln korrekt implementiert
 
-### Phase 2: Weekly Baseline 🎯 AKTUELL
-- **Ordner**: `Backtest/02_W_test/`
-- **Zweck**: Erster vollständiger Backtest mit Weekly Pivots
-- **Config**: W only, alle 28 Pairs, direct_touch, 2010-2024
-- **Output**: TXT + HTML Reports, CSV Exports
+### Phase 2: Technical Backtests 🎯 AKTUELL
+- **Ordner**: `Backtest/02_technical/01_DEFAULT/01_Single_TF/`
+- **Zweck**: Separate Backtests für W, 3D, M
+- **Config**: Einzelne Timeframes, alle 28 Pairs, direct_touch, 2010-2024
+- **Output**: TXT Reports + CSV Exports (Pure + Conservative)
 
-### Phase 3: Full Backtest (später)
-- **Ordner**: `Backtest/03_full/`
-- **Zweck**: Alle HTF (3D, W, M), Entry-Varianten testen
-- **Config**: Alle Kombinationen, Optimization
-
-### Phase 4: Fundamentals (viel später)
-- **Ordner**: `Backtest/04_fundamentals/`
-- **Zweck**: COT, Seasonality, Correlation-Filter
+### Phase 3: COT Integration (NÄCHSTER SCHRITT)
+- **Ordner**: `Backtest/03_fundamentals/COT/`
+- **Zweck**: COT Index filtering auf W, 3D, M Tests anwenden
+- **Filter**: Commercial vs Retail positioning
 
 ---
 
-## 🔧 Wichtige Befehle
+## 📂 Neue Ordnerstruktur (seit 30.12.2025)
 
+### Warum die Änderung?
+
+**Problem mit alter Struktur:**
+- `01_test/02_W_test/` nur für Weekly
+- Keine Trennung zwischen 3D, M
+- Zeitstempel in Dateinamen (unnötig)
+
+**Neue Struktur:**
+- `02_technical/01_DEFAULT/01_Single_TF/` für alle 3 Timeframes
+- Saubere Trennung: W, 3D, M haben eigene Scripts
+- Einheitliche Dateinamen: `W_pure.csv`, `3D_conservative.txt`, etc.
+- Pure vs Conservative klar getrennt
+
+### Ausgabe-Dateien
+
+**CSV Trades (alle in `/Trades/`):**
+- `W_pure.csv`, `W_conservative.csv`
+- `3D_pure.csv`, `3D_conservative.csv`
+- `M_pure.csv`, `M_conservative.csv`
+
+**TXT Reports:**
+- `/Pure_Strategy/W_pure.txt` - Statistiken ohne Kosten
+- `/Conservative/W_conservative.txt` - Statistiken mit Spreads + $5/lot Commission
+
+---
+
+## 🔧 Scripts
+
+### backtest_W.py / backtest_3D.py / backtest_M.py
+
+**Verwendung:**
 ```bash
-# Standard (alle HTF, direct_touch)
-python scripts/backtesting/backtest_model3.py
-
-# Nur Weekly
-python scripts/backtesting/backtest_model3.py --htf-timeframes W
-
-# Mit 1H Close Bestätigung
-python scripts/backtesting/backtest_model3.py --entry-confirmation 1h_close
-
-# Einzelnes Pair
-python scripts/backtesting/backtest_model3.py --pairs EURUSD
-
-# Zeitraum einschränken
-python scripts/backtesting/backtest_model3.py --start-date 2020-01-01 --end-date 2023-12-31
+cd "Backtest/02_technical/01_DEFAULT/01_Single_TF"
+python scripts/backtest_W.py   # Weekly
+python scripts/backtest_3D.py  # 3-Day
+python scripts/backtest_M.py   # Monthly
 ```
 
----
+**Settings (in Script):**
+- `TIMEFRAME`: "W", "3D", oder "M"
+- `HTF_TIMEFRAMES`: Liste mit einem Timeframe
+- `PAIRS`: 28 Major/Cross Pairs
+- `START_DATE`: "2010-01-01"
+- `END_DATE`: "2024-12-31"
 
-## 📝 Wichtige Dateien
-
-- **STRATEGIE_REGELN.md** ⭐ - ALLE technischen Regeln kompakt
-- **STRATEGIE.md** - Strategie-Überblick & Settings
-- **MODEL3_CONFIG.md** - Detaillierte Konfiguration
-- **backtest_model3.py** - Haupt-Backtest-Script
-- **validation_trades.py** - Trade-Validierung (6 Samples)
+**Output:**
+- Automatische Ordner-Erstellung
+- Pure + Conservative Reports
+- CSV Exports ohne Zeitstempel
 
 ---
 
@@ -192,6 +229,40 @@ python scripts/backtesting/backtest_model3.py --start-date 2020-01-01 --end-date
 - **D-M Daten**: TradingView → 100% exakt
 - **H1-H4 Daten**: Oanda API → können abweichen
 - Daten-Korrektur in Code implementiert
+
+---
+
+## 📊 Reports
+
+### Pure Strategy
+- **Keine Transaktionskosten**
+- Theoretische Performance
+- Basis für Vergleich
+
+### Conservative
+- **Variable Spreads**: 0.4-2.5 pips (Durchschnitt ~1.0-1.5)
+- **Commission**: $5 per standard lot
+- Realistische Performance
+
+---
+
+## 📝 Wichtige Dateien
+
+- **STRATEGIE_REGELN.md** ⭐ - ALLE technischen Regeln kompakt
+- **README.md** - Diese Datei (Projekt-Übersicht)
+- **CHANGELOG.md** - Änderungshistorie
+- **claude.md** - Claude Kontext & Implementierungsstatus
+- **backtest_W.py / 3D / M** - Timeframe-spezifische Backtests
+- **report_helpers.py** - Report-Generierung (shared)
+
+---
+
+## 🎯 Nächste Schritte
+
+1. ✅ Single Timeframe Tests ausführen (W, 3D, M)
+2. ⏳ Ergebnisse analysieren und vergleichen
+3. ⏳ COT Integration vorbereiten
+4. ⏳ Combined Portfolio Tests (W+3D+M zusammen)
 
 ---
 

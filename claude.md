@@ -109,11 +109,50 @@
 
 ## Aktueller Implementierungsstatus
 
-### Was ist implementiert ✅
+### Phase 1: Validation ✅ ABGESCHLOSSEN (30.12.2025)
 
-1. **HTF-Pivot-Erkennung** (W nur, in `backtest_model3.py`)
+**Ordner**: `Backtest/01_test/`
+
+1. **01_Validation/** - 6 Sample Trades validiert
+   - Alle Regeln korrekt implementiert
+   - Trade-Flow geprüft und funktioniert
+
+2. **02_W_test/** - Weekly Test (alte Struktur)
+   - Archiviert, alte Struktur
+   - Ersetzt durch Phase 2
+
+### Phase 2: Technical Backtests 🎯 AKTUELL (30.12.2025)
+
+**Ordner**: `Backtest/02_technical/01_DEFAULT/01_Single_TF/`
+
+**Scripts (alle funktional):**
+- `scripts/backtest_W.py` - Weekly Backtest
+- `scripts/backtest_3D.py` - 3-Day Backtest
+- `scripts/backtest_M.py` - Monthly Backtest
+- `scripts/report_helpers.py` - Shared reporting functions
+
+**Output-Struktur:**
+```
+results/
+├── Trades/
+│   ├── W_pure.csv, W_conservative.csv
+│   ├── 3D_pure.csv, 3D_conservative.csv
+│   └── M_pure.csv, M_conservative.csv
+├── Pure_Strategy/
+│   ├── W_pure.txt
+│   ├── 3D_pure.txt
+│   └── M_pure.txt
+└── Conservative/
+    ├── W_conservative.txt
+    ├── 3D_conservative.txt
+    └── M_conservative.txt
+```
+
+**Implementierte Features:**
+
+1. **HTF-Pivot-Erkennung** (W, 3D, M - alle drei!)
    - 2-Kerzen-Pattern (rot→grün / grün→rot)
-   - Doji-Filter: 2% Body Minimum (NICHT 5% wie in Strategie!)
+   - Doji-Filter: 5% Body Minimum ✅
    - Kein Versatz-Filter
    - Pivot-Struktur korrekt (Pivot, Extreme, Near, Gap, Wick Diff)
 
@@ -121,103 +160,108 @@
    - Suche innerhalb Wick Difference
    - Max. 20% der Pivot Gap
    - Priorität: höchster TF zuerst
-   - Doji-Filter: 2% (NICHT 5%!)
+   - Doji-Filter: 5% ✅
+   - Unberührt-Check: K2 Open (nicht Near!)
 
 3. **Entry-Mechanismus**
-   - Direkter Touch der Verfeinerung (OHNE Close-Bestätigung)
-   - Gap muss zuerst getriggert werden
+   - Direkter Touch (direct_touch)
+   - Gap Touch auf H1 erforderlich
+   - TP-Check zwischen max(Valid Time, Gap Touch) und Entry
+   - RR-Check >= 1.0 erforderlich
    - Verfeinerungs-Invalidierung bei Durchbruch
 
 4. **SL/TP-Berechnung**
    - SL: Min. 60 Pips + unter/über Fib 1.1
    - TP: Fib -1
    - RR-Anpassung: 1.0 - 1.5
+   - Bei RR > 1.5: SL erweitern UND rr = 1.5 setzen
 
 5. **Trade-Simulation**
-   - H1-basiert
+   - H1-basiert für Präzision
    - Exit bei SL/TP oder am Ende der Daten
+   - Pure + Conservative Versionen (Spreads + $5/lot Commission)
 
-### Was fehlt oder ist nicht korrekt ⚠️
+6. **Reporting**
+   - TXT Reports mit vollständigen Statistiken
+   - CSV Exports für weitere Analyse
+   - Keine QuantStats HTML (zu kompliziert, entfernt)
 
-1. **Doji-Filter:** Aktuell 2%, sollte 5% sein (laut Strategie-Dokumentation)
+### Phase 3: COT Integration ⏳ VORBEREITET
 
-2. **Entry-Bestätigung:** Aktuell direkter Touch, sollte:
-   - **1H Close Bestätigung** (Originalstrategie)
-   - Zu testen: 1H Close, 4H Close, direkter Touch
+**Ordner**: `Backtest/03_fundamentals/COT/`
 
-3. **Versatz-Regel:** Aktuell nicht implementiert
+**Geplant:**
+- COT Index Filtering auf W, 3D, M Tests anwenden
+- Commercial vs Retail positioning
+- Trade nur wenn COT Bias stimmt
+
+### Was noch zu testen ist ⚠️
+
+1. **Entry-Bestätigung Varianten:**
+   - Aktuell: direkter Touch (direct_touch)
+   - Zu testen: 1H Close Bestätigung (Originalstrategie)
+   - Zu testen: 4H Close Bestätigung
+
+2. **Versatz-Regel:** Aktuell nicht implementiert
    - Versatz = Lücke zwischen Close K1 und Open K2
    - Größere Box-Variante vs. kleinere Box
    - Versatz-Filter (2x Standard)
    - Zu testende Varianten dokumentiert
 
-4. **Mehrere HTF-Timeframes:**
-   - Aktuell nur **W** (Weekly)
-   - Sollte: 3D, W, M (alle drei!)
-   - Pivot-Overlap-Regel bei gleichen Extremen
-
-5. **Model X Skripte nicht umbenannt:**
-   - `backtest_modelx.py` → sollte umbenennt/entfernt werden
-   - `modelx_pivot.py` → Model X spezifisch
-
-6. **README/Dokumentation:**
-   - PROJECT_README.md noch auf "Model X" bezogen
-   - SETUP.md noch auf Model X Pfade
+3. **Combined Portfolio:**
+   - W + 3D + M zusammen testen
+   - Überlappende Pivots bei gleichen Extremen
+   - Portfolio-Performance
 
 ---
 
-## Nächste Schritte (Empfohlen)
+## Nächste Schritte
 
-### Hochpriorität
+### Sofort (Phase 2 aktiv)
 
-1. **Doji-Filter korrigieren:**
-   - Von 2% auf 5% ändern in `backtest_model3.py`
-   - Sowohl für HTF-Pivots als auch Verfeinerungen
+1. ✅ **W, 3D, M Backtests ausführen**
+   - Run `backtest_W.py`, `backtest_3D.py`, `backtest_M.py`
+   - Ergebnisse analysieren und vergleichen
 
-2. **Entry-Bestätigung implementieren:**
-   - 1H Close Bestätigung (Originalstrategie)
-   - Als parametrisierbar gestalten für Tests
+2. ⏳ **Timeframe Performance Vergleich**
+   - Welcher TF perforiert am besten?
+   - Win Rate, Total Return, Max DD, Sharpe Ratio
+   - Trade Count pro TF
 
-3. **Mehrere HTF-Timeframes:**
-   - 3D, W, M alle drei nutzen (nicht nur W)
-   - Pivot-Overlap-Regel implementieren
-   - Multi-Timeframe-Strategie aus `backtest_config.py` berücksichtigen
+3. ⏳ **COT Integration planen** (Phase 3)
+   - COT Index Daten vorbereiten
+   - Filter-Logik entwickeln
+   - W, 3D, M Tests mit COT wiederholen
 
-4. **Dokumentation aktualisieren:**
-   - PROJECT_README.md auf Model 3 anpassen
-   - SETUP.md auf Model 3 Pfade anpassen
-   - Referenzen zu "Model X" entfernen/korrigieren
+### Mittelfristig
 
-### Mittlere Priorität
+4. **Entry-Varianten testen:**
+   - 1H Close Bestätigung implementieren
+   - 4H Close Bestätigung implementieren
+   - Vergleich: direct_touch vs 1H close vs 4H close
 
-5. **Versatz-Regel implementieren:**
+5. **Combined Portfolio Test:**
+   - W + 3D + M zusammen
+   - Pivot-Overlap-Regel bei gleichen Extremen
+   - Portfolio-Performance vs Einzelstrategien
+
+6. **Versatz-Regel implementieren:**
    - Versatz-Erkennung (Close K1 ≠ Open K2)
    - Größere/kleinere Box-Variante
    - Versatz-Filter (2x Standard)
    - Parametrisierbar für Tests
 
-6. **Test-Varianten implementieren:**
-   - Entry: 1H Close, 4H Close, direkter Touch
-   - Versatz: größere Box, kleinere Box, immer Close K1, immer Open K2
-   - Doji-Filter: verschiedene Prozentsätze
-   - Verfeinerungsgröße: verschiedene Prozentsätze
-
-7. **Model X Skripte bereinigen:**
-   - `backtest_modelx.py` in archive verschieben oder löschen
-   - `modelx_pivot.py` entfernen (nicht relevant für Model 3)
-
 ### Niedrige Priorität
 
-8. **Weitere Features:**
-   - Position Management aus `backtest_config.py` nutzen
-   - Risk Limits implementieren
-   - Reporting/Visualisierung anpassen
-   - Monte Carlo Simulation für Model 3
+7. **Model X Skripte bereinigen:**
+   - `backtest_modelx.py` in archive verschieben
+   - `modelx_pivot.py` entfernen (nicht relevant für Model 3)
+   - Old `scripts/backtesting/backtest_model3.py` archivieren
 
-9. **Fundamentale Integration vorbereiten:**
-   - COT-Daten Integration (später)
-   - Seasonality-Filter
-   - Valuation & Bonds Indikatoren
+8. **Weitere Features:**
+   - Monte Carlo Simulation für Model 3
+   - Erweiterte Visualisierung
+   - Portfolio Equity Curve (W+3D+M combined)
 
 ---
 
@@ -234,21 +278,22 @@
 └── All_Pairs_M_UTC.parquet
 ```
 
-### Projekt-Struktur
+### Projekt-Struktur (AKTUALISIERT 30.12.2025)
 ```
 05_Model 3/
+├── README.md                    # Projekt-Übersicht ✅
+├── STRATEGIE_REGELN.md          # Komplette technische Regeln ✅
+├── claude.md                    # Claude Kontext ✅
+├── CHANGELOG.md                 # Änderungshistorie ✅
+│
 ├── config.py                    # Basis-Config (API, Pairs, Pfade)
-├── backtest_config.py           # Backtest-Regeln (variabel)
-├── PROJECT_README.md            # Projekt-Dokumentation (noch Model X!)
-├── SETUP.md                     # Setup-Anleitung (noch Model X!)
-├── MODEL 3 KOMMPLETT            # Vollständige Strategie-Doku
-├── Model 3 Regeln übersicht     # Kurzübersicht Regeln
+├── backtest_config.py           # Backtest-Regeln (deprecated für Model 3)
 │
 ├── scripts/
 │   ├── backtesting/
-│   │   ├── backtest_model3.py       ← Hauptskript Model 3 ✅
-│   │   ├── backtest_modelx.py       ← Model X (zu entfernen!)
-│   │   ├── modelx_pivot.py          ← Model X spezifisch (zu entfernen!)
+│   │   ├── backtest_model3.py       ← OLD Core Engine (zu archivieren)
+│   │   ├── backtest_modelx.py       ← Model X (zu archivieren)
+│   │   ├── modelx_pivot.py          ← Model X spezifisch (zu archivieren)
 │   │   ├── run_all_backtests.py     ← Batch Runner
 │   │   ├── backtest_ui.py           ← Interactive UI
 │   │   ├── view_results.py          ← Results Viewer
@@ -259,15 +304,33 @@
 │   └── data_processing/
 │       └── 0_complete_fresh_download.py
 │
+├── Backtest/
+│   ├── 01_test/                 ← ABGESCHLOSSEN ✅
+│   │   ├── 01_Validation/       ← 6 Sample Trades (validiert)
+│   │   └── 02_W_test/           ← Weekly Tests (alte Struktur)
+│   │
+│   ├── 02_technical/            ← AKTUELL 🎯
+│   │   └── 01_DEFAULT/
+│   │       └── 01_Single_TF/    ← Einzelne Timeframes
+│   │           ├── scripts/
+│   │           │   ├── backtest_W.py
+│   │           │   ├── backtest_3D.py
+│   │           │   ├── backtest_M.py
+│   │           │   └── report_helpers.py
+│   │           └── results/
+│   │               ├── Trades/
+│   │               ├── Pure_Strategy/
+│   │               └── Conservative/
+│   │
+│   └── 03_fundamentals/         ← SPÄTER (COT, Seasonality)
+│       └── COT/
+│
 ├── pivot_analysis/
 │   ├── pivot_analysis.py
 │   ├── pivot_quality_test.py
 │   └── results/
 │
-└── results/                     # Backtest Outputs
-    ├── trades/
-    ├── charts/
-    └── reports/
+└── archive/                     ← Archivierte Dateien
 ```
 
 ---
@@ -293,25 +356,40 @@
 
 ---
 
-## Usage
+## Usage (AKTUALISIERT 30.12.2025)
 
-### 1. Backtest ausführen
+### Phase 2: Single Timeframe Tests
 
-**Model 3 (Standard, nur W):**
+**Weekly:**
 ```bash
+cd "05_Model 3/Backtest/02_technical/01_DEFAULT/01_Single_TF"
+python scripts/backtest_W.py
+```
+
+**3-Day:**
+```bash
+cd "05_Model 3/Backtest/02_technical/01_DEFAULT/01_Single_TF"
+python scripts/backtest_3D.py
+```
+
+**Monthly:**
+```bash
+cd "05_Model 3/Backtest/02_technical/01_DEFAULT/01_Single_TF"
+python scripts/backtest_M.py
+```
+
+**Output:**
+- `results/Trades/{TF}_pure.csv` - Trade-Liste (ohne Kosten)
+- `results/Trades/{TF}_conservative.csv` - Trade-Liste (mit Spreads + Commission)
+- `results/Pure_Strategy/{TF}_pure.txt` - Vollständiger Report
+- `results/Conservative/{TF}_conservative.txt` - Report mit Transaktionskosten
+
+### OLD Scripts (zu archivieren)
+
+**Model 3 Core Engine (veraltet):**
+```bash
+# NICHT MEHR BENUTZEN - ersetzt durch backtest_W.py, backtest_3D.py, backtest_M.py
 python scripts/backtesting/backtest_model3.py --pairs EURUSD --start-date 2020-01-01
-```
-
-**Alle 28 Pairs:**
-```bash
-python scripts/backtesting/backtest_model3.py --start-date 2015-01-01 --output results/trades/model3_all.csv
-```
-
-### 2. Ergebnisse anzeigen
-
-```bash
-python scripts/backtesting/view_results.py -i results/trades/model3_all.csv
-python scripts/backtesting/visualizations.py -i results/trades/model3_all.csv
 ```
 
 ---
@@ -347,14 +425,15 @@ python scripts/backtesting/visualizations.py -i results/trades/model3_all.csv
 
 ---
 
-## Bekannte Issues
+## Bekannte Issues / To-Do
 
-1. **Doji-Filter:** 2% statt 5% (zu korrigieren)
-2. **Nur W Pivots:** 3D und M fehlen noch
-3. **Entry ohne Close:** Sollte 1H Close sein
-4. **Versatz-Regel:** Noch nicht implementiert
-5. **Dokumentation:** Noch auf Model X bezogen
-6. **Model X Skripte:** Noch vorhanden, sollten bereinigt werden
+1. ✅ **Doji-Filter:** Fixed auf 5%
+2. ✅ **Mehrere HTF-Timeframes:** W, 3D, M alle drei verfügbar
+3. ✅ **Dokumentation:** README, CHANGELOG, claude.md aktualisiert
+4. ⏳ **Entry-Bestätigung:** Aktuell direkter Touch, 1H/4H Close noch zu testen
+5. ⏳ **Versatz-Regel:** Noch nicht implementiert
+6. ⏳ **Model X Skripte:** Noch vorhanden, sollten ins archive verschoben werden
+7. ⏳ **QuantStats HTML:** Entfernt (zu kompliziert), nur TXT + CSV Reports
 
 ---
 
@@ -366,4 +445,4 @@ python scripts/backtesting/visualizations.py -i results/trades/model3_all.csv
 
 ---
 
-*Last Updated: 2025-12-28*
+*Last Updated: 2025-12-30*

@@ -3,41 +3,76 @@
 ## Ziel
 Performance-Analyse der technischen Model 3 Strategie OHNE fundamentale Filter.
 
+## Status
+**Phase 2 - AKTUELL 🎯** (seit 30.12.2025)
+
 ---
 
-## Test-Kategorien
+## Aktuelle Struktur
+
+### 01_DEFAULT/01_Single_TF/
+**Einzelne Timeframe Tests (W, 3D, M separat)**
+
+**Scripts:**
+- `scripts/backtest_W.py` - Weekly Backtest
+- `scripts/backtest_3D.py` - 3-Day Backtest
+- `scripts/backtest_M.py` - Monthly Backtest
+
+**Ausführung (seriell):**
+```bash
+cd "05_Model 3/Backtest/02_technical/01_DEFAULT/01_Single_TF"
+python scripts/backtest_W.py   # Weekly
+python scripts/backtest_3D.py  # 3-Day
+python scripts/backtest_M.py   # Monthly
+```
+
+**Ausführung (parallel - alle 3 gleichzeitig):**
+```bash
+# Terminal 1:
+cd "05_Model 3/Backtest/02_technical/01_DEFAULT/01_Single_TF"
+python scripts/backtest_W.py
+
+# Terminal 2 (neues Terminal):
+cd "05_Model 3/Backtest/02_technical/01_DEFAULT/01_Single_TF"
+python scripts/backtest_3D.py
+
+# Terminal 3 (neues Terminal):
+cd "05_Model 3/Backtest/02_technical/01_DEFAULT/01_Single_TF"
+python scripts/backtest_M.py
+```
+
+**ODER (Windows - alle 3 in einem Befehl starten):**
+```bash
+cd "05_Model 3/Backtest/02_technical/01_DEFAULT/01_Single_TF"
+start python scripts/backtest_W.py & start python scripts/backtest_3D.py & start python scripts/backtest_M.py
+```
+
+**Output:**
+- `results/Trades/{TF}_pure.csv`, `{TF}_conservative.csv`
+- `results/Pure_Strategy/{TF}_pure.txt`
+- `results/Conservative/{TF}_conservative.txt`
+
+**Settings:**
+- Entry: `direct_touch` (Standard)
+- Doji Filter: 5%
+- Refinement Max Size: 20%
+- Min RR: 1.0, Max RR: 1.5
+- Risk per Trade: 1%
+- Start: 2010-01-01, End: 2024-12-31
+- Pairs: Alle 28 Major/Cross Pairs
+
+---
+
+## Geplante Tests (Zukünftig)
 
 ### 1. Entry-Varianten-Vergleich
 
 **Ziel**: Welche Entry-Bestätigung ist optimal?
 
 #### Tests
-- **1H Close** (Standard): 1H Close über/unter Level → Entry bei Open nächster Candle
-- **Direct Touch**: Sofortiger Entry bei Berührung (kein Close)
+- **Direct Touch** (aktuell): Sofortiger Entry bei Berührung
+- **1H Close**: 1H Close über/unter Level → Entry bei Open nächster Candle
 - **4H Close**: 4H Close Bestätigung
-
-#### Befehle
-```bash
-# Direct Touch (Standard)
-python scripts/backtesting/backtest_model3.py \
-    --htf-timeframes W \
-    --entry-confirmation direct_touch \
-    --output Backtest/02_technical/entry_direct_touch.csv
-
-# 1H Close
-python scripts/backtesting/backtest_model3.py \
-    --htf-timeframes W \
-    --entry-confirmation 1h_close \
-    --output Backtest/02_technical/entry_1h_close.csv
-
-# 4H Close
-python scripts/backtesting/backtest_model3.py \
-    --htf-timeframes W \
-    --entry-confirmation 4h_close \
-    --output Backtest/02_technical/entry_4h_close.csv
-```
-
-**WICHTIG**: START_DATE = None (nutzt alle verfügbaren Daten pro Asset!)
 
 #### Vergleichs-Metriken
 - **Total Trades**: Mehr bei Direct Touch?
@@ -51,33 +86,13 @@ python scripts/backtesting/backtest_model3.py \
 
 **Ziel**: Optimale HTF-Kombination finden.
 
-#### Tests
-- **Nur W**: Weekly allein
-- **Nur 3D**: 3D allein
-- **Nur M**: Monthly allein
-- **3D + W**: Kombination
-- **W + M**: Kombination
-- **Alle (3D+W+M)**: Alle drei HTF-TFs
-
-#### Befehle
-```bash
-# Nur W
-python scripts/backtesting/backtest_model3.py \
-    --htf-timeframes W \
-    --output Backtest/02_technical/htf_W.csv
-
-# Nur 3D
-python scripts/backtesting/backtest_model3.py \
-    --htf-timeframes 3D \
-    --output Backtest/02_technical/htf_3D.csv
-
-# Alle (3D+W+M)
-python scripts/backtesting/backtest_model3.py \
-    --htf-timeframes 3D W M \
-    --output Backtest/02_technical/htf_all.csv
-```
-
-**WICHTIG**: Alle verfügbaren Daten werden genutzt (kein fixer Start!)
+#### Tests (bereits getrennt!)
+- ✅ **Nur W**: Weekly allein - `backtest_W.py`
+- ✅ **Nur 3D**: 3D allein - `backtest_3D.py`
+- ✅ **Nur M**: Monthly allein - `backtest_M.py`
+- ⏳ **3D + W**: Kombination (geplant)
+- ⏳ **W + M**: Kombination (geplant)
+- ⏳ **Alle (3D+W+M)**: Alle drei HTF-TFs (geplant)
 
 #### Vergleichs-Metriken
 - **Total Trades**: Mehr Setups = besser?
@@ -177,4 +192,4 @@ Nach Abschluss 02_technical:
 
 ---
 
-*Last Updated: 29.12.2025*
+*Last Updated: 30.12.2025*

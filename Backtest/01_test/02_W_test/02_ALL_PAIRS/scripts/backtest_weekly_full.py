@@ -1029,36 +1029,6 @@ def main():
     trades_conservative.to_csv(cons_csv, index=False)
     print(f"   [OK] Saved: {cons_csv.name}")
 
-    # Generate Equity Curves for Quant-Stats
-    print("\n4. Generating Quant-Stats HTML Reports...")
-
-    try:
-        import quantstats as qs
-
-        # Pure Strategy Equity Curve
-        equity_pure = generate_equity_curve(trades_df)
-        equity_pure['returns'] = equity_pure['portfolio_value'].pct_change().fillna(0)
-        returns_pure = equity_pure.set_index('date')['returns']
-
-        # Conservative Equity Curve
-        equity_cons = generate_equity_curve(trades_conservative)
-        equity_cons['returns'] = equity_cons['portfolio_value'].pct_change().fillna(0)
-        returns_cons = equity_cons.set_index('date')['returns']
-
-        # Generate HTML Reports
-        qs_pure_file = OUTPUT_DIR / f"quantstats_PURE_{ts}.html"
-        qs.reports.html(returns_pure, output=str(qs_pure_file), title="Model 3 - Pure Strategy")
-        print(f"   [OK] Saved: {qs_pure_file.name}")
-
-        qs_cons_file = OUTPUT_DIR / f"quantstats_CONSERVATIVE_{ts}.html"
-        qs.reports.html(returns_cons, output=str(qs_cons_file), title="Model 3 - Conservative")
-        print(f"   [OK] Saved: {qs_cons_file.name}")
-
-    except ImportError:
-        print("   [WARN] quantstats not installed - skipping HTML reports")
-    except Exception as e:
-        print(f"   [WARN] Error generating Quant-Stats reports: {e}")
-
     print("\n" + "="*80)
     print("REPORTS GENERATED SUCCESSFULLY")
     print("="*80)

@@ -1,0 +1,151 @@
+//@version=6
+indicator("COT Double Divergence", overlay = false, precision = 0)
+import TradingView/LibraryCOT/2 as cot
+
+// === WillCo-Indexberechnung
+willco(src, len) =>
+    max_ = ta.highest(src, len)
+    min_ = ta.lowest(src, len)
+    max_ != min_ ? 100 * (src - min_) / (max_ - min_) : na
+
+// === Einstellungen
+length = input.int(26, minval=1, title="WillCo-Index Länge (Wochen)")
+manualOverride = input.bool(false, title="Manuell überschreiben")
+fallbackPair = input.string("EURUSD", title="Manuell", options=["AUDCAD","AUDCHF","AUDJPY","AUDNZD","AUDUSD","CADCHF","CADJPY","CHFJPY","EURAUD","EURCAD","EURCHF","EURGBP","EURJPY","EURNZD","EURUSD","GBPAUD","GBPCAD","GBPCHF","GBPJPY","GBPNZD","GBPUSD","NZDCAD","NZDCHF","NZDJPY","NZDUSD","USDCAD","USDCHF","USDJPY"])
+
+// === Erweiterte OANDA-Währungspaar-Erkennung
+getOandaPair() =>
+    ticker = syminfo.ticker
+    string forexPair = na
+    string status = na
+    
+    // OANDA Format: EUR_USD (mit Unterstrich)
+    if str.contains(ticker, "_") and str.length(ticker) == 7
+        cleanPair = str.replace(ticker, "_", "")
+        base = str.substring(cleanPair, 0, 3)
+        quote = str.substring(cleanPair, 3, 6)
+        
+        oandaCurrencies = array.from("AUD", "CAD", "CHF", "EUR", "GBP", "JPY", "NZD", "USD")
+        
+        if array.includes(oandaCurrencies, base) and array.includes(oandaCurrencies, quote)
+            forexPair := cleanPair
+            status := "OANDA Auto-Erkannt: " + ticker + " → " + cleanPair
+        else
+            status := "Unbekannte Währungen: " + base + "/" + quote
+    
+    // Standard Format: EURUSD (ohne Unterstrich) 
+    else if str.length(ticker) == 6
+        base = str.substring(ticker, 0, 3)
+        quote = str.substring(ticker, 3, 6)
+        
+        oandaCurrencies = array.from("AUD", "CAD", "CHF", "EUR", "GBP", "JPY", "NZD", "USD")
+        
+        if array.includes(oandaCurrencies, base) and array.includes(oandaCurrencies, quote)
+            forexPair := ticker
+            status := "Standard Auto-Erkannt: " + ticker
+        else
+            status := "Unbekannte Währungen: " + base + "/" + quote
+    
+    // Weitere Formate (für andere Broker)
+    else if str.contains(ticker, "FX:")
+        cleanTicker = str.replace(ticker, "FX:", "")
+        if str.length(cleanTicker) == 6
+            base = str.substring(cleanTicker, 0, 3)
+            quote = str.substring(cleanTicker, 3, 6)
+            
+            oandaCurrencies = array.from("AUD", "CAD", "CHF", "EUR", "GBP", "JPY", "NZD", "USD")
+            
+            if array.includes(oandaCurrencies, base) and array.includes(oandaCurrencies, quote)
+                forexPair := cleanTicker
+                status := "FX Auto-Erkannt: " + ticker + " → " + cleanTicker
+    
+    if na(forexPair)
+        status := "Kein erkanntes Forex-Format: " + ticker
+    
+    [forexPair, status]
+
+// === Finales Währungspaar bestimmen (korrigierte Logik)
+[detectedPair, detectionStatus] = getOandaPair()
+finalPair = manualOverride ? fallbackPair : (na(detectedPair) ? fallbackPair : detectedPair)
+
+// === Hardcodierte COT-Daten für alle Währungen
+getCOTData(currency, position, type) =>
+    if currency == "AUD"
+        request.security(cot.COTTickerid("Legacy", "232741", false, position, type, "All"), "W", close, lookahead=barmerge.lookahead_on)
+    else if currency == "CAD"
+        request.security(cot.COTTickerid("Legacy", "090741", false, position, type, "All"), "W", close, lookahead=barmerge.lookahead_on)
+    else if currency == "CHF"
+        request.security(cot.COTTickerid("Legacy", "092741", false, position, type, "All"), "W", close, lookahead=barmerge.lookahead_on)
+    else if currency == "EUR"
+        request.security(cot.COTTickerid("Legacy", "099741", false, position, type, "All"), "W", close, lookahead=barmerge.lookahead_on)
+    else if currency == "GBP"
+        request.security(cot.COTTickerid("Legacy", "096742", false, position, type, "All"), "W", close, lookahead=barmerge.lookahead_on)
+    else if currency == "JPY"
+        request.security(cot.COTTickerid("Legacy", "097741", false, position, type, "All"), "W", close, lookahead=barmerge.lookahead_on)
+    else if currency == "NZD"
+        request.security(cot.COTTickerid("Legacy", "112741", false, position, type, "All"), "W", close, lookahead=barmerge.lookahead_on)
+    else if currency == "USD"
+        request.security(cot.COTTickerid("Legacy", "098662", false, position, type, "All"), "W", close, lookahead=barmerge.lookahead_on)
+    else
+        na
+
+// === Doppel-Divergenz Berechnung
+getDoubleDiv(pair) =>
+    if str.length(pair) != 6
+        na
+    else
+        base = str.substring(pair, 0, 3)
+        quote = str.substring(pair, 3, 6)
+        
+        // Base Currency COT Data
+        commLongBase = getCOTData(base, "Commercial Positions", "Long")
+        commShortBase = getCOTData(base, "Commercial Positions", "Short") 
+        smallLongBase = getCOTData(base, "Nonreportable Positions", "Long")
+        smallShortBase = getCOTData(base, "Nonreportable Positions", "Short")
+        
+        // Quote Currency COT Data
+        commLongQuote = getCOTData(quote, "Commercial Positions", "Long")
+        commShortQuote = getCOTData(quote, "Commercial Positions", "Short")
+        smallLongQuote = getCOTData(quote, "Nonreportable Positions", "Long")
+        smallShortQuote = getCOTData(quote, "Nonreportable Positions", "Short")
+        
+        // Prüfung auf gültige Daten
+        if na(commLongBase) or na(commShortBase) or na(smallLongBase) or na(smallShortBase) or 
+           na(commLongQuote) or na(commShortQuote) or na(smallLongQuote) or na(smallShortQuote)
+            na
+        else
+            // Net Positionen
+            commNetBase = commLongBase - commShortBase
+            smallNetBase = smallLongBase - smallShortBase
+            commNetQuote = commLongQuote - commShortQuote
+            smallNetQuote = smallLongQuote - smallShortQuote
+            
+            // WillCo Indizes
+            commIdxBase = willco(commNetBase, length)
+            smallIdxBase = willco(smallNetBase, length)
+            commIdxQuote = willco(commNetQuote, length)
+            smallIdxQuote = willco(smallNetQuote, length)
+            
+            // Divergenzen
+            divBase = commIdxBase - smallIdxBase
+            divQuote = commIdxQuote - smallIdxQuote
+            
+            // Doppel-Divergenz
+            divBase - divQuote
+
+// === Berechnung mit Weekly Timeframe
+doppelDiv = request.security(syminfo.tickerid, "W", getDoubleDiv(finalPair))
+
+// === Plots
+plot(doppelDiv, title="COT Doppel-Divergenz", color=color.rgb(255, 255, 255), linewidth=2)
+hline(0, "Neutral", color=color.gray)
+hline(200, "Max Long Bias", color=color.green, linestyle=hline.style_dashed)
+hline(-200, "Max Short Bias", color=color.red, linestyle=hline.style_dashed)
+
+// === Status-Anzeige
+var table infoTable = table.new(position.bottom_right, 2, 2, bgcolor=color.new(#000000, 100), border_width=0)
+if barstate.islast
+    modeText = manualOverride ? "manuell" : "auto"
+    displayText = finalPair + " (" + modeText + ")"
+    table.cell(infoTable, 0, 0, displayText, text_color=color.white, text_size=size.small)
+    table.cell(infoTable, 0, 1, "", text_color=color.white, text_size=size.small)

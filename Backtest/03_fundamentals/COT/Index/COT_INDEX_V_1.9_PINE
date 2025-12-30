@@ -1,0 +1,273 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © TradingView - COT Index with Risk Filter - Optimized - Weekly Sync Fix - HTF Delay & Display Mode Backgrounds
+
+//@version=6
+indicator('COT Index V1.9', format = format.volume)
+import TradingView/LibraryCOT/4 as cot
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SETTINGS
+// ═════════════════════════════════════════════════════════════════════════════
+
+getAutoMode() =>
+    str.length(syminfo.basecurrency) == 3 and str.length(syminfo.currency) == 3 and syminfo.type == "forex" ? 'Pair' : 'Future'
+
+string MODE = getAutoMode()
+bool IS_FUTURE_MODE = MODE == 'Future'
+string TIMEFRAME_SELECT = input.string('Both', 'Timeframe Selection', options = ['6M Only', '36M Only', 'Both'], group = 'Main Settings')
+string DISPLAY_MODE = input.string('Commercial + Retail', 'Display Mode', options = ['Commercial', 'Retail', 'Commercial + Retail', 'Combined Signals'], group = 'Main Settings')
+bool USE_RISK_FILTER = input.bool(false, 'Risk-On/Off Filter', group = 'Main Settings')
+string RISK_FILTER_MODE = input.string('Additionally', 'Risk Filter Mode', options = ['Only', 'Additionally'], group = 'Main Settings')
+string RISK_MODE = input.string('Combined', 'Risk Indikator', options = ['SPX', 'VIX', 'Both', 'Combined'], group = 'Main Settings')
+bool USE_BACKGROUNDS = input.bool(true, 'Show Backgrounds', group = 'Main Settings')
+bool RETAIL_OVERLAP_ONLY = input.bool(true, 'Retail nur bei Commercial-Überschneidung', group = 'Main Settings')
+bool COMMERCIAL_OVERLAP_ONLY = input.bool(true, 'Commercial nur bei Retail-Überschneidung', group = 'Main Settings')
+string RETAIL_MODE = input.string('Normal', 'Retail Mode', options = ['Normal', 'Inverted'], group = 'Index Lengths')
+bool IS_INVERTED = RETAIL_MODE == 'Inverted'
+float THRESHOLD_OVERBOUGHT = input.float(80, 'Überkauft Schwelle', minval = 50, maxval = 100, step = 5, group = 'Background Settings')
+float THRESHOLD_OVERSOLD = input.float(20, 'Überverkauft Schwelle', minval = 0, maxval = 50, step = 5, group = 'Background Settings')
+int RISK_MA = input.int(20, 'Risk MA Periode', minval = 1, group = 'Filter Settings')
+bool WEIGHTED_ALL_COMBINED = input.bool(true, 'Weighted All Combined (70% 6M / 30% 36M)', group = 'Advanced Settings')
+
+monthsToWeeks(int m) => math.round(m * 4.33)
+int L_COM1 = monthsToWeeks(6), L_COM2 = monthsToWeeks(36)
+int L_RET1 = monthsToWeeks(6), L_RET2 = monthsToWeeks(36)
+
+bool EN_6M = TIMEFRAME_SELECT == '6M Only' or TIMEFRAME_SELECT == 'Both'
+bool EN_36M = TIMEFRAME_SELECT == '36M Only' or TIMEFRAME_SELECT == 'Both'
+bool SH_COM_6M = EN_6M and (DISPLAY_MODE == 'Commercial' or DISPLAY_MODE == 'Commercial + Retail')
+bool SH_COM_36M = EN_36M and (DISPLAY_MODE == 'Commercial' or DISPLAY_MODE == 'Commercial + Retail')
+bool SH_RET_6M = EN_6M and (DISPLAY_MODE == 'Retail' or DISPLAY_MODE == 'Commercial + Retail')
+bool SH_RET_36M = EN_36M and (DISPLAY_MODE == 'Retail' or DISPLAY_MODE == 'Commercial + Retail')
+bool SH_CR_6M = EN_6M and DISPLAY_MODE == 'Combined Signals'
+bool SH_CR_36M = EN_36M and DISPLAY_MODE == 'Combined Signals'
+bool SH_CR_ALL = DISPLAY_MODE == 'Combined Signals'
+
+// ═════════════════════════════════════════════════════════════════════════════
+// CFTC CODES
+// ═════════════════════════════════════════════════════════════════════════════
+
+getCFTCCode(string currencyType) =>
+    string r = syminfo.root
+    string code = r == 'GC' ? '088691' : r == 'SI' ? '084691' : r == 'HG' ? '085692' : r == 'PL' ? '076651' : r == 'PA' ? '075651' : r == 'CL' ? '067651' : (r == 'BRN' or r == 'BZ' or r == "BCOUSD") ? '067652' : r == 'NG' ? '023651' : r == 'HO' ? '022651' : r == 'RB' ? '111659' : r == 'ZC' ? '002602' : r == 'ZS' ? '005602' : r == 'ZW' ? '001602' : r == 'ZL' ? '007601' : r == 'ZM' ? '026603' : r == 'ZO' ? '004603' : r == 'ZR' ? '039601' : r == 'KC' ? '083731' : r == 'SB' ? '080732' : r == 'CC' ? '073732' : r == 'CT' ? '033661' : r == 'OJ' ? '040701' : (r == 'LE' or r == 'HE') ? '054642' : r == 'GF' ? '061641' : r == 'ES' ? '13874A' : r == 'NQ' ? '209742' : r == 'YM' ? '124603' : r == 'RTY' ? '239742' : r == 'VIX' ? '1170E1' : r == 'ZN' ? '043602' : r == 'ZB' ? '020601' : r == 'ZF' ? '044601' : r == 'ZT' ? '042601' : r == 'GE' ? '132741' : (r == 'LBR' or r == 'LBS') ? '058644' : (r == 'DXY' or r == 'USDX' or r == 'DX') ? '098662' : r == 'BTC' ? '133741' : cot.convertRootToCOTCode(currencyType)
+    code
+
+string CFTC_BASE = getCFTCCode("Base currency")
+string CFTC_QUOTE = IS_FUTURE_MODE ? "" : getCFTCCode("Currency")
+
+// ═════════════════════════════════════════════════════════════════════════════
+// DATA & INDEX
+// ═════════════════════════════════════════════════════════════════════════════
+
+fetchPos(string code, string metric, bool isLong) =>
+    string tick = cot.COTTickerid("Legacy", code, false, metric, isLong ? "Long" : "Short", "All")
+    request.security(tick, "1D", close, barmerge.gaps_off, barmerge.lookahead_off, ignore_invalid_symbol = true)
+
+getNet(string code, string metric) => fetchPos(code, metric, true) - fetchPos(code, metric, false)
+
+calcIdx(float src, int len) =>
+    float hi = ta.highest(src, len), lo = ta.lowest(src, len), rng = hi - lo
+    100 * (src - lo) / (rng == 0 ? 1 : rng)
+
+syncWeekly(float src, int len) =>
+    float wv = request.security(syminfo.tickerid, 'W', calcIdx(src, len), barmerge.gaps_on, barmerge.lookahead_off, ignore_invalid_symbol = true)
+    var float fv = na
+    if not na(wv)
+        fv := wv
+    fv
+
+float COM_B = getNet(CFTC_BASE, "Commercial Positions")
+float RET_B = getNet(CFTC_BASE, "Nonreportable Positions")
+float COM_Q = IS_FUTURE_MODE ? 0.0 : getNet(CFTC_QUOTE, "Commercial Positions")
+float RET_Q = IS_FUTURE_MODE ? 0.0 : getNet(CFTC_QUOTE, "Nonreportable Positions")
+
+float C1B = syncWeekly(COM_B, L_COM1), C1Q = IS_FUTURE_MODE ? 0.0 : syncWeekly(COM_Q, L_COM1)
+float C2B = syncWeekly(COM_B, L_COM2), C2Q = IS_FUTURE_MODE ? 0.0 : syncWeekly(COM_Q, L_COM2)
+float R1B = syncWeekly(RET_B, L_RET1), R1Q = IS_FUTURE_MODE ? 0.0 : syncWeekly(RET_Q, L_RET1)
+float R2B = syncWeekly(RET_B, L_RET2), R2Q = IS_FUTURE_MODE ? 0.0 : syncWeekly(RET_Q, L_RET2)
+
+float COM1 = IS_FUTURE_MODE ? C1B : (C1B + (100 - C1Q)) / 2
+float COM2 = IS_FUTURE_MODE ? C2B : (C2B + (100 - C2Q)) / 2
+float R1BF = IS_INVERTED ? (100 - R1B) : R1B, R1QF = IS_INVERTED ? (100 - R1Q) : R1Q
+float R2BF = IS_INVERTED ? (100 - R2B) : R2B, R2QF = IS_INVERTED ? (100 - R2Q) : R2Q
+float RET1 = IS_FUTURE_MODE ? R1BF : (R1BF + (100 - R1QF)) / 2
+float RET2 = IS_FUTURE_MODE ? R2BF : (R2BF + (100 - R2QF)) / 2
+
+float r1_cr = IS_INVERTED ? RET1 : (100 - RET1), r2_cr = IS_INVERTED ? RET2 : (100 - RET2)
+float CR1 = (COM1 + r1_cr) / 2, CR2 = (COM2 + r2_cr) / 2
+float r1_c = IS_INVERTED ? RET1 : (100 - RET1), r2_c = IS_INVERTED ? RET2 : (100 - RET2)
+float CR_ALL = WEIGHTED_ALL_COMBINED ? (COM1 * 0.35 + COM2 * 0.15 + r1_c * 0.35 + r2_c * 0.15) : (COM1 + COM2 + r1_c + r2_c) / 4
+
+// ═════════════════════════════════════════════════════════════════════════════
+// RISK FILTER
+// ═════════════════════════════════════════════════════════════════════════════
+
+float spx_p = USE_RISK_FILTER ? request.security("SPX", "D", close, ignore_invalid_symbol = true) : na
+float spx_ma = USE_RISK_FILTER ? request.security("SPX", "D", ta.sma(close, RISK_MA), ignore_invalid_symbol = true) : na
+bool spx_on = USE_RISK_FILTER ? (not na(spx_p) and not na(spx_ma) and (spx_p > spx_ma)) : false
+float vix_p = USE_RISK_FILTER ? request.security("VIX", "D", close, ignore_invalid_symbol = true) : na
+float vix_ma = USE_RISK_FILTER ? request.security("VIX", "D", ta.sma(close, RISK_MA), ignore_invalid_symbol = true) : na
+bool vix_on = USE_RISK_FILTER ? (not na(vix_p) and not na(vix_ma) and (vix_p < vix_ma)) : false
+
+// ═════════════════════════════════════════════════════════════════════════════
+// BACKGROUND LOGIC
+// ═════════════════════════════════════════════════════════════════════════════
+
+bool com_act = SH_COM_6M or SH_COM_36M, ret_act = SH_RET_6M or SH_RET_36M, cs_act = SH_CR_6M or SH_CR_36M or SH_CR_ALL
+base_bull(float v) => USE_BACKGROUNDS and (v > THRESHOLD_OVERBOUGHT)
+base_bear(float v) => USE_BACKGROUNDS and (v < THRESHOLD_OVERSOLD)
+ret_bull(float v) => IS_INVERTED ? (USE_BACKGROUNDS and (v > THRESHOLD_OVERBOUGHT)) : (USE_BACKGROUNDS and (v < THRESHOLD_OVERSOLD))
+ret_bear(float v) => IS_INVERTED ? (USE_BACKGROUNDS and (v < THRESHOLD_OVERSOLD)) : (USE_BACKGROUNDS and (v > THRESHOLD_OVERBOUGHT))
+
+bool show_n_bg = not USE_RISK_FILTER or (USE_RISK_FILTER and RISK_FILTER_MODE == "Additionally")
+bool c1bb = EN_6M and SH_COM_6M and base_bull(COM1) and not cs_act
+bool c1br = EN_6M and SH_COM_6M and base_bear(COM1) and not cs_act
+bool c2bb = EN_36M and SH_COM_36M and base_bull(COM2) and not cs_act
+bool c2br = EN_36M and SH_COM_36M and base_bear(COM2) and not cs_act
+
+bool r1cb = ret_bull(RET1), r1cr = ret_bear(RET1), sh_r1 = EN_6M and SH_RET_6M and not cs_act
+bool r1ob = sh_r1 and (not RETAIL_OVERLAP_ONLY or not com_act or c1bb or c2bb)
+bool r1or = sh_r1 and (not RETAIL_OVERLAP_ONLY or not com_act or c1br or c2br)
+bool r1bb = r1ob and r1cb, r1br = r1or and r1cr
+
+bool r2cb = ret_bull(RET2), r2cr = ret_bear(RET2), sh_r2 = EN_36M and SH_RET_36M and not cs_act
+bool r2ob = sh_r2 and (not RETAIL_OVERLAP_ONLY or not com_act or c1bb or c2bb)
+bool r2or = sh_r2 and (not RETAIL_OVERLAP_ONLY or not com_act or c1br or c2br)
+bool r2bb = r2ob and r2cb, r2br = r2or and r2cr
+
+bool sh_c1 = EN_6M and SH_COM_6M and not cs_act, sh_c2 = EN_36M and SH_COM_36M and not cs_act
+bool c1ob = sh_c1 and (not COMMERCIAL_OVERLAP_ONLY or not ret_act or r1bb or r2bb)
+bool c1or = sh_c1 and (not COMMERCIAL_OVERLAP_ONLY or not ret_act or r1br or r2br)
+bool c2ob = sh_c2 and (not COMMERCIAL_OVERLAP_ONLY or not ret_act or r1bb or r2bb)
+bool c2or = sh_c2 and (not COMMERCIAL_OVERLAP_ONLY or not ret_act or r1br or r2br)
+c1bb := c1ob and c1bb, c1br := c1or and c1br, c2bb := c2ob and c2bb, c2br := c2or and c2br
+
+bool cr1bb = EN_6M and SH_CR_6M and base_bull(CR1), cr1br = EN_6M and SH_CR_6M and base_bear(CR1)
+bool cr2bb = EN_36M and SH_CR_36M and base_bull(CR2), cr2br = EN_36M and SH_CR_36M and base_bear(CR2)
+bool crabb = SH_CR_ALL and base_bull(CR_ALL), crabr = SH_CR_ALL and base_bear(CR_ALL)
+
+bool c1bn = show_n_bg and c1bb, c1rn = show_n_bg and c1br, c2bn = show_n_bg and c2bb, c2rn = show_n_bg and c2br
+bool r1bn = show_n_bg and r1bb, r1rn = show_n_bg and r1br, r2bn = show_n_bg and r2bb, r2rn = show_n_bg and r2br
+bool cr1bn = show_n_bg and cr1bb, cr1rn = show_n_bg and cr1br, cr2bn = show_n_bg and cr2bb, cr2rn = show_n_bg and cr2br
+bool crabn = show_n_bg and crabb, crarn = show_n_bg and crabr
+
+bool risk_o = USE_RISK_FILTER and RISK_FILTER_MODE == "Only", risk_a = USE_RISK_FILTER and RISK_FILTER_MODE == "Additionally"
+bool spx_bc = spx_on, spx_rc = not spx_on, vix_bc = vix_on, vix_rc = not vix_on
+bool spx_b = RISK_MODE == "SPX" and USE_RISK_FILTER and spx_bc and base_bull(COM1)
+bool spx_r = RISK_MODE == "SPX" and USE_RISK_FILTER and spx_rc and base_bear(COM1)
+bool vix_b = RISK_MODE == "VIX" and USE_RISK_FILTER and vix_bc and base_bull(COM1)
+bool vix_r = RISK_MODE == "VIX" and USE_RISK_FILTER and vix_rc and base_bear(COM1)
+bool bspxb = RISK_MODE == "Both" and USE_RISK_FILTER and spx_bc and base_bull(COM1)
+bool bspxr = RISK_MODE == "Both" and USE_RISK_FILTER and spx_rc and base_bear(COM1)
+bool bvixb = RISK_MODE == "Both" and USE_RISK_FILTER and vix_bc and base_bull(COM1)
+bool bvixr = RISK_MODE == "Both" and USE_RISK_FILTER and vix_rc and base_bear(COM1)
+bool bob = bspxb and bvixb, bor = bspxr and bvixr, both_b = bspxb or bvixb, both_r = bspxr or bvixr
+bool comb_b = RISK_MODE == "Combined" and USE_RISK_FILTER and spx_bc and vix_bc and base_bull(COM1)
+bool comb_r = RISK_MODE == "Combined" and USE_RISK_FILTER and spx_rc and vix_rc and base_bear(COM1)
+
+// ═════════════════════════════════════════════════════════════════════════════
+// DELAY & BACKGROUNDS
+// ═════════════════════════════════════════════════════════════════════════════
+
+int d = timeframe.in_seconds() > 3600 ? 1 : 0
+bool c1bd = c1bn[d], c1rd = c1rn[d], c2bd = c2bn[d], c2rd = c2rn[d]
+bool r1bd = r1bn[d], r1rd = r1rn[d], r2bd = r2bn[d], r2rd = r2rn[d]
+bool cr1bd = cr1bn[d], cr1rd = cr1rn[d], cr2bd = cr2bn[d], cr2rd = cr2rn[d], crabd = crabn[d], crard = crarn[d]
+bool c1bdb = c1bb[d], c1rdb = c1br[d], c2bdb = c2bb[d], c2rdb = c2br[d]
+bool spxbd = spx_b[d], spxrd = spx_r[d], vixbd = vix_b[d], vixrd = vix_r[d]
+bool bothbd = both_b[d], bothrd = both_r[d], bobd = bob[d], bord = bor[d], combbd = comb_b[d], combrd = comb_r[d]
+
+int cbc = (c1bd ? 1 : 0) + (c2bd ? 1 : 0), crc = (c1rd ? 1 : 0) + (c2rd ? 1 : 0)
+bool cab = cbc > 0, car = crc > 0, cbb = cbc == 2, cbr = crc == 2
+int rbc = (r1bd ? 1 : 0) + (r2bd ? 1 : 0), rrc = (r1rd ? 1 : 0) + (r2rd ? 1 : 0)
+bool rab = rbc > 0, rar = rrc > 0, rbb = rbc == 2, rbr = rrc == 2
+bool crab = cr1bd or cr2bd or crabd, crar = cr1rd or cr2rd or crard
+bool ribd = (EN_6M and ret_bull(RET1)) or (EN_36M and ret_bull(RET2))
+bool rird = (EN_6M and ret_bear(RET1)) or (EN_36M and ret_bear(RET2))
+
+color base_bg = na
+if show_n_bg
+    if DISPLAY_MODE == 'Commercial'
+        if cab and not car
+            base_bg := color.new(color.green, cbb ? 75 : 85)
+        else if car and not cab
+            base_bg := color.new(color.red, cbr ? 75 : 85)
+        else if cab and car
+            base_bg := color.new(color.gray, 92)
+    else if DISPLAY_MODE == 'Retail'
+        if rab and not rar
+            base_bg := color.new(color.green, rbb ? 75 : 85)
+        else if rar and not rab
+            base_bg := color.new(color.red, rbr ? 75 : 85)
+        else if rab and rar
+            base_bg := color.new(color.gray, 92)
+    else if DISPLAY_MODE == 'Commercial + Retail'
+        bool rib = r1bd or r2bd, rir = r1rd or r2rd
+        int rcb = (r1bd ? 1 : 0) + (r2bd ? 1 : 0), rcr = (r1rd ? 1 : 0) + (r2rd ? 1 : 0)
+        if cab and rib
+            base_bg := color.new(color.green, (cbb and rcb == 2) ? 65 : 75)
+        else if car and rir
+            base_bg := color.new(color.red, (cbr and rcr == 2) ? 65 : 75)
+        else if cab and not rib and not rir
+            base_bg := color.new(color.blue, cbb ? 75 : 85)
+        else if car and not rir and not rib
+            base_bg := color.new(color.orange, cbr ? 75 : 85)
+        else if not RETAIL_OVERLAP_ONLY
+            if rib and not cab and not car
+                base_bg := color.new(color.blue, rcb == 2 ? 75 : 85)
+            else if rir and not car and not cab
+                base_bg := color.new(color.orange, rcr == 2 ? 75 : 85)
+    else if DISPLAY_MODE == 'Combined Signals'
+        int crbc = (cr1bd ? 1 : 0) + (cr2bd ? 1 : 0) + (crabd ? 1 : 0)
+        int crrc = (cr1rd ? 1 : 0) + (cr2rd ? 1 : 0) + (crard ? 1 : 0)
+        if crbc > 0 and crrc == 0
+            int t = crbc == 1 ? 85 : crbc == 2 ? 75 : 65
+            base_bg := color.new(color.green, t)
+        else if crrc > 0 and crbc == 0
+            int t = crrc == 1 ? 85 : crrc == 2 ? 75 : 65
+            base_bg := color.new(color.red, t)
+        else if crbc > 0 and crrc > 0
+            base_bg := color.new(color.gray, 92)
+
+color risk_ov = na
+if risk_a
+    bool bg_g = not na(base_bg) and color.r(base_bg) < 100 and color.g(base_bg) > 200
+    bool bg_r = not na(base_bg) and color.r(base_bg) > 200 and color.g(base_bg) < 100
+    bool bg_b = not na(base_bg) and color.b(base_bg) > 200 and color.g(base_bg) < 150
+    bool bg_o = not na(base_bg) and color.r(base_bg) > 200 and color.g(base_bg) > 100 and color.g(base_bg) < 200
+    bool rsa = RISK_MODE == "Both" ? (bothbd or bothrd) : RISK_MODE == "Combined" ? (combbd or combrd) : (spxbd or spxrd or vixbd or vixrd)
+    bool rss = RISK_MODE == "Both" ? (bobd or bord) : RISK_MODE == "Combined" ? (combbd or combrd) : false
+    if rsa and not na(base_bg)
+        int ot = rss ? 70 : 80
+        risk_ov := bg_g ? color.new(color.green, ot) : bg_r ? color.new(color.red, ot) : bg_b ? color.new(color.blue, ot) : bg_o ? color.new(color.orange, ot) : na
+
+color risk_obg = na
+if risk_o
+    bool cg = (c1bdb or c2bdb) and ribd, cr = (c1rdb or c2rdb) and rird
+    bool cb = (c1bdb or c2bdb) and not ribd and not rird, co = (c1rdb or c2rdb) and not rird and not ribd
+    bool rsao = RISK_MODE == "Both" ? (bothbd or bothrd) : RISK_MODE == "Combined" ? (combbd or combrd) : (spxbd or spxrd or vixbd or vixrd)
+    bool rsso = RISK_MODE == "Both" ? (bobd or bord) : RISK_MODE == "Combined" ? (combbd or combrd) : false
+    if rsao
+        int oto = rsso ? 70 : 80
+        risk_obg := cg ? color.new(color.green, oto) : cr ? color.new(color.red, oto) : cb ? color.new(color.blue, oto) : co ? color.new(color.orange, oto) : na
+
+bgcolor(risk_o ? risk_obg : base_bg, title = 'COT Background')
+bgcolor(risk_ov, title = 'Risk Overlay')
+
+// ═════════════════════════════════════════════════════════════════════════════
+// PLOTS
+// ═════════════════════════════════════════════════════════════════════════════
+
+hline(THRESHOLD_OVERBOUGHT, 'Buying High', color.green, linewidth = 1, linestyle = hline.style_dashed)
+hline(THRESHOLD_OVERSOLD, 'Selling Low', color.red, linewidth = 1, linestyle = hline.style_dashed)
+hline(50, 'Middle', color.gray, linewidth = 1, linestyle = hline.style_dotted)
+hline(0, '0 Line', color.gray, linewidth = 1, linestyle = hline.style_dotted)
+hline(100, '100', color.gray, linewidth = 1, linestyle = hline.style_dotted)
+
+plot(SH_COM_6M ? COM1 : na, 'Commercial 6M', color.blue, linewidth = 2)
+plot(SH_COM_36M ? COM2 : na, 'Commercial 36M', color.new(#0c3299,0), linewidth = 2)
+plot(SH_RET_6M ? RET1 : na, 'Retail 6M', color.red, linewidth = 2)
+plot(SH_RET_36M ? RET2 : na, 'Retail 36M', color.new(#801922,0), linewidth = 2)
+plot(SH_CR_6M ? CR1 : na, 'Com+Ret 6M', color.green, linewidth = 2)
+plot(SH_CR_36M ? CR2 : na, 'Com+Ret 36M', color.new(#9c27b0, 0), linewidth = 2)
+plot(SH_CR_ALL ? CR_ALL : na, 'All Combined', color.white, linewidth = 2)

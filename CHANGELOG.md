@@ -4,7 +4,56 @@
 
 ---
 
-## Wichtigste Korrekturen
+## 30.12.2025 - Ordnerstruktur Refactoring ✅
+
+### Neue Struktur
+- ✅ `Backtest/02_technical/01_DEFAULT/01_Single_TF/` erstellt
+- ✅ Separate Scripts für W, 3D, M Timeframes
+- ✅ Einheitliche Dateinamenskonvention (ohne Zeitstempel)
+- ✅ Pure vs Conservative klar getrennt
+
+### Scripts
+- ✅ `backtest_W.py` - Weekly Backtest
+- ✅ `backtest_3D.py` - 3-Day Backtest
+- ✅ `backtest_M.py` - Monthly Backtest
+- ✅ `report_helpers.py` - Shared reporting functions
+
+### Output-Dateien
+**CSV Trades:**
+- `results/Trades/W_pure.csv`
+- `results/Trades/W_conservative.csv`
+- `results/Trades/3D_pure.csv`
+- `results/Trades/3D_conservative.csv`
+- `results/Trades/M_pure.csv`
+- `results/Trades/M_conservative.csv`
+
+**TXT Reports:**
+- `results/Pure_Strategy/W_pure.txt`
+- `results/Pure_Strategy/3D_pure.txt`
+- `results/Pure_Strategy/M_pure.txt`
+- `results/Conservative/W_conservative.txt`
+- `results/Conservative/3D_conservative.txt`
+- `results/Conservative/M_conservative.txt`
+
+### Pfad-Anpassungen
+- ✅ Alle Scripts verwenden korrekte relative Pfade
+- ✅ `model3_root` = 5× parent (scripts → ... → 05_Model 3)
+- ✅ `RESULTS_DIR` = parent.parent / "results"
+- ✅ Automatische Ordner-Erstellung
+
+### Dokumentation
+- ✅ README.md aktualisiert mit neuer Struktur
+- ✅ CHANGELOG.md aktualisiert
+- ✅ claude.md wird aktualisiert
+
+### Status
+- ✅ Phase 1 (01_test/) ABGESCHLOSSEN
+- 🎯 Phase 2 (02_technical/) AKTIV
+- ⏳ Phase 3 (03_fundamentals/COT) VORBEREITET
+
+---
+
+## Wichtigste Korrekturen (vorherige Updates)
 
 ### 1. Verfeinerungen Max TF = Weekly
 - Vorher: Dachte M kann Verfeinerung sein
@@ -39,14 +88,16 @@
 3. Variable near_level → Korrigiert zu nears_result[i]
 4. CAGR Bug → Check ending_capital > 0
 5. Wick Diff Entry → Vollständig implementiert
+6. QuantStats HTML Reports → Entfernt (zu kompliziert, nur TXT+CSV)
 
 ---
 
-## Status
+## Nächste Schritte
 
-✅ Alle Regeln korrekt implementiert
-✅ Alle Bugs behoben
-✅ Code 100% produktionsbereit
+1. ⏳ W, 3D, M Backtests ausführen
+2. ⏳ Ergebnisse vergleichen (Timeframe Performance)
+3. ⏳ COT Integration planen
+4. ⏳ Combined Portfolio Test (W+3D+M)
 
 ---
 
