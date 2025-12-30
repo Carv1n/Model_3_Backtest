@@ -826,7 +826,7 @@ def generate_txt_report(trades_df, equity_curve, stats, timer):
     with open(report_file, 'w', encoding='utf-8') as f:
         # Header
         f.write("="*80 + "\n")
-        f.write("MODEL 3 - BACKTEST REPORT (WEEKLY MINI TEST)\n")
+        f.write("MODEL 3 - BACKTEST REPORT (3-DAY FULL TEST)\n")
         f.write("="*80 + "\n")
         f.write(f"Report Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
         f.write(f"Test Period: {START_DATE} to {END_DATE}\n")
@@ -936,7 +936,7 @@ def main():
     timer.start()
 
     print("\n" + "="*80)
-    print("MODEL 3 - WEEKLY MINI TEST")
+    print("MODEL 3 - 3-DAY FULL TEST")
     print("="*80)
     print(f"Pairs: {', '.join(PAIRS)}")
     print(f"HTF: {', '.join(HTF_TIMEFRAMES)}")
