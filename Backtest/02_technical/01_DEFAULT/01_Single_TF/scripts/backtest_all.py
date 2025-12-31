@@ -30,7 +30,7 @@ import numpy as np
 from collections import defaultdict
 
 # Go up to "05_Model 3" directory
-model3_root = Path(__file__).parent.parent.parent.parent.parent
+model3_root = Path(__file__).parent.parent.parent.parent.parent.parent
 sys.path.insert(0, str(model3_root))
 
 from scripts.backtesting.backtest_model3 import (
