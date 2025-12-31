@@ -214,6 +214,29 @@ def find_gap_touch_on_daily_fast(df_daily, pivot, start_time):
     return hits.iloc[0]["time"] if len(hits) > 0 else None
 
 
+def find_gap_touch_on_h1_fast(df_h1, pivot, daily_gap_touch_time):
+    """Find exact H1 candle that touches gap (for precise gap_touch_time with hour)"""
+    if daily_gap_touch_time is None:
+        return None
+
+    # Search H1 candles starting from the daily gap touch date
+    df_after = df_h1[df_h1["time"] >= daily_gap_touch_time].copy()
+    if len(df_after) == 0:
+        return None
+
+    gap_low = min(pivot.pivot, pivot.extreme)
+    gap_high = max(pivot.pivot, pivot.extreme)
+
+    # Vectorized check: H1 candle touches gap
+    if pivot.direction == "bullish":
+        mask = (df_after["low"] <= gap_high) & (df_after["high"] >= gap_low)
+    else:
+        mask = (df_after["high"] >= gap_low) & (df_after["low"] <= gap_high)
+
+    hits = df_after[mask]
+    return hits.iloc[0]["time"] if len(hits) > 0 else None
+
+
 def check_tp_touched_before_entry_fast(df, pivot, gap_touch_time, entry_time, tp):
     """Vectorized version of TP touch check"""
     # TP check starts after gap touch (gap_touch_time is always >= valid_time)
@@ -338,8 +361,13 @@ def simulate_single_trade(pair, pivot, refinements, ltf_cache):
     h1_df = ltf_cache["H1"]
     d_df = ltf_cache["D"]
 
-    # 1. Gap Touch auf Daily (OPTIMIZED)
-    gap_touch_time = find_gap_touch_on_daily_fast(d_df, pivot, pivot.valid_time)
+    # 1. Gap Touch auf Daily (OPTIMIZED) - dann exact H1 time
+    daily_gap_touch = find_gap_touch_on_daily_fast(d_df, pivot, pivot.valid_time)
+    if daily_gap_touch is None:
+        return None
+
+    # Get exact H1 gap touch time (with hour)
+    gap_touch_time = find_gap_touch_on_h1_fast(h1_df, pivot, daily_gap_touch)
     if gap_touch_time is None:
         return None
 
@@ -467,7 +495,7 @@ def simulate_single_trade(pair, pivot, refinements, ltf_cache):
 
     return {
         "pair": pair,
-        "htf_timeframe": pivot.timeframe if hasattr(pivot, 'timeframe') else "W",
+        "htf_timeframe": "M",  # Monthly backtest
         "direction": pivot.direction,
         "entry_type": ENTRY_CONFIRMATION,
         "pivot_time": pivot.time,
@@ -479,8 +507,8 @@ def simulate_single_trade(pair, pivot, refinements, ltf_cache):
         "pivot_price": pivot.pivot,
         "extreme_price": pivot.extreme,
         "near_price": pivot.near,
-        "gap_pips": pivot.gap_size * 10000,
-        "wick_diff_pips": abs(pivot.near - pivot.extreme) * 10000,
+        "gap_pips": pivot.gap_size / pip_value,  # Fixed: Use pip_value (handles JPY correctly)
+        "wick_diff_pips": abs(pivot.near - pivot.extreme) / pip_value,  # Fixed: Use pip_value
         "wick_diff_pct": (abs(pivot.near - pivot.extreme) / pivot.gap_size * 100) if pivot.gap_size > 0 else 0,
         "total_refinements": len(refinements),
         "priority_refinement_tf": entry_type,

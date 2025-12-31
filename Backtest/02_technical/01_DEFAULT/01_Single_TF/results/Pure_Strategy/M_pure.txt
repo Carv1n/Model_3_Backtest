@@ -1,7 +1,7 @@
 ================================================================================
 MODEL 3 - BACKTEST REPORT (PURE STRATEGY)
 ================================================================================
-Report Generated: 2025-12-30 18:04:45
+Report Generated: 2025-12-31 12:42:14
 Test Period: 2010-01-01 to 2024-12-31
 Pairs Tested: 28
 HTF Timeframe: W
@@ -12,69 +12,69 @@ Transaction Costs: NONE (Pure Strategy)
 ================================================================================
 
 --- PERFORMANCE SUMMARY ---
-Total Trades: 980
-Long Trades: 478 (48.8%)
-Short Trades: 502 (51.2%)
-Long/Short Ratio: 0.95:1
+Total Trades: 1164
+Long Trades: 575 (49.4%)
+Short Trades: 589 (50.6%)
+Long/Short Ratio: 0.98:1
 
-Winning Trades: 413 (42.1%)
-Long Win Rate: 41.0%
-Short Win Rate: 43.2%
-Losing Trades: 567 (57.9%)
+Winning Trades: 489 (42.0%)
+Long Win Rate: 41.4%
+Short Win Rate: 42.6%
+Losing Trades: 675 (58.0%)
 
-Average Winner: +1.44R
+Average Winner: +1.43R
 Max Winner: +1.50R
 Average Loser: -1.00R
 Max Loser: -1.00R
 
-Profit Factor: 1.05
-Payoff Ratio: 1.44
-Expectancy: +0.03R per trade
+Profit Factor: 1.04
+Payoff Ratio: 1.43
+Expectancy: +0.02R per trade
 
-Average Trade Duration: 32.5 days
-Trades per Month: 5.6
+Average Trade Duration: 28.4 days
+Trades per Month: 6.6
 
 --- PORTFOLIO METRICS ---
 Starting Capital: $100,000
-Ending Capital: $128,002
-Total Return: +28.0%
-CAGR: 1.7%
+Ending Capital: $125,572
+Total Return: +25.6%
+CAGR: 1.6%
 
-Maximum Drawdown: -52.6%
-Max DD Duration: 723 trades
-Average Drawdown: -17.7%
-Recovery Factor: 0.53
+Maximum Drawdown: -62.1%
+Max DD Duration: 867 trades
+Average Drawdown: -24.7%
+Recovery Factor: 0.41
 Calmar Ratio: 0.03
 
-Max Consecutive Wins: 9
-Max Consecutive Losses: 13
+Max Consecutive Wins: 12
+Max Consecutive Losses: 14
 
-Average Concurrent Trades: 6.4
-Max Concurrent Trades: 15
+Average Concurrent Trades: 6.7
+Max Concurrent Trades: 16
 
 --- RISK-ADJUSTED RETURNS ---
-Sharpe Ratio: 0.19 [FAIL] (>1.5 target)
+Sharpe Ratio: 0.16 [FAIL] (>1.5 target)
 Sortino Ratio: 0.00 [FAIL] (>2.0 target)
-Annualized Volatility: 988.0%
+Annualized Volatility: 1073.0%
 
 --- FUNDED ACCOUNT VIABILITY ---
-[FAIL] Max Drawdown < 10%: FAIL (52.6%)
-[FAIL] Avg Drawdown < 7%: FAIL (17.7%)
+[FAIL] Max Drawdown < 10%: FAIL (62.1%)
+[FAIL] Avg Drawdown < 7%: FAIL (24.7%)
 [OK] Worst Day Loss < 4%: PASS (1.0%)
-[FAIL] Sharpe Ratio > 1.5: FAIL (0.19)
+[FAIL] Sharpe Ratio > 1.5: FAIL (0.16)
 [FAIL] Calmar Ratio > 2.0: FAIL (0.03)
-[OK] Min. 200 Trades: PASS (980)
+[OK] Min. 200 Trades: PASS (1164)
 
 OVERALL VERDICT: [FAIL] FUNDED ACCOUNT NOT VIABLE
 
 --- MAX FAVORABLE/ADVERSE EXCURSION ---
-Average MFE (All): 208.7 pips
-Average MFE (Winners): 336.6 pips
-Average MFE (Losers): 115.6 pips
+Average MFE (All): 199.5 pips
+Average MFE (Winners): 318.3 pips
+Average MFE (Losers): 113.3 pips
 
-Average MAE (All): 173.9 pips
-Average MAE (Winners): 90.6 pips
-Average MAE (Losers): 234.5 pips
+Average MAE (All): 165.0 pips
+Average MAE (Winners): 85.0 pips
+Average MAE (Losers): 222.9 pips
 
 ================================================================================
 END OF REPORT

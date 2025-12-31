@@ -5,9 +5,81 @@ Integration fundamentaler Filter zur Verbesserung der Performance.
 
 ---
 
-## ⚠️ Status: NOCH NICHT IMPLEMENTIERT
+## ⚠️ Status: PHASE 3 IMPLEMENTIERT (MIT BUGS)
 
-Dieser Ordner ist für **zukünftige Tests** vorgesehen, sobald fundamentale Filter implementiert sind.
+**COT Double Divergence Filter** ist implementiert, aber **3 kritische Bugs gefunden**.
+
+**Stand**: 31.12.2025
+
+**BUGS**:
+1. ❌ CSV-Speicherung falsch (nur Bias_8W gespeichert, Reports nutzen falsche Daten)
+2. ❌ Report-Stats unvollständig (viele Stats aus Phase 2 fehlen)
+3. ❌ Performance schlecht trotz 88% Filtering (nur +0.9% Win Rate Verbesserung)
+
+**STATUS**: Wartet auf Bug-Fixes vor weiterer Nutzung
+**Details**: Siehe `COT/Double_Divergence/README.md` → Abschnitt "BEKANNTE BUGS"
+
+---
+
+## Implementierte Filter
+
+### COT Double Divergence (IMPLEMENTIERT ✓)
+
+**Ordner**: `COT/Double_Divergence/`
+
+**Implementierung**:
+- ✅ COT-Indikator (`cot_double_divergence.py`)
+- ✅ Trade-Filter (`apply_cot_filter.py`)
+- ✅ Report-Generator (`generate_reports.py`)
+- ✅ 3 Bias-Modi: Bias_8W, Bias_to_Bias, Bias_fix_0
+
+**Beschreibung**:
+- **26-Wochen WillCo Index**: Normalisierung der COT-Nettopositionen (0-100)
+- **Double Divergence**: (CommIdx_base - RetailIdx_base) - (CommIdx_quote - RetailIdx_quote)
+- **Pair-spezifische Schwellenwerte**: EURUSD=160, GBPUSD=180, etc. (aus Bias_Zone_Pine)
+- **Filter-Logik**: Trade nur wenn Richtung mit COT-Bias aligned (check nur beim Entry)
+- **Timing**: Dienstag-Daten → Freitag-Veröffentlichung → Montag verfügbar (Look-Ahead Prevention)
+
+**3 Bias-Modi**:
+1. **Bias_8W**: 8-Wochen-Countdown (Signal → 8 Wochen aktiv → Neutral)
+2. **Bias_to_Bias**: Signal-zu-Signal (Long bis Short-Signal, vice versa)
+3. **Bias_fix_0**: Null-Exit (Bias endet wenn Divergenz 0 kreuzt)
+
+**Output**:
+- 18 TXT-Reports: 3 Modi × 3 Timeframes × 2 Typen
+- 6 Trade-CSVs: W/3D/M × pure/conservative
+
+**Nutzung**:
+```bash
+cd "05_Model 3/Backtest/03_fundamentals/COT/Double_Divergence/scripts/"
+python apply_cot_filter.py
+```
+
+**Ordnerstruktur**:
+```
+COT/Double_Divergence/
+├── scripts/
+│   ├── cot_double_divergence.py   # COT Indikator
+│   ├── apply_cot_filter.py        # Trade Filter (Main)
+│   ├── generate_reports.py        # Report Generator
+│   ├── Indikator_Pine             # TradingView Referenz
+│   └── Bias_Zone_Pine             # TradingView Referenz
+│
+└── 01_default/
+    └── Single_TF/
+        ├── Trades/                # Gefilterte Trade-CSVs
+        │   ├── W_pure.csv
+        │   ├── W_conservative.csv
+        │   ├── 3D_pure.csv
+        │   ├── 3D_conservative.csv
+        │   ├── M_pure.csv
+        │   └── M_conservative.csv
+        │
+        └── results/
+            ├── Bias_8W/           # 6 Reports (8W Countdown)
+            ├── Bias_to_Bias/      # 6 Reports (Signal-zu-Signal)
+            └── Bias_fix_0/        # 6 Reports (Null-Exit)
+```
 
 ---
 

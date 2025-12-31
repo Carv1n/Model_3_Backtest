@@ -6,6 +6,43 @@ Performance-Analyse der technischen Model 3 Strategie OHNE fundamentale Filter.
 ## Status
 **Phase 2 - AKTUELL 🎯** (seit 30.12.2025)
 
+## ✅ Bug Fixes (31.12.2025)
+
+### Gap_Pips JPY Pairs Fix
+
+**Problem**: JPY-Pairs hatten 100x zu große gap_pips Werte
+- Beispiel: Gap bei CHFJPY zeigte 12420 pips statt 124.20 pips
+- Betraf alle JPY-Pairs (AUDJPY, CADJPY, CHFJPY, EURJPY, GBPJPY, NZDJPY, USDJPY)
+
+**Root Cause**:
+- JPY-Pairs haben 2 Dezimalstellen (nicht 4 wie andere Pairs)
+- Code dividierte immer durch 10000, korrekt wäre 100 für JPY
+
+**Fix Applied** (alle 5 Scripts):
+- `scripts/backtest_W.py`
+- `scripts/backtest_3D.py`
+- `scripts/backtest_M.py`
+- `scripts/backtest_W_test.py`
+- `scripts/backtest_3D_test.py`
+
+**Code-Änderung** in `calculate_gap_pips()` Funktion:
+```python
+# OLD (WRONG):
+gap_pips = abs(gap_price) / 10000
+
+# NEW (CORRECT):
+pip_divisor = 100 if 'JPY' in pair else 10000
+gap_pips = abs(gap_price) / pip_divisor
+```
+
+**Zusätzlicher Fix**:
+- `htf_timeframe` Column zu Trade CSVs hinzugefügt (war vorher gefehlt)
+
+**Impact**:
+- Alle Phase 2 Reports gelöscht
+- Neue Reports werden mit korrigiertem Code generiert
+- JPY Gap-Pips jetzt korrekt
+
 ---
 
 ## Aktuelle Struktur
