@@ -255,19 +255,13 @@ def check_tp_touched_before_entry_fast(df, pivot, gap_touch_time, entry_time, tp
 # ============================================================================
 
 PAIRS = [
-    # Majors
-    "EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "USDCAD", "NZDUSD",
-    # EUR Crosses
-    "EURGBP", "EURJPY", "EURAUD", "EURCHF", "EURCAD", "EURNZD",
-    # GBP Crosses
-    "GBPJPY", "GBPAUD", "GBPCAD", "GBPNZD", "GBPCHF",
-    # JPY Crosses
-    "AUDJPY", "NZDJPY", "CHFJPY", "CADJPY",
-    # AUD/NZD Crosses
-    "AUDNZD", "AUDCAD", "AUDCHF",
-    # NZD/CAD Crosses
-    "NZDCAD", "NZDCHF", "CADCHF"
-]
+    "AUDCAD", "AUDCHF", "AUDJPY", "AUDNZD", "AUDUSD",
+    "CADCHF", "CADJPY", "CHFJPY",
+    "EURAUD", "EURCAD", "EURCHF", "EURGBP", "EURJPY", "EURNZD", "EURUSD",
+    "GBPAUD", "GBPCAD", "GBPCHF", "GBPJPY", "GBPNZD", "GBPUSD",
+    "NZDCAD", "NZDCHF", "NZDJPY", "NZDUSD",
+    "USDCAD", "USDCHF", "USDJPY"
+]  # Alphabetical order
 HTF_TIMEFRAMES = ["W"]
 ENTRY_CONFIRMATION = "direct_touch"
 START_DATE = "2010-01-01"
@@ -976,14 +970,14 @@ def main():
     trades_df = pd.DataFrame(trades)
 
     # ========================================================================
-    # GENERATE REPORTS (Pure Strategy + Conservative)
+    # GENERATE REPORT (R-Based, No Transaction Costs)
     # ========================================================================
 
     print("\n" + "="*80)
-    print("GENERATING REPORTS: PURE STRATEGY + CONSERVATIVE")
+    print("GENERATING REPORT")
     print("="*80)
 
-    from report_helpers import calc_stats, format_report, apply_conservative_costs
+    from report_helpers import calc_stats, format_report
 
     # Config for reports
     report_config = {
@@ -995,10 +989,7 @@ def main():
         'STARTING_CAPITAL': STARTING_CAPITAL,
     }
 
-    # REPORT 1: Pure Strategy (trades_df already contains pure strategy trades!)
-    print("\n1. Pure Strategy Report...")
-
-    # Add lots column for Pure Strategy (for comparison in Excel)
+    # Add lots column (for reference in CSV)
     trades_df['lots'] = 0.0
     for idx, row in trades_df.iterrows():
         pip_val = price_per_pip(row['pair'])
@@ -1014,65 +1005,39 @@ def main():
         lots = dollars_per_pip / standard_lot_pip_value
         trades_df.at[idx, 'lots'] = lots
 
-    stats_pure = calc_stats(trades_df, STARTING_CAPITAL, RISK_PER_TRADE, 0, 0)
-    report_pure = format_report(stats_pure, "PURE STRATEGY", report_config)
+    # Generate report
+    print("\nGenerating report...")
+    stats = calc_stats(trades_df, STARTING_CAPITAL, RISK_PER_TRADE)
+    report = format_report(stats, "Weekly", report_config)
 
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-    pure_file = OUTPUT_DIR / f"report_PURE_STRATEGY_{ts}.txt"
-    pure_file.write_text(report_pure, encoding='utf-8')
-    print(f"   [OK] Saved: {pure_file.name}")
+    report_file = OUTPUT_DIR / f"report_{ts}.txt"
+    report_file.write_text(report, encoding='utf-8')
+    print(f"   [OK] Saved: {report_file.name}")
 
-    # REPORT 2: Conservative (apply transaction costs)
-    print("\n2. Conservative Report (applying variable spreads + commission)...")
-    trades_conservative = apply_conservative_costs(trades_df, STARTING_CAPITAL, RISK_PER_TRADE)
-
-    total_commission = trades_conservative['commission_usd'].sum()
-    avg_spread = (trades_conservative['entry_spread_pips'].sum() + trades_conservative['exit_spread_pips'].sum()) / (2 * len(trades_conservative))
-
-    stats_cons = calc_stats(trades_conservative, STARTING_CAPITAL, RISK_PER_TRADE, total_commission, avg_spread)
-    report_cons = format_report(stats_cons, "CONSERVATIVE", report_config)
-
-    cons_file = OUTPUT_DIR / f"report_CONSERVATIVE_{ts}.txt"
-    cons_file.write_text(report_cons, encoding='utf-8')
-    print(f"   [OK] Saved: {cons_file.name}")
-
-    # Generate 2 separate CSV files
-    print("\n3. Generating CSV files...")
+    # Save CSV
+    print("\nGenerating CSV...")
 
     # Fix timezone issue: Remove timezone from datetime columns
     datetime_cols = ['entry_time', 'exit_time', 'pivot_time', 'valid_time', 'gap_touch_time']
     for col in datetime_cols:
         if col in trades_df.columns:
             trades_df[col] = pd.to_datetime(trades_df[col]).dt.tz_localize(None)
-        if col in trades_conservative.columns:
-            trades_conservative[col] = pd.to_datetime(trades_conservative[col]).dt.tz_localize(None)
 
-    # Save Pure Strategy CSV
-    pure_csv = OUTPUT_DIR / f"trades_pure_{ts}.csv"
-    trades_df.to_csv(pure_csv, index=False)
-    print(f"   [OK] Saved: {pure_csv.name}")
-
-    # Save Conservative CSV
-    cons_csv = OUTPUT_DIR / f"trades_conservative_{ts}.csv"
-    trades_conservative.to_csv(cons_csv, index=False)
-    print(f"   [OK] Saved: {cons_csv.name}")
+    # Save trades CSV
+    trades_csv = OUTPUT_DIR / f"trades_{ts}.csv"
+    trades_df.to_csv(trades_csv, index=False)
+    print(f"   [OK] Saved: {trades_csv.name}")
 
     print("\n" + "="*80)
-    print("REPORTS GENERATED SUCCESSFULLY")
+    print("REPORT GENERATED SUCCESSFULLY")
     print("="*80)
-    print(f"\nPure Strategy:")
-    print(f"  - Total Return: {stats_pure['total_return']:+.1f}%")
-    print(f"  - Sharpe: {stats_pure['sharpe']:.2f}")
-    print(f"  - Max DD: {stats_pure['max_dd']:.1f}%")
-    print(f"\nConservative:")
-    print(f"  - Total Return: {stats_cons['total_return']:+.1f}%")
-    print(f"  - Sharpe: {stats_cons['sharpe']:.2f}")
-    print(f"  - Max DD: {stats_cons['max_dd']:.1f}%")
-    print(f"  - Total Commission: ${total_commission:,.2f}")
-    print(f"  - Avg Spread (Entry+Exit): {avg_spread:.2f} pips")
-    print(f"\nImpact of Transaction Costs:")
-    print(f"  - Return Difference: {stats_pure['total_return'] - stats_cons['total_return']:.1f}%")
-    print(f"  - Sharpe Difference: {stats_pure['sharpe'] - stats_cons['sharpe']:.2f}")
+    print(f"\nResults:")
+    print(f"  - Total Return: {stats['total_return']:+.1f}%")
+    print(f"  - Sharpe: {stats['sharpe']:.2f}")
+    print(f"  - Max DD: {stats['max_dd']:.1f}%")
+    print(f"  - Expectancy: {stats['expectancy']:+.2f}R")
+    print(f"  - Win Rate: {stats['win_rate']:.1f}%")
 
 
     # Print timing summary

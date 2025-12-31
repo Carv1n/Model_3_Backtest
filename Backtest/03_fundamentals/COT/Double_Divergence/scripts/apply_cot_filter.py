@@ -287,8 +287,8 @@ class COTTradeFilter:
         Process all timeframes (W, 3D, M) with all 3 bias modes
 
         Generates:
-        - 18 TXT reports (3 modes × 3 TFs × 2 types)
-        - 6 Trade CSVs (3 TFs × 2 types)
+        - 9 TXT reports (3 modes × 3 TFs)
+        - 9 Trade CSVs (3 modes × 3 TFs)
 
         Args:
             phase2_dir: Path to Phase 2 trade results
@@ -297,7 +297,6 @@ class COTTradeFilter:
         from generate_reports import generate_report
 
         timeframes = ['W', '3D', 'M']
-        types = ['pure', 'conservative']
         modes = ['Bias_8W', 'Bias_to_Bias', 'Bias_fix_0']
 
         print("\n" + "="*80)
@@ -310,62 +309,60 @@ class COTTradeFilter:
             print(f"Processing Timeframe: {tf}")
             print(f"{'='*80}\n")
 
-            for type_name in types:
-                # Load Phase 2 trades
-                trade_file = phase2_dir / f"{tf}_{type_name}.csv"
+            # Load Phase 2 trades (no longer separate pure/conservative)
+            trade_file = phase2_dir / f"{tf}_trades.csv"
 
-                if not trade_file.exists():
-                    print(f"  ⚠ Warning: {trade_file} not found - skipping")
-                    continue
+            if not trade_file.exists():
+                print(f"  ⚠ Warning: {trade_file} not found - skipping")
+                continue
 
-                trades_original = pd.read_csv(trade_file)
-                original_count = len(trades_original)
+            trades_original = pd.read_csv(trade_file)
+            original_count = len(trades_original)
 
-                print(f"\n{type_name.upper()} Strategy:")
-                print(f"  Original Trades (Phase 2): {original_count}")
+            print(f"  Original Trades (Phase 2): {original_count}")
 
-                # Process each bias mode
-                for mode in modes:
-                    print(f"\n  {mode}:")
+            # Process each bias mode
+            for mode in modes:
+                print(f"\n  {mode}:")
 
-                    # Filter trades
-                    trades_filtered = self.filter_trades(trades_original, mode)
-                    filtered_count = len(trades_filtered)
-                    filter_rate = (1 - filtered_count/original_count) * 100 if original_count > 0 else 0
+                # Filter trades
+                trades_filtered = self.filter_trades(trades_original, mode)
+                filtered_count = len(trades_filtered)
+                filter_rate = (1 - filtered_count/original_count) * 100 if original_count > 0 else 0
 
-                    print(f"    Filtered Trades: {filtered_count}")
-                    print(f"    Filter Rate: {filter_rate:.1f}% removed")
+                print(f"    Filtered Trades: {filtered_count}")
+                print(f"    Filter Rate: {filter_rate:.1f}% removed")
 
-                    # Save filtered trades CSV for ALL modes
-                    trades_csv_dir = output_dir / 'Single_TF' / 'Trades' / mode
-                    trades_csv_dir.mkdir(parents=True, exist_ok=True)
-                    trades_csv_path = trades_csv_dir / f"{tf}_{type_name}.csv"
-                    trades_filtered.to_csv(trades_csv_path, index=False)
-                    print(f"    ✓ Saved: {trades_csv_path.relative_to(output_dir.parent)}")
+                # Save filtered trades CSV for ALL modes
+                trades_csv_dir = output_dir / 'Single_TF' / 'Trades' / mode
+                trades_csv_dir.mkdir(parents=True, exist_ok=True)
+                trades_csv_path = trades_csv_dir / f"{tf}_trades.csv"
+                trades_filtered.to_csv(trades_csv_path, index=False)
+                print(f"    ✓ Saved: {trades_csv_path.relative_to(output_dir.parent)}")
 
-                    # Generate report
-                    report_dir = output_dir / 'Single_TF' / 'results' / mode
-                    report_dir.mkdir(parents=True, exist_ok=True)
-                    report_path = report_dir / f"{tf}_{type_name}.txt"
+                # Generate report
+                report_dir = output_dir / 'Single_TF' / 'results' / mode
+                report_dir.mkdir(parents=True, exist_ok=True)
+                report_path = report_dir / f"{tf}_report.txt"
 
-                    report_title = f"Model 3 - {tf} {type_name.capitalize()} + COT Filter ({mode})"
-                    generate_report(
-                        trades_df=trades_filtered,
-                        output_path=report_path,
-                        title=report_title,
-                        original_count=original_count,
-                        filter_rate=filter_rate,
-                        phase2_trades_df=trades_original
-                    )
+                report_title = f"Model 3 - {tf} + COT Filter ({mode})"
+                generate_report(
+                    trades_df=trades_filtered,
+                    output_path=report_path,
+                    title=report_title,
+                    original_count=original_count,
+                    filter_rate=filter_rate,
+                    phase2_trades_df=trades_original
+                )
 
-                    print(f"    ✓ Report: {report_path.relative_to(output_dir.parent)}")
+                print(f"    ✓ Report: {report_path.relative_to(output_dir.parent)}")
 
         print("\n" + "="*80)
         print("ALL REPORTS GENERATED")
         print("="*80)
         print(f"\nOutput Directory: {output_dir}")
-        print(f"  - 18 TXT Reports in: Single_TF/results/Bias_*/")
-        print(f"  - 6 Trade CSVs in: Single_TF/Trades/")
+        print(f"  - 9 TXT Reports in: Single_TF/results/Bias_*/")
+        print(f"  - 9 Trade CSVs in: Single_TF/Trades/Bias_*/")
 
 
 def main():

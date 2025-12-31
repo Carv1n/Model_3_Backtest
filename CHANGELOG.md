@@ -1,6 +1,59 @@
 # Model 3 - Changelog
 
-**Letzte Updates**: 30.12.2025
+**Letzte Updates**: 31.12.2025
+
+---
+
+## 31.12.2025 - REPORT1 Format & Improvements ✅
+
+### REPORT1 Format Einführung
+- ✅ Pure/Conservative Trennung entfernt (vereinfacht)
+- ✅ Neues REPORT1 Format: Optimierungs-fokussiert
+- ✅ **Win Rate by Fib TP Levels**: Fib -0.5 bis -3.0 Analyse
+  - Fib -1.0 Win Rate = Overall Win Rate (korrekt)
+  - Nutzt `exit_type == 'tp'` für Fib -1.0, MFE für andere Levels
+- ✅ **SQN (System Quality Number)**: (Expectancy / StdDev) × √N
+  - Classification: Excellent > 3.0 > Very Good > 2.5 > Good > 2.0 > Average > 1.6 > Below Average
+- ✅ **Pair Breakdown**: Top 5 Best + Bottom 5 Worst by Expectancy
+  - 7 Stats: Trades, Win%, Exp, PF, AvgW, AvgL, Total R
+- ✅ **Funded Account Viability**: 6 Checks (200 Trades, +Exp, DD<10R, SQN>1.6, WR>35%, PF>1.3)
+
+### Scripts Aktualisiert
+- ✅ `report_helpers.py` - Neue calc_stats() mit Fib TP & SQN
+- ✅ `backtest_all.py` (Phase 2) - format_report(stats, htf_timeframe, config)
+- ✅ `backtest_weekly_full.py` (Test) - format_report(stats, "Weekly", config)
+- ✅ `backtest_weekly_mini.py` (Test) - Template für neue Struktur
+- ✅ COT `generate_reports.py` - Neues REPORT1 Format mit Phase 2 Vergleich
+
+### Code Improvements
+- ✅ Vectorized Calculations: Schnellere DD, Streaks, Concurrent Trades Berechnung
+- ✅ PAIRS alphabetisch sortiert (AUDCAD → USDJPY) in allen Scripts
+- ✅ Entfernt: commission/spread Parameter aus calc_stats()
+- ✅ Vereinfacht: format_report(stats, htf_timeframe, config)
+
+### Bug Fixes
+- ✅ **Fib -1.0 Win Rate Korrektur**:
+  - Problem: MFE-based Berechnung zeigte 33.8% statt 39.9%
+  - Fix: Fib -1.0 nutzt `exit_type == 'tp'` (actual exits)
+  - Andere Fib Levels nutzen MFE (hypothetical "what if")
+  - 4 Trades hatten MFE >= TP aber SL exit (Preis ging zu TP, kam zurück)
+
+### Output-Dateien (NEU)
+**CSV Trades:**
+- `results/Trades/W_trades.csv`
+- `results/Trades/3D_trades.csv`
+- `results/Trades/M_trades.csv`
+
+**TXT Reports (REPORT1 Format):**
+- `results/W_report.txt`
+- `results/3D_report.txt`
+- `results/M_report.txt`
+
+### COT Phase 3 Updates
+- ✅ `generate_reports.py` komplett neu im REPORT1-Stil
+- ✅ Nutzt calc_stats() aus Phase 2 (via sys.path import)
+- ✅ Phase 2 Vergleich beibehalten (mit Pfeilen ↑↓→)
+- ✅ Alle REPORT1 Sections + COT Filter Impact Section
 
 ---
 

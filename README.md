@@ -1,6 +1,6 @@
 # Model 3 - Multi-Timeframe Pivot Trading System
 
-## 📁 Projekt-Struktur (AKTUALISIERT 30.12.2025)
+## 📁 Projekt-Struktur (AKTUALISIERT 31.12.2025)
 
 ```
 05_Model 3/
@@ -28,20 +28,12 @@
 │   │           │   └── report_helpers.py
 │   │           └── results/
 │   │               ├── Trades/
-│   │               │   ├── W_pure.csv
-│   │               │   ├── W_conservative.csv
-│   │               │   ├── 3D_pure.csv
-│   │               │   ├── 3D_conservative.csv
-│   │               │   ├── M_pure.csv
-│   │               │   └── M_conservative.csv
-│   │               ├── Pure_Strategy/
-│   │               │   ├── W_pure.txt
-│   │               │   ├── 3D_pure.txt
-│   │               │   └── M_pure.txt
-│   │               └── Conservative/
-│   │                   ├── W_conservative.txt
-│   │                   ├── 3D_conservative.txt
-│   │                   └── M_conservative.txt
+│   │               │   ├── W_trades.csv
+│   │               │   ├── 3D_trades.csv
+│   │               │   └── M_trades.csv
+│   │               ├── W_report.txt
+│   │               ├── 3D_report.txt
+│   │               └── M_report.txt
 │   │
 │   └── 03_fundamentals/         ← SPÄTER (COT, Seasonality)
 │       └── COT/
@@ -120,10 +112,8 @@ python scripts/backtest_M.py
 ```
 
 **Output:**
-- `results/Trades/{TF}_pure.csv` - Trade-Liste (ohne Kosten)
-- `results/Trades/{TF}_conservative.csv` - Trade-Liste (mit Spreads + Commission)
-- `results/Pure_Strategy/{TF}_pure.txt` - Vollständiger Report
-- `results/Conservative/{TF}_conservative.txt` - Report mit Transaktionskosten
+- `results/Trades/{TF}_trades.csv` - Trade-Liste mit allen Details
+- `results/{TF}_report.txt` - Vollständiger Report (REPORT1 Format)
 
 ---
 
@@ -137,8 +127,9 @@ python scripts/backtest_M.py
 ### Phase 2: Technical Backtests 🎯 AKTUELL
 - **Ordner**: `Backtest/02_technical/01_DEFAULT/01_Single_TF/`
 - **Zweck**: Separate Backtests für W, 3D, M
-- **Config**: Einzelne Timeframes, alle 28 Pairs, direct_touch, 2010-2024
-- **Output**: TXT Reports + CSV Exports (Pure + Conservative)
+- **Config**: Einzelne Timeframes, 28 Pairs (alphabetisch), direct_touch, 2010-2024
+- **Output**: TXT Reports (REPORT1 Format) + CSV Exports
+- **Report Features**: SQN, Win Rate by Fib TP, Pair Breakdown, Funded Account Viability
 
 ### Phase 3: COT Integration (NÄCHSTER SCHRITT)
 - **Ordner**: `Backtest/03_fundamentals/COT/`
@@ -147,31 +138,30 @@ python scripts/backtest_M.py
 
 ---
 
-## 📂 Neue Ordnerstruktur (seit 30.12.2025)
+## 📂 Ordnerstruktur & Report Format (Update 31.12.2025)
 
-### Warum die Änderung?
+### Änderungen:
 
-**Problem mit alter Struktur:**
-- `01_test/02_W_test/` nur für Weekly
-- Keine Trennung zwischen 3D, M
-- Zeitstempel in Dateinamen (unnötig)
+**31.12.2025 - REPORT1 Format Einführung:**
+- Pure/Conservative Trennung entfernt (vereinfacht)
+- REPORT1 Format: Optimierungs-fokussiert, schnellere Generierung
+- Neue Features: SQN, Win Rate by Fib TP Levels, Pair Breakdown
+- PAIRS jetzt alphabetisch sortiert (AUDCAD → USDJPY)
+- Schnellere Report-Generierung durch Vectorization
 
-**Neue Struktur:**
+**30.12.2025 - Strukturänderung:**
 - `02_technical/01_DEFAULT/01_Single_TF/` für alle 3 Timeframes
 - Saubere Trennung: W, 3D, M haben eigene Scripts
-- Einheitliche Dateinamen: `W_pure.csv`, `3D_conservative.txt`, etc.
-- Pure vs Conservative klar getrennt
+- Keine Zeitstempel mehr in Dateinamen
 
 ### Ausgabe-Dateien
 
-**CSV Trades (alle in `/Trades/`):**
-- `W_pure.csv`, `W_conservative.csv`
-- `3D_pure.csv`, `3D_conservative.csv`
-- `M_pure.csv`, `M_conservative.csv`
+**CSV Trades (in `/Trades/`):**
+- `W_trades.csv`, `3D_trades.csv`, `M_trades.csv`
 
-**TXT Reports:**
-- `/Pure_Strategy/W_pure.txt` - Statistiken ohne Kosten
-- `/Conservative/W_conservative.txt` - Statistiken mit Spreads + $5/lot Commission
+**TXT Reports (REPORT1 Format):**
+- `W_report.txt`, `3D_report.txt`, `M_report.txt`
+- Enthält: SQN, Win Rate by Fib TP, Top/Bottom 5 Pairs, Funded Account Viability
 
 ---
 
@@ -232,17 +222,23 @@ python scripts/backtest_M.py   # Monthly
 
 ---
 
-## 📊 Reports
+## 📊 Reports (REPORT1 Format)
 
-### Pure Strategy
-- **Keine Transaktionskosten**
-- Theoretische Performance
-- Basis für Vergleich
+### Report Sections:
+1. **Quick Overview**: Total Trades, Win Rate, Expectancy, SQN, Verdict
+2. **R-Performance**: Cumulative R, SQN Classification, Sharpe/Sortino
+3. **Trade Statistics**: Long/Short Breakdown, Win Rates
+4. **Drawdown & Streaks**: Max DD, Recovery, Consecutive Wins/Losses
+5. **Time-Based Performance**: Monthly/Yearly R, Best/Worst Periods
+6. **Funded Account Viability**: 6 Checks (Trades, Exp, DD, SQN, WR, PF)
+7. **Win Rate by Fib TP Levels**: Fib -0.5 bis -3.0 (was-wäre-wenn Analyse)
+8. **Pair Breakdown**: Top 5 Best + Bottom 5 Worst by Expectancy
 
-### Conservative
-- **Variable Spreads**: 0.4-2.5 pips (Durchschnitt ~1.0-1.5)
-- **Commission**: $5 per standard lot
-- Realistische Performance
+### Key Features:
+- **Fib -1.0 Win Rate = Overall Win Rate** (korrekt)
+- **SQN (System Quality Number)**: Qualitäts-Rating des Systems
+- **Pair Analysis**: Welche Pairs performen am besten/schlechtesten
+- **Vectorized Calculations**: Schnellere Generierung
 
 ---
 
@@ -266,4 +262,4 @@ python scripts/backtest_M.py   # Monthly
 
 ---
 
-*Last Updated: 30.12.2025*
+*Last Updated: 31.12.2025*
