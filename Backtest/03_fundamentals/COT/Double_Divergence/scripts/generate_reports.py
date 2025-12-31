@@ -302,8 +302,7 @@ def format_report(stats: Dict, portfolio: Dict, mfe_mae: Dict, title: str,
     lines.append("--- RISK-ADJUSTED RETURNS ---")
     lines.append(f"Sharpe Ratio: {fmt_chg(portfolio.get('sharpe_ratio',0), phase2_portfolio.get('sharpe_ratio', 0), '') if p2p_mode else f'{portfolio.get("sharpe_ratio", 0):.2f}'}")
     lines.append(f"Sortino Ratio: {fmt_chg(portfolio.get('sortino_ratio',0), phase2_portfolio.get('sortino_ratio', 0), '') if p2p_mode else f'{portfolio.get("sortino_ratio", 0):.2f}'}")
-    lines.append(f"Annualized Volatility: {portfolio.get('volatility', 0):.1f}%
-")
+    lines.append(f"Annualized Volatility: {portfolio.get('volatility', 0):.1f}%")
 
     # MFE/MAE
     if 'mfe_winners' in mfe_mae and mfe_mae['mfe_winners'] is not None:

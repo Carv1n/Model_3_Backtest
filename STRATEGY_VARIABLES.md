@@ -31,33 +31,6 @@
 ### 2.1 HTF Timeframe Selection
 **Aktuell**: `["3D", "W", "M"]` (alle)
 
-**Varianten zu testen**:
-- Einzeln: `["3D"]`, `["W"]`, `["M"]`
-- Kombinationen: `["3D", "W"]`, `["W", "M"]`, etc.
-- Nur höhere TFs: `["W", "M"]` (ohne 3D)
-
-**Erwartung**:
-- 3D: Mehr Trades, kürzere Duration
-- W: Mittlere Frequenz, gute Balance?
-- M: Wenige Trades, lange Duration, hohe Qualität?
-
-**Test-Priority**: **HIGH** - Baseline startet mit W only!
-
-### 2.2 Refinement Maximum Timeframe
-**Aktuell**: `"W"` (max Verfeinerung = Weekly)
-
-**Varianten zu testen**:
-- `"D"` - Nur H1, H4, D Verfeinerungen (keine Weekly)
-- `"W"` - Standard (H1, H4, D, 3D, W)
-- `"3D"` - Ohne Weekly (H1, H4, D, 3D)
-
-**Erwartung**:
-- Niedrigere max TF: Mehr Verfeinerungen, feinere Entries
-- Höhere max TF: Weniger, aber qualitativ bessere Verfeinerungen
-
-**Test-Priority**: **MEDIUM** - Nach Entry & HTF Tests
-
----
 
 ## 3. Risk-Reward Variablen
 

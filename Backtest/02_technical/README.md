@@ -8,7 +8,7 @@ Performance-Analyse der technischen Model 3 Strategie OHNE fundamentale Filter.
 
 ## ✅ Bug Fixes (31.12.2025)
 
-### Gap_Pips JPY Pairs Fix
+### 1. Gap_Pips JPY Pairs Fix ✅
 
 **Problem**: JPY-Pairs hatten 100x zu große gap_pips Werte
 - Beispiel: Gap bei CHFJPY zeigte 12420 pips statt 124.20 pips
@@ -38,10 +38,52 @@ gap_pips = abs(gap_price) / pip_divisor
 **Zusätzlicher Fix**:
 - `htf_timeframe` Column zu Trade CSVs hinzugefügt (war vorher gefehlt)
 
+**Status**: ✅ GEFIXT (31.12.2025 vormittags)
+
+---
+
+### 2. H1 Gap Touch Precision ✅
+
+**Problem**: TP-Check nutzte Daily Gap Touch Time (Mitternacht), nicht exakte H1 Zeit
+- Führte zu falschen Trade-Rejections bei Szenario: TP VOR Gap Touch (aber selber Tag)
+- Beispiel: TP um 09:00, Gap Touch um 14:00 → alte Logik rejected (falsch!)
+
+**Root Cause**:
+- Gap Touch wurde nur auf Daily geprüft → returned Mitternacht (00:00)
+- TP-Check ab 00:00 → TP um 09:00 fälschlich im Check-Window
+- Sollte aber ab 14:00 prüfen (tatsächliche Gap Touch Zeit)
+
+**Fix Applied** (alle Test Scripts):
+- `01_test/02_W_test/02_ALL_PAIRS/scripts/backtest_weekly_full.py`
+- Analog in anderen Test-Scripts
+
+**Code-Änderung** in `simulate_single_trade()`:
+```python
+# OLD (WRONG - 2608 trades):
+gap_touch_time = find_gap_touch_on_daily_fast(d_df, pivot, pivot.valid_time)
+# → returned Mitternacht, nicht exakte Zeit
+
+# NEW (CORRECT - 3986 trades):
+daily_gap_touch = find_gap_touch_on_daily_fast(d_df, pivot, pivot.valid_time)
+gap_touch_time = find_gap_touch_on_h1_fast(h1_df, pivot, daily_gap_touch)
+# → returned exakte H1 Zeit (z.B. 14:00)
+```
+
+**TP-Check Regel** (korrekt implementiert):
+- Check Window: `gap_touch_time` (H1 exakt) bis `entry_time`
+- Regel: TP darf NICHT zwischen Gap Touch und Entry getroffen werden
+- ABER: TP VOR Gap Touch ist OKAY (Trade valid!)
+
 **Impact**:
-- Alle Phase 2 Reports gelöscht
-- Neue Reports werden mit korrigiertem Code generiert
-- JPY Gap-Pips jetzt korrekt
+- +1378 Trades (+52.8%): 2608 → 3986
+- Diese Trades sind VALIDE (TP vor Gap Touch, aber nach Valid Time)
+- Alte Logik hatte sie fälschlich rejected
+
+**Status**: ✅ GEFIXT (31.12.2025 nachmittags)
+
+**Trade Count Evolution**:
+- 30.12.2025: 2608 trades (Daily Gap Touch, falsches Reject)
+- 31.12.2025: 3986 trades (H1 Gap Touch, korrekt!) ✅
 
 ---
 
@@ -229,4 +271,4 @@ Nach Abschluss 02_technical:
 
 ---
 
-*Last Updated: 30.12.2025*
+*Last Updated: 31.12.2025*

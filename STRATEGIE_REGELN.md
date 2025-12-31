@@ -1,6 +1,6 @@
 # Model 3 - Technische Strategie-Regeln
 
-**Stand**: 2025-12-29 (Fixes: TP-Check Logik, RR Berechnung)
+**Stand**: 2025-12-31 (Fixes: JPY Pips, H1 Gap Touch, TP-Check Logik, RR Berechnung)
 
 Dieses Dokument enthält ALLE technischen Regeln der Strategie - kompakt und vollständig.
 
@@ -117,14 +117,17 @@ Bei mehreren Verfeinerungen:
 - Vorteil: H1 gibt exakte Stunde, Daily nur Datum
 - Gilt auch bei W/M Pivots - immer auf H1 prüfen!
 
-**2. TP-Check**
+**2. TP-Check** ✅ (korrigiert 31.12.2025)
 - TP (-1 Fib) darf NICHT berührt werden **zwischen Gap Touch und Entry**
-- **WICHTIG**: Check-Fenster: `max(Valid Time, Gap Touch)` **bis** `Entry Time`
-- Check startet frühestens ab Valid Time (K3 Open)
+- **WICHTIG**: Check-Fenster: `Gap Touch Time` (H1 exakt!) **bis** `Entry Time`
+- Check startet AB Gap Touch (nicht ab Valid Time!)
+- Warum? TP VOR Gap Touch ist irrelevant (Pivot war noch nicht activated)
 - Check endet BEI Entry (nicht danach!)
-- Wenn TP berührt im Check-Fenster → Setup **ungültig**
-- Wenn TP berührt NACH Entry → egal (normaler Trade-Verlauf)
+- **Regel**: Wenn TP zwischen Gap Touch und Entry → Setup **ungültig**
+- Wenn TP NACH Entry → egal (normaler Trade-Verlauf)
+- Wenn TP VOR Gap Touch → **OKAY** (Trade ist valide!)
 - **Multi-TF**: M ungültig → W/3D bleiben valide (wenn deren TPs nicht berührt)
+- **Implementation**: `check_tp_touched_before_entry_fast(df, pivot, gap_touch_time, entry_time, tp)`
 
 ### Entry-Level bestimmen
 
