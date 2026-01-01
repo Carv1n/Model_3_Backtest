@@ -1,6 +1,6 @@
 # Model 3 - Multi-Timeframe Pivot Trading System
 
-## 📁 Projekt-Struktur (AKTUALISIERT 31.12.2025)
+## 📁 Projekt-Struktur (AKTUALISIERT 01.01.2026)
 
 ```
 05_Model 3/
@@ -210,6 +210,7 @@ python scripts/backtest_M.py   # Monthly
   - Prüfung auf H1 für Präzision
 - Wick Diff Entry bei < 20% (außer Verfeinerung näher)
 - RR-Check: >= 1 RR erforderlich
+- **Unberührt-Check (Verfeinerung)**: NEAR darf nicht berührt werden zwischen Creation und HTF Valid Time
 
 ### SL-Berechnung
 - Min. 60 Pips von **ENTRY** (nicht Extreme!)
@@ -255,11 +256,24 @@ python scripts/backtest_M.py   # Monthly
 
 ## 🎯 Nächste Schritte
 
-1. ✅ Single Timeframe Tests ausführen (W, 3D, M)
+1. 🔄 **Single Timeframe Tests RE-RUN** (W, 3D, M) - Nach Bug Fixes vom 01.01.2026
 2. ⏳ Ergebnisse analysieren und vergleichen
 3. ⏳ COT Integration vorbereiten
 4. ⏳ Combined Portfolio Tests (W+3D+M zusammen)
 
 ---
 
-*Last Updated: 31.12.2025*
+## ⚠️ Wichtige Updates (01.01.2026)
+
+**CRITICAL BUG FIXES angewendet:**
+1. ✅ **3D Zero Trades Fix**: Dynamic LTF list (excludes HTF itself)
+2. ✅ **Chronological Entry Logic**: Korrekte Touch-basierte Reihenfolge
+3. ✅ **RR Fallback**: Höchste Prio < 1 RR → Delete, nächste wird aktiv
+
+**EMPFEHLUNG**: Backtests neu ausführen mit korrigierter Logic!
+
+Details siehe [CHANGELOG.md](CHANGELOG.md)
+
+---
+
+*Last Updated: 01.01.2026*

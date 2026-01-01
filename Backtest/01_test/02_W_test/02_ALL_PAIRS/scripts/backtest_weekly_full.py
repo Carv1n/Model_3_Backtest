@@ -186,7 +186,7 @@ def detect_refinements_fast(df, htf_pivot, timeframe, max_size_frac=0.2, min_bod
             direction=direction,
             pivot_level=round(pivot_levels_result[i], 5),
             extreme=round(extremes_result[i], 5),
-            near=round(near_level, 5),
+            near=round(nears_result[i], 5),
             size=round(sizes_result[i], 5),
         )
         refinements.append(ref)
@@ -337,9 +337,44 @@ class TimingTracker:
 # TRADE SIMULATION
 # ============================================================================
 
+def find_near_touch_time(near_level, start_time, h1_df, direction):
+    """
+    Findet den Zeitpunkt, wann near_level zum ersten Mal nach start_time berührt wird.
+
+    Args:
+        near_level: Preis-Level (refinement near oder wick_diff entry)
+        start_time: Startzeit (gap_touch_time)
+        h1_df: H1 DataFrame
+        direction: "bullish" oder "bearish"
+
+    Returns: Timestamp oder None
+    """
+    window = h1_df[h1_df["time"] >= start_time].copy()
+
+    if len(window) == 0:
+        return None
+
+    if direction == "bullish":
+        touch_mask = window["low"] <= near_level
+    else:
+        touch_mask = window["high"] >= near_level
+
+    hits = window[touch_mask]
+    if len(hits) > 0:
+        return hits.iloc[0]["time"]
+    return None
+
+
 def simulate_single_trade(pair, pivot, refinements, ltf_cache):
     """
-    Simuliert einen Trade für ein Pivot.
+    Simuliert einen Trade für ein Pivot mit chronologischer Verfeinerungs-Logik.
+
+    CRITICAL LOGIC:
+    - Nur EINE Entry pro Pivot
+    - Nur höchste Priorität refinement bekommt RR-Check
+    - Niedrigere Priorität refinements werden sofort gelöscht wenn berührt (KEIN RR-Check)
+    - Chronologische Reihenfolge der Touches ist entscheidend
+    - RR Fallback: Wenn höchste Prio < 1 RR → löschen, nächste wird höchste Prio
 
     Returns: dict mit Trade-Details oder None
     """
@@ -356,57 +391,93 @@ def simulate_single_trade(pair, pivot, refinements, ltf_cache):
     if gap_touch_time is None:
         return None
 
-    # 2. Entry-Level bestimmen
+    # 2. Wick Diff Entry prüfen
     use_wick_diff, wick_diff_entry = should_use_wick_diff_entry(pivot, refinements)
 
-    # Sortiere Verfeinerungen
+    # Sortiere Verfeinerungen nach Priorität
     def ref_priority(ref):
         tf_order = {"W": 0, "3D": 1, "D": 2, "H4": 3, "H1": 4}
         tf_prio = tf_order.get(ref.timeframe, 99)
         dist_to_near = abs(ref.near - pivot.near)
         return (tf_prio, dist_to_near)
 
-    refinements_sorted = sorted(refinements, key=ref_priority) if refinements else []
+    refinements_active = sorted(refinements, key=ref_priority) if refinements else []
 
-    # Entry-Kandidaten mit RR-Check
-    entry_candidates = []
+    # 3. Finde Touch-Zeiten für alle Verfeinerungen (chronologisch)
+    touch_events = []
 
+    # Wick diff entry als möglicher Kandidat (wenn use_wick_diff True)
     if use_wick_diff and wick_diff_entry is not None:
-        sl_tp_result = compute_sl_tp(pivot.direction, wick_diff_entry, pivot, pair)
-        if sl_tp_result is not None and sl_tp_result[2] >= 1.0:
-            entry_candidates.append(("wick_diff", wick_diff_entry, sl_tp_result))
+        wd_touch_time = find_near_touch_time(wick_diff_entry, gap_touch_time, h1_df, pivot.direction)
+        if wd_touch_time:
+            # Create pseudo-refinement for wick_diff
+            class WickDiffRef:
+                def __init__(self, near, timeframe="wick_diff"):
+                    self.near = near
+                    self.timeframe = timeframe
+            wd_ref = WickDiffRef(wick_diff_entry)
+            touch_events.append((wd_touch_time, wd_ref, True))  # True = is_wick_diff
 
-    for ref in refinements_sorted:
-        sl_tp_result = compute_sl_tp(pivot.direction, ref.near, pivot, pair)
-        if sl_tp_result is not None and sl_tp_result[2] >= 1.0:
-            entry_candidates.append((ref.timeframe, ref.near, sl_tp_result))
-            break
+    # Refinements
+    for ref in refinements_active:
+        ref_touch_time = find_near_touch_time(ref.near, gap_touch_time, h1_df, pivot.direction)
+        if ref_touch_time:
+            touch_events.append((ref_touch_time, ref, False))  # False = is_refinement
 
-    if not entry_candidates:
+    if len(touch_events) == 0:
         return None
 
-    entry_type, entry_price, sl_tp_result = entry_candidates[0]
-    sl_price, tp_price, rr = sl_tp_result
+    # 4. Sortiere Touches chronologisch
+    touch_events.sort(key=lambda x: x[0])
 
-    # 3. Entry suchen (OPTIMIZED: vectorized)
-    entry_time = None
-    entry_window = h1_df[h1_df["time"] >= gap_touch_time].copy()
+    # 5. Verarbeite Touches in chronologischer Reihenfolge
+    for touch_time, touched_ref, is_wick_diff in touch_events:
+        # Wenn keine aktiven Verfeinerungen mehr → abbrechen
+        if len(refinements_active) == 0 and not is_wick_diff:
+            return None
 
-    if len(entry_window) == 0:
-        return None
+        # Bestimme höchste Priorität
+        # Wick diff hat NIEDRIGSTE Priorität (nur wenn keine Verfeinerungen)
+        if len(refinements_active) > 0:
+            highest_prio_ref = refinements_active[0]
+            is_highest_prio = (not is_wick_diff) and (touched_ref == highest_prio_ref)
+        else:
+            # Keine Verfeinerungen mehr → wick_diff wird höchste Prio
+            is_highest_prio = is_wick_diff
 
-    if pivot.direction == "bullish":
-        entry_mask = entry_window["low"] <= entry_price
+        if is_highest_prio:
+            # Höchste Prio berührt → Entry Check mit RR >= 1.0
+            entry_price = touched_ref.near
+            sl_tp_result = compute_sl_tp(pivot.direction, entry_price, pivot, pair)
+
+            if sl_tp_result is not None and sl_tp_result[2] >= 1.0:
+                # ENTRY! RR >= 1.0 erfüllt
+                entry_type = touched_ref.timeframe
+                sl_price, tp_price, rr = sl_tp_result
+                entry_time = touch_time
+
+                # Ab hier: Exit-Simulation (unverändert)
+                break
+            else:
+                # RR < 1.0 → Verfeinerung ungültig, löschen
+                if not is_wick_diff:
+                    refinements_active.remove(touched_ref)
+                # Continue mit nächster Touch oder nächster höchster Prio
+                continue
+        else:
+            # NICHT höchste Prio berührt → Sofort löschen (KEIN RR-Check!)
+            if not is_wick_diff:
+                refinements_active.remove(touched_ref)
+            # Continue
+            continue
     else:
-        entry_mask = entry_window["high"] >= entry_price
-
-    entry_hits = entry_window[entry_mask]
-    if len(entry_hits) == 0:
+        # Keine valide Entry gefunden
         return None
 
-    entry_time = entry_hits.iloc[0]["time"]
+    # Ab hier: Entry wurde gefunden, jetzt Exit simulieren
+    # entry_time, entry_price, entry_type, sl_price, tp_price, rr sind gesetzt
 
-    # 4. TP-Check (OPTIMIZED)
+    # 6. TP-Check (OPTIMIZED)
     tp_touched = check_tp_touched_before_entry_fast(h1_df, pivot, gap_touch_time, entry_time, tp_price)
     if tp_touched:
         return None
@@ -416,7 +487,7 @@ def simulate_single_trade(pair, pivot, refinements, ltf_cache):
     # Transaction costs will be applied in Conservative report later
     pip_value = price_per_pip(pair)
 
-    # 5. Exit simulieren (OPTIMIZED: vectorized)
+    # 7. Exit simulieren (OPTIMIZED: vectorized)
     exit_window = h1_df[h1_df["time"] > entry_time].copy()
 
     if len(exit_window) == 0:

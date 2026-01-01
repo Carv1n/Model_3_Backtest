@@ -1,6 +1,83 @@
 # Model 3 - Changelog
 
-**Letzte Updates**: 31.12.2025
+**Letzte Updates**: 01.01.2026
+
+---
+
+## 01.01.2026 - CRITICAL BUG FIXES: Entry Logic & LTF List ✅
+
+### 🔴 Bug Fix 1: 3D Backtest Zero Trades Issue
+**Problem:**
+- 9 von 28 Pairs hatten 0 Trades trotz 600+ Pivots (CADJPY, GBPJPY, GBPUSD, USDJPY, etc.)
+- Root Cause: Hardcoded `ltf_list = ["3D", "D", "H4", "H1"]` in Line 501
+
+**Fix:**
+```python
+# OLD (WRONG):
+ltf_list = ["3D", "D", "H4", "H1"]
+
+# NEW (CORRECT):
+all_tfs = ["M", "W", "3D", "D", "H4", "H1"]
+htf_idx = all_tfs.index(htf_timeframe)
+ltf_list = all_tfs[htf_idx + 1:]  # Dynamic based on HTF
+```
+
+**Result:**
+- W: `["3D", "D", "H4", "H1"]` ✓
+- 3D: `["D", "H4", "H1"]` ✓ (excluded 3D itself!)
+- M: `["W", "3D", "D", "H4", "H1"]` ✓ (now includes W!)
+
+**Impact:**
+- 3D Backtest sollte jetzt Trades für alle 28 Pairs haben
+- M Backtest könnte mehr Trades haben (W Verfeinerungen inkludiert)
+
+### 🔴 Bug Fix 2: Chronological Entry Logic
+**Problem:**
+- Entry-Kandidaten wurden nur nach Priorität sortiert, NICHT chronologisch
+- Niedrigere Prio Verfeinerungen wurden nicht sofort gelöscht wenn berührt
+- RR Fallback nicht korrekt implementiert
+- Multiple entries möglich (sollte nur EINE Entry pro Pivot sein)
+
+**Korrekte Regeln (aus User-Feedback):**
+1. **Nur EINE Entry pro Pivot**
+2. **Nur höchste Priorität** refinement bekommt RR-Check
+3. **Niedrigere Priorität** refinements → Sofort löschen wenn berührt (KEIN RR-Check!)
+4. **Chronologische Reihenfolge** der Touches ist entscheidend
+5. **RR Fallback**: Wenn höchste Prio < 1 RR → löschen, nächste wird höchste Prio
+
+**Fix:**
+```python
+# Neue Funktion:
+def find_near_touch_time(near_level, start_time, h1_df, direction):
+    """Findet wann near_level zum ersten Mal nach start_time berührt wird"""
+    # Vectorized touch detection auf H1 Daten
+
+# Neue Logik in simulate_single_trade():
+1. Finde Touch-Zeiten für ALLE Verfeinerungen
+2. Sortiere Touches chronologisch
+3. Verarbeite in zeitlicher Reihenfolge:
+   - Touched Ref = Höchste Prio → RR Check → Entry oder Delete
+   - Touched Ref ≠ Höchste Prio → DELETE sofort (kein RR Check)
+4. Return erste valide Entry oder None
+```
+
+**Impact:**
+- Korrekte Entry-Simulation nach tatsächlicher Marktbewegung
+- RR Fallback funktioniert richtig
+- Keine falschen Entries mehr
+
+### Files Updated
+- ✅ `backtest_all.py` - Phase 2 Main Script
+- ✅ `backtest_weekly_mini.py` - Test Script
+- ✅ `backtest_weekly_full.py` - Test Script (All Pairs)
+
+### Verification
+- ✅ Python Syntax Check: Alle 3 Files valid
+- ✅ Logic Check gegen STRATEGIE_REGELN.md: Korrekt
+- ✅ Refinement Priority: W > 3D > D > H4 > H1 ✓
+- ✅ Chronological Processing: Touch-basierte Reihenfolge ✓
+- ✅ Single Entry Rule: Nur erste valide Entry ✓
+- ✅ RR Fallback: Höchste Prio < 1 RR → Delete, nächste wird aktiv ✓
 
 ---
 

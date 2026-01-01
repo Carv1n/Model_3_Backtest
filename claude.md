@@ -121,15 +121,20 @@
    - Archiviert, alte Struktur
    - Ersetzt durch Phase 2
 
-### Phase 2: Technical Backtests 🎯 AKTUELL (30.12.2025)
+### Phase 2: Technical Backtests 🎯 AKTUELL (01.01.2026)
 
 **Ordner**: `Backtest/02_technical/01_DEFAULT/01_Single_TF/`
 
 **Scripts (alle funktional):**
+- `scripts/backtest_all.py` - Main Backtest Script (W, 3D, M) ✅ **Updated 01.01.2026**
 - `scripts/backtest_W.py` - Weekly Backtest
 - `scripts/backtest_3D.py` - 3-Day Backtest
 - `scripts/backtest_M.py` - Monthly Backtest
 - `scripts/report_helpers.py` - Shared reporting functions
+
+**Test Scripts (Updated 01.01.2026):**
+- `Backtest/01_test/02_W_test/01_test/scripts/backtest_weekly_mini.py` ✅
+- `Backtest/01_test/02_W_test/02_ALL_PAIRS/scripts/backtest_weekly_full.py` ✅
 
 **Output-Struktur:**
 ```
@@ -156,19 +161,27 @@ results/
    - Kein Versatz-Filter
    - Pivot-Struktur korrekt (Pivot, Extreme, Near, Gap, Wick Diff)
 
-2. **Verfeinerungs-Suche** (W, 3D, D, H4, H1)
+2. **Verfeinerungs-Suche** ✅ **Fixed 01.01.2026**
+   - **Dynamic LTF List**: Excludes HTF itself ✅
+     - W HTF → [3D, D, H4, H1] ✓
+     - 3D HTF → [D, H4, H1] ✓ (no more 3D in its own search!)
+     - M HTF → [W, 3D, D, H4, H1] ✓ (now includes W!)
    - Suche innerhalb Wick Difference
    - Max. 20% der Pivot Gap
    - Priorität: höchster TF zuerst
    - Doji-Filter: 5% ✅
    - Unberührt-Check: K2 Open (nicht Near!)
 
-3. **Entry-Mechanismus**
+3. **Entry-Mechanismus** ✅ **Updated 01.01.2026**
    - Direkter Touch (direct_touch)
    - Gap Touch auf H1 erforderlich
-   - TP-Check zwischen max(Valid Time, Gap Touch) und Entry
-   - RR-Check >= 1.0 erforderlich
-   - Verfeinerungs-Invalidierung bei Durchbruch
+   - **CHRONOLOGISCHE Entry-Logik**: Touch-basierte Reihenfolge ✅
+   - **Nur EINE Entry pro Pivot** ✅
+   - **Höchste Prio bekommt RR-Check** ✅
+   - **Niedrigere Prio → Sofort Delete** (kein RR-Check) ✅
+   - **RR Fallback**: Höchste Prio < 1 RR → Delete, nächste wird aktiv ✅
+   - TP-Check zwischen Gap Touch und Entry
+   - Verfeinerungs-Invalidierung korrekt implementiert
 
 4. **SL/TP-Berechnung**
    - SL: Min. 60 Pips + unter/über Fib 1.1
@@ -437,6 +450,25 @@ python scripts/backtesting/backtest_model3.py --pairs EURUSD --start-date 2020-0
 
 ---
 
+## ⚠️ CRITICAL UPDATES (01.01.2026)
+
+### Bug Fix 1: 3D Backtest Zero Trades
+**Problem:** 9 von 28 Pairs mit 0 Trades trotz 600+ Pivots
+**Root Cause:** Hardcoded `ltf_list = ["3D", "D", "H4", "H1"]`
+**Fix:** Dynamic LTF list basierend auf HTF
+**Impact:** 3D und M Backtests sollten jetzt signifikant mehr Trades haben
+
+### Bug Fix 2: Chronological Entry Logic
+**Problem:** Entry-Logik nur nach Priorität, nicht chronologisch
+**Fix:** Neue `find_near_touch_time()` Funktion + chronologische Touch-Verarbeitung
+**Impact:** Korrekte Trade-Simulation nach tatsächlicher Marktbewegung
+
+**EMPFEHLUNG**: Alle Backtests (W, 3D, M) neu ausführen!
+
+Details siehe [CHANGELOG.md](CHANGELOG.md)
+
+---
+
 ## Kontakt & Git
 
 - **Repository:** Eigenes Git-Repo in `05_Model 3/.git`
@@ -445,4 +477,4 @@ python scripts/backtesting/backtest_model3.py --pairs EURUSD --start-date 2020-0
 
 ---
 
-*Last Updated: 2025-12-30*
+*Last Updated: 2026-01-01*

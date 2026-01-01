@@ -21,14 +21,10 @@ TIMEFRAMES = ["H1", "H4", "D", "3D", "W", "M"]
 PROJECT_ROOT = Path(__file__).parent
 BACKTEST_ROOT = PROJECT_ROOT.parent.parent  # /Users/carvin/Documents/Trading Backtests/
 DATA_PATH = BACKTEST_ROOT / "Data" / "Chartdata" / "Forex"
-RESULTS_PATH = PROJECT_ROOT / "results"
 
 # SETTINGS
 INITIAL_CAPITAL = 100000
 START_DATE = None  # None = Max verfügbare Daten pro Asset nutzen
 
-# MODEL X SETTINGS
+# MODEL 3 SETTINGS
 DOJI_THRESHOLD = 5.0
-VERSATZ_FILTER = 2.0
-FIB_SL = 1.5
-FIB_TP = -3.0

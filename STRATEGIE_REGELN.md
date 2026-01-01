@@ -82,11 +82,10 @@ Verfeinerung = Kleinerer Pivot innerhalb HTF Pivot Wick Diff
 - **Grund**: D-M Daten (TradingView) exakt, H1-H4 (Oanda API) können Abweichungen haben
 
 **5. Unberührt:**
-- **OPEN K2** der Verfeinerung darf NICHT berührt werden
+- **NEAR** der Verfeinerung darf NICHT berührt werden
 - Zeitraum: Zwischen Verfeinerung Entstehung und HTF Valid Time
 - Bei Touch → Verfeinerung ungültig
-- **WICHTIG**: NICHT Near, sondern k2["open"] (Pivot Level)!
-- **Ab Valid Time**: k2 open spielt keine Rolle mehr, nur Near für Entry
+- Entry erfolgt bei NEAR nach Valid Time
 
 **6. Doji-Filter:**
 - Body >= 5% (BEIDE Kerzen)
