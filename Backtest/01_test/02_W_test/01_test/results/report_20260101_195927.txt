@@ -6,15 +6,15 @@ HTF: Weekly | Entry: direct_touch | Pairs: AUDNZD, EURUSD
 ================================================================================
 QUICK OVERVIEW
 ================================================================================
-Total Trades: 263 (over 14 years: 2010-2024)
+Total Trades: 267 (over 14 years: 2010-2024)
 
-Win Rate: 39.9%
+Win Rate: 40.1%
 Expectancy: -0.03R
-Cumulative R: -9.0R
+Cumulative R: -8.3R
 R per Year: -0.6R
-Max Drawdown: -19.2R
-Profit Factor: 0.94
-SQN: -0.46
+Max Drawdown: -19.7R
+Profit Factor: 0.95
+SQN: -0.43
 
 → VERDICT: NOT VIABLE
 ================================================================================
@@ -22,40 +22,40 @@ SQN: -0.46
 ================================================================================
 R-PERFORMANCE
 ================================================================================
-Cumulative R: -9.0R
+Cumulative R: -8.3R
 Expectancy: -0.03R per trade
   • Average Winner: +1.42R
   • Average Loser: -1.00R
   • Median R: -1.00R
 
-System Quality Number: -0.46 [Below Average]
-Profit Factor: 0.94
+System Quality Number: -0.43 [Below Average]
+Profit Factor: 0.95
 Payoff Ratio: 1.42
 
-Sharpe Ratio: -0.12
+Sharpe Ratio: -0.11
 Sortino Ratio: 0.00
 
 ================================================================================
 TRADE STATISTICS
 ================================================================================
-Win Rate: 39.9%
-Long/Short: 0.98:1 (130L / 133S)
-  • Long WR: 33.1%
-  • Short WR: 46.6%
+Win Rate: 40.1%
+Long/Short: 0.99:1 (133L / 134S)
+  • Long WR: 33.8%
+  • Short WR: 46.3%
 
-Winners: 105 | Losers: 158
+Winners: 107 | Losers: 160
 
 ================================================================================
 DRAWDOWN & STREAKS
 ================================================================================
-Maximum Drawdown: -19.2R
-  • Duration: 132 trades (2791 days / 93.0 months)
+Maximum Drawdown: -19.7R
+  • Duration: 137 trades (2881 days / 96.0 months)
   • Recovery: Not recovered
 
-Average Drawdown: -7.3R
+Average Drawdown: -7.6R
 
-Consecutive Wins: Max 9 | Avg 1.6 | Median 1
-Consecutive Losses: Max 6 | Avg 2.4 | Median 2
+Consecutive Wins: Max 7 | Avg 1.6 | Median 1
+Consecutive Losses: Max 6 | Avg 2.3 | Median 2
 
 ================================================================================
 TIME-BASED PERFORMANCE
@@ -64,29 +64,29 @@ R per Month: -0.1R avg
 R per Year: -0.6R avg
 
 Monthly:
-  • Best: +5.4R | Worst: -4.0R
-  • Profitable: 47% (67/143 months)
+  • Best: +4.5R | Worst: -4.0R
+  • Profitable: 48% (70/147 months)
 
 Yearly:
-  • Best: +14.1R | Worst: -7.5R
+  • Best: +11.5R | Worst: -7.5R
   • Profitable: 40% (6/15 years)
 
 ================================================================================
 TRADE CHARACTERISTICS
 ================================================================================
-Duration: Min 0.0d | Avg 7.9d | Max 65d
-Frequency: 17.9/year | 1.8/month | 0.34/week
+Duration: Min 0.0d | Avg 8.1d | Max 65d
+Frequency: 18.1/year | 1.8/month | 0.35/week
 Concurrent: Avg 0.4 | Max 3
 
 ================================================================================
 FUNDED ACCOUNT VIABILITY (@ 1% risk)
 ================================================================================
-[✓] Min 200 Trades: PASS (263)
+[✓] Min 200 Trades: PASS (267)
 [✗] Positive Expectancy: FAIL (-0.03R)
-[✗] Max DD < 10R: FAIL (-19.2R)
-[✗] SQN > 1.6: FAIL (-0.46)
-[✓] Win Rate > 35%: PASS (39.9%)
-[✗] Profit Factor > 1.3: FAIL (0.94)
+[✗] Max DD < 10R: FAIL (-19.7R)
+[✗] SQN > 1.6: FAIL (-0.43)
+[✓] Win Rate > 35%: PASS (40.1%)
+[✗] Profit Factor > 1.3: FAIL (0.95)
 
 → NOT VIABLE FOR FUNDED ACCOUNT
 ================================================================================
@@ -94,12 +94,12 @@ FUNDED ACCOUNT VIABILITY (@ 1% risk)
 ================================================================================
 WIN RATE BY FIB TP LEVELS (same SL, TP varies by Fib × Box Size)
 ================================================================================
-Fib -0.5 (Avg RR 0.71R):  61.6% (162W / 101L of 263) ████████████████████████
-Fib -1.0 (Avg RR 1.42R):  39.9% (105W / 158L of 263) ███████████████
-Fib -1.5 (Avg RR 2.13R):   0.8% (2W / 261L of 263) 
-Fib -2.0 (Avg RR 2.84R):   0.4% (1W / 262L of 263) 
-Fib -2.5 (Avg RR 3.54R):   0.0% (0W / 263L of 263) 
-Fib -3.0 (Avg RR 4.25R):   0.0% (0W / 263L of 263) 
+Fib -0.5 (Avg RR 0.71R):  61.8% (165W / 102L of 267) ████████████████████████
+Fib -1.0 (Avg RR 1.42R):  40.1% (107W / 160L of 267) ████████████████
+Fib -1.5 (Avg RR 2.12R):   0.7% (2W / 265L of 267) 
+Fib -2.0 (Avg RR 2.83R):   0.4% (1W / 266L of 267) 
+Fib -2.5 (Avg RR 3.54R):   0.0% (0W / 267L of 267) 
+Fib -3.0 (Avg RR 4.25R):   0.0% (0W / 267L of 267) 
 
 Note: Each Fib level shows win rate if TP was set at that level (same -1.0R SL)
 
@@ -110,8 +110,8 @@ PAIR BREAKDOWN (BY EXPECTANCY)
 TOP 5 BEST PAIRS:
 Pair      Trades    Win%     Exp      PF    AvgW    AvgL   Total R
 --------------------------------------------------------------------------------
-AUDNZD       120   44.2%  +0.07R   1.12  +1.41R  -1.00R     +8.0R
-EURUSD       143   36.4%  -0.12R   0.81  +1.42R  -1.00R    -16.9R
+AUDNZD       122   43.4%  +0.05R   1.09  +1.42R  -1.00R     +6.1R
+EURUSD       145   37.2%  -0.10R   0.84  +1.42R  -1.00R    -14.4R
 
 ================================================================================
 END OF REPORT
