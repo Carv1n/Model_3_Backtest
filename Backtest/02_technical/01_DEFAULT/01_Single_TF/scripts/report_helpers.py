@@ -224,52 +224,6 @@ def calc_stats(trades_df, start_cap=100000, risk=0.01):
     downside_std = downside_returns.std(ddof=1) if len(downside_returns) > 1 else 0
     sortino = (expectancy / downside_std) * np.sqrt(trades_per_year) if downside_std > 0 else 0
 
-    # ========== WIN RATE BY FIB TP LEVELS ==========
-    # Calculate win rate for different Fibonacci TP levels (same SL)
-    # Fib -1.0 = 1x Box Size beyond near, Fib -2.0 = 2x Box Size, etc.
-    # Box Size = Gap (pivot to extreme distance)
-    # SL stays CONSTANT, TP moves based on Fib level → RR changes!
-
-    fib_levels = [0.5, 1.0, 1.5, 2.0, 2.5, 3.0]
-    win_rate_by_fib = {}
-
-    for fib in fib_levels:
-        # CORRECT Fibonacci Logic:
-        #
-        # Fib 1.0 = Extreme (100% Retracement)
-        # Fib 0.0 = Pivot (0% = Reference Point)
-        # Fib -1.0 = Pivot + 1×Gap (100% Extension) = DEFAULT TP ✓
-        # Fib -2.0 = Pivot + 2×Gap (200% Extension)
-        # Fib -3.0 = Pivot + 3×Gap (300% Extension)
-        #
-        # tp_distance_pips in CSV = distance to DEFAULT TP (Fib -1.0)
-        # For other Fib levels, scale directly:
-        # tp_at_fib = tp_distance_pips × fib
-
-        tp_pips_required = tdf['tp_distance_pips'] * fib
-
-        # Special case for Fib -1.0: Use actual exit_type
-        # For other levels: Use MFE (hypothetical "what if TP was here?")
-        if abs(fib - 1.0) < 0.01:  # Fib -1.0 (DEFAULT TP)
-            # Use actual TP hits (exit_type == 'tp')
-            tp_reached = (tdf['exit_type'] == 'tp')
-        else:
-            # Use MFE to check if price WOULD have reached this TP level
-            tp_reached = (tdf['mfe_pips'] >= tp_pips_required)
-
-        wins_at_fib = tp_reached.sum()
-        win_rate_at_fib = (wins_at_fib / total_trades * 100) if total_trades > 0 else 0
-
-        # Calculate average RR at this Fib level
-        rr_at_fib = tp_pips_required / tdf['sl_distance_pips']
-        avg_rr_at_fib = rr_at_fib.mean() if len(rr_at_fib) > 0 else 0
-
-        win_rate_by_fib[fib] = {
-            'wins': wins_at_fib,
-            'losses': total_trades - wins_at_fib,
-            'win_rate': win_rate_at_fib,
-            'avg_rr': avg_rr_at_fib
-        }
 
     # ========== PAIR BREAKDOWN (TOP 5 + BOTTOM 5 BY EXPECTANCY) ==========
     pair_groups = tdf.groupby('pair')
@@ -389,9 +343,6 @@ def calc_stats(trades_df, start_cap=100000, risk=0.01):
         # Risk metrics
         'sharpe': sharpe,
         'sortino': sortino,
-
-        # Win Rate by Fib TP Levels
-        'win_rate_by_fib': win_rate_by_fib,
 
         # Pair breakdown
         'top_5_pairs': top_5_pairs,
@@ -558,32 +509,6 @@ def format_report(stats, htf_timeframe, config):
     overall = all([chk_trades, chk_exp, chk_dd, chk_sqn, chk_wr, chk_pf])
     lines.append(f"\n→ {'VIABLE' if overall else 'NOT VIABLE'} FOR FUNDED ACCOUNT")
     lines.append("=" * 80)
-    lines.append("")
-
-    # ========== WIN RATE BY FIB TP LEVELS ==========
-    lines.append("=" * 80)
-    lines.append("WIN RATE BY FIB TP LEVELS (same SL, TP varies by Fib × Box Size)")
-    lines.append("=" * 80)
-
-    fib_data = stats['win_rate_by_fib']
-    fib_levels = [0.5, 1.0, 1.5, 2.0, 2.5, 3.0]
-
-    for fib in fib_levels:
-        data = fib_data[fib]
-        win_rate = data['win_rate']
-        wins = data['wins']
-        losses = data['losses']
-        total = wins + losses
-        avg_rr = data['avg_rr']
-
-        # Visual bar (each █ = 2.5%)
-        bar_length = int(win_rate / 2.5)
-        bar = "█" * bar_length
-
-        lines.append(f"Fib -{fib:.1f} (Avg RR {avg_rr:.2f}R): {win_rate:5.1f}% ({wins}W / {losses}L of {total}) {bar}")
-
-    lines.append("")
-    lines.append("Note: Each Fib level shows win rate if TP was set at that level (same -1.0R SL)")
     lines.append("")
 
     # ========== PAIR BREAKDOWN ==========

@@ -196,32 +196,6 @@ def format_report_with_comparison(stats: dict, htf_timeframe: str, config: dict,
     lines.append("=" * 80)
     lines.append("")
 
-    # Win Rate by Fib TP Levels
-    lines.append("=" * 80)
-    lines.append("WIN RATE BY FIB TP LEVELS (same SL, TP varies by Fib × Box Size)")
-    lines.append("=" * 80)
-
-    fib_data = stats['win_rate_by_fib']
-    fib_levels = [0.5, 1.0, 1.5, 2.0, 2.5, 3.0]
-
-    for fib in fib_levels:
-        data = fib_data[fib]
-        win_rate = data['win_rate']
-        wins = data['wins']
-        losses = data['losses']
-        total = wins + losses
-        avg_rr = data['avg_rr']
-
-        # Visual bar (each █ = 2.5%)
-        bar_length = int(win_rate / 2.5)
-        bar = "█" * bar_length
-
-        lines.append(f"Fib -{fib:.1f} (Avg RR {avg_rr:.2f}R): {win_rate:5.1f}% ({wins}W / {losses}L of {total}) {bar}")
-
-    lines.append("")
-    lines.append("Note: Each Fib level shows win rate if TP was set at that level (same -1.0R SL)")
-    lines.append("")
-
     # Pair Breakdown
     lines.append("=" * 80)
     lines.append("PAIR BREAKDOWN (BY EXPECTANCY)")
