@@ -301,8 +301,8 @@ def detect_refinements(
         k1 = df.iloc[i - 1]
         k2 = df.iloc[i]
 
-        # Zeitfenster-Check: K2 muss zwischen HTF K1 und HTF K3 (valid_time) liegen
-        if k2["time"] < htf_pivot.k1_time or k2["time"] >= htf_pivot.valid_time:
+        # Zeitfenster-Check: K1 UND K2 müssen zwischen HTF K1 und HTF K3 (valid_time) liegen
+        if k1["time"] < htf_pivot.k1_time or k2["time"] >= htf_pivot.valid_time:
             continue  # außerhalb des Zeitfensters
 
         # Doji-Filter: Body >= 5%
@@ -940,18 +940,8 @@ class Model3Backtester:
                     trade.pnl_r = trade.pnl_pips / pips(trade.sl_price - trade.entry_price, trade.pair)
                     return trade
 
-        # kein Exit -> schließen am letzten Kurs
-        last = h1_after.iloc[-1]
-        trade.exit_price = last["close"]
-        trade.exit_time = last["time"]
-        trade.exit_reason = "manual"
-        if trade.direction == "bullish":
-            trade.pnl_pips = pips(trade.exit_price - trade.entry_price, trade.pair)
-            trade.pnl_r = trade.pnl_pips / pips(trade.entry_price - trade.sl_price, trade.pair)
-        else:
-            trade.pnl_pips = pips(trade.entry_price - trade.exit_price, trade.pair)
-            trade.pnl_r = trade.pnl_pips / pips(trade.sl_price - trade.entry_price, trade.pair)
-        return trade
+        # kein Exit -> Trade löschen (nicht speichern)
+        return None
 
 
 # --------------------------------------------------------------------------- #

@@ -245,7 +245,7 @@ Bei gleichzeitigen Pivots (3D, W, M):
 - [ ] Gleiche Richtung wie HTF?
 - [ ] Size <= 20% HTF Gap?
 - [ ] Position zwischen Extreme und Near?
-- [ ] Near unberührt bis HTF Valid Time?
+- [ ] K2 Open unberührt bis HTF Valid Time?
 - [ ] Body >= 5% (beide)?
 
 **Trade:**

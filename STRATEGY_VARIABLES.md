@@ -189,20 +189,6 @@
 
 ## 9. Portfolio-Variablen
 
-### 9.1 Risk Per Trade
-**Aktuell**: `1.0%` (1% des Kapitals pro Trade)
-
-**Varianten zu testen**:
-- `0.5%` - Konservativer
-- `1.0%` - Standard
-- `2.0%` - Aggressiver
-
-**Erwartung**:
-- Niedrigeres Risiko: Geringere Returns, geringerer Max DD
-- Höheres Risiko: Höhere Returns, höherer Max DD
-
-**Test-Priority**: **LOW** - Portfolio-Level, nach Trade-Level Optimization
-
 ### 9.2 Max Concurrent Trades
 **Aktuell**: Unbegrenzt (alle Setups nehmen)
 
