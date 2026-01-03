@@ -216,7 +216,7 @@ python scripts/backtest_M.py   # Monthly
   - Prüfung auf H1 für Präzision
 - Wick Diff Entry bei < 20% (außer Verfeinerung näher)
 - RR-Check: >= 1 RR erforderlich
-- **Unberührt-Check (Verfeinerung)**: K2 OPEN darf nicht berührt werden zwischen Creation und HTF Valid Time
+- **Unberührt-Check (Verfeinerung)**: NEAR darf nicht berührt werden zwischen Creation und HTF Valid Time
 
 ### SL-Berechnung
 - Min. 60 Pips von **ENTRY** (nicht Extreme!)

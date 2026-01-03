@@ -6,15 +6,15 @@ HTF: Weekly | Entry: direct_touch | Pairs: AUDCAD, AUDCHF
 ================================================================================
 QUICK OVERVIEW
 ================================================================================
-Total Trades: 3982 (over 14 years: 2010-2024)
+Total Trades: 3979 (over 14 years: 2010-2024)
 
 Win Rate: 41.0%
-Expectancy: -0.02R
-Cumulative R: -60.9R
-R per Year: -4.1R
-Max Drawdown: -87.5R
-Profit Factor: 0.97
-SQN: -0.81
+Expectancy: -0.01R
+Cumulative R: -54.1R
+R per Year: -3.6R
+Max Drawdown: -87.2R
+Profit Factor: 0.98
+SQN: -0.72
 
 → VERDICT: NOT VIABLE
 ================================================================================
@@ -22,37 +22,37 @@ SQN: -0.81
 ================================================================================
 R-PERFORMANCE
 ================================================================================
-Cumulative R: -60.9R
-Expectancy: -0.02R per trade
+Cumulative R: -54.1R
+Expectancy: -0.01R per trade
   • Average Winner: +1.40R
   • Average Loser: -1.00R
   • Median R: -1.00R
 
-System Quality Number: -0.81 [Below Average]
-Profit Factor: 0.97
+System Quality Number: -0.72 [Below Average]
+Profit Factor: 0.98
 Payoff Ratio: 1.40
 
-Sharpe Ratio: -0.21
+Sharpe Ratio: -0.19
 Sortino Ratio: 0.00
 
 ================================================================================
 TRADE STATISTICS
 ================================================================================
 Win Rate: 41.0%
-Long/Short: 1.01:1 (2004L / 1978S)
+Long/Short: 1.01:1 (2000L / 1979S)
   • Long WR: 40.6%
-  • Short WR: 41.4%
+  • Short WR: 41.5%
 
-Winners: 1632 | Losers: 2350
+Winners: 1633 | Losers: 2346
 
 ================================================================================
 DRAWDOWN & STREAKS
 ================================================================================
-Maximum Drawdown: -87.5R
-  • Duration: 3667 trades (2337 days / 77.9 months)
+Maximum Drawdown: -87.2R
+  • Duration: 3664 trades (2337 days / 77.9 months)
   • Recovery: Not recovered
 
-Average Drawdown: -47.0R
+Average Drawdown: -48.5R
 
 Consecutive Wins: Max 11 | Avg 1.9 | Median 1
 Consecutive Losses: Max 16 | Avg 2.8 | Median 2
@@ -61,47 +61,35 @@ Consecutive Losses: Max 16 | Avg 2.8 | Median 2
 TIME-BASED PERFORMANCE
 ================================================================================
 R per Month: -0.3R avg
-R per Year: -4.1R avg
+R per Year: -3.6R avg
 
 Monthly:
   • Best: +29.3R | Worst: -25.3R
-  • Profitable: 44% (80/180 months)
+  • Profitable: 46% (83/180 months)
 
 Yearly:
-  • Best: +41.7R | Worst: -44.7R
+  • Best: +41.8R | Worst: -47.1R
   • Profitable: 47% (7/15 years)
 
 ================================================================================
 TRADE CHARACTERISTICS
 ================================================================================
 Duration: Min 0.0d | Avg 9.3d | Max 2979d
-Frequency: 267.0/year | 22.1/month | 5.13/week
+Frequency: 266.8/year | 22.1/month | 5.13/week
 Concurrent: Avg 7.5 | Max 22
 
 ================================================================================
 FUNDED ACCOUNT VIABILITY (@ 1% risk)
 ================================================================================
-[✓] Min 200 Trades: PASS (3982)
-[✗] Positive Expectancy: FAIL (-0.02R)
-[✗] Max DD < 10R: FAIL (-87.5R)
-[✗] SQN > 1.6: FAIL (-0.81)
+[✓] Min 200 Trades: PASS (3979)
+[✗] Positive Expectancy: FAIL (-0.01R)
+[✗] Max DD < 10R: FAIL (-87.2R)
+[✗] SQN > 1.6: FAIL (-0.72)
 [✓] Win Rate > 35%: PASS (41.0%)
-[✗] Profit Factor > 1.3: FAIL (0.97)
+[✗] Profit Factor > 1.3: FAIL (0.98)
 
 → NOT VIABLE FOR FUNDED ACCOUNT
 ================================================================================
-
-================================================================================
-WIN RATE BY FIB TP LEVELS (same SL, TP varies by Fib × Box Size)
-================================================================================
-Fib -0.5 (Avg RR 0.71R):  62.2% (2476W / 1506L of 3982) ████████████████████████
-Fib -1.0 (Avg RR 1.41R):  41.0% (1632W / 2350L of 3982) ████████████████
-Fib -1.5 (Avg RR 2.12R):   2.4% (95W / 3887L of 3982) 
-Fib -2.0 (Avg RR 2.82R):   1.1% (43W / 3939L of 3982) 
-Fib -2.5 (Avg RR 3.53R):   0.8% (32W / 3950L of 3982) 
-Fib -3.0 (Avg RR 4.23R):   0.5% (19W / 3963L of 3982) 
-
-Note: Each Fib level shows win rate if TP was set at that level (same -1.0R SL)
 
 ================================================================================
 PAIR BREAKDOWN (BY EXPECTANCY)
@@ -111,19 +99,19 @@ TOP 5 BEST PAIRS:
 Pair      Trades    Win%     Exp      PF    AvgW    AvgL   Total R
 --------------------------------------------------------------------------------
 GBPAUD       169   46.2%  +0.13R   1.24  +1.45R  -1.00R    +21.9R
-GBPCAD       165   46.1%  +0.13R   1.24  +1.45R  -1.00R    +20.9R
+GBPNZD       158   45.6%  +0.12R   1.23  +1.47R  -1.00R    +19.6R
+GBPCAD       164   45.7%  +0.12R   1.22  +1.45R  -1.00R    +19.6R
 AUDUSD       130   46.9%  +0.11R   1.21  +1.37R  -1.00R    +14.6R
-GBPNZD       160   45.0%  +0.11R   1.20  +1.47R  -1.00R    +17.6R
-EURCHF        87   46.0%  +0.09R   1.16  +1.36R  -1.00R     +7.5R
+NZDUSD       123   46.3%  +0.10R   1.19  +1.37R  -1.00R    +12.3R
 
 BOTTOM 5 WORST PAIRS:
 Pair      Trades    Win%     Exp      PF    AvgW    AvgL   Total R
 --------------------------------------------------------------------------------
+USDJPY       138   37.0%  -0.12R   0.81  +1.38R  -1.00R    -16.7R
 EURJPY       149   35.6%  -0.13R   0.80  +1.45R  -1.00R    -19.2R
-USDJPY       138   36.2%  -0.14R   0.78  +1.38R  -1.00R    -19.2R
-GBPUSD       158   35.4%  -0.14R   0.78  +1.41R  -1.00R    -22.9R
-NZDCHF       130   35.4%  -0.16R   0.75  +1.38R  -1.00R    -20.6R
-GBPJPY       163   33.1%  -0.20R   0.71  +1.42R  -1.00R    -32.1R
+GBPUSD       160   35.6%  -0.14R   0.78  +1.42R  -1.00R    -22.2R
+NZDCHF       129   35.7%  -0.15R   0.77  +1.39R  -1.00R    -19.3R
+GBPJPY       162   32.7%  -0.21R   0.69  +1.43R  -1.00R    -33.4R
 
 ================================================================================
 END OF REPORT

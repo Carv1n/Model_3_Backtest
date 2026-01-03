@@ -45,29 +45,32 @@ return None
 - Nur abgeschlossene Trades werden gespeichert
 - Sauberere Datenqualität
 
-### 🔴 Fix 3: Unberührt-Check korrigiert
-**Problem:**
-- Vectorized Scripts prüften NEAR statt K2 OPEN
-- Falsche Refinement-Validierung
+### 🔴 Fix 3: Unberührt-Check - REVERTED zu NEAR (Default)
+**Initial Change (zurückgenommen):**
+- Kurzzeitig K2 OPEN statt NEAR geprüft
+- Ergab WENIGER valide Refinements (K2 OPEN wird öfter berührt als NEAR)
+- Resultate waren "wesentlich schlechter"
 
-**Fix:**
+**FINAL (REVERTED):**
 ```python
-# OLD (WRONG):
+# DEFAULT (CORRECT):
 near_level = nears_result[i]
 was_touched = (touch_window["low"] <= near_level).any()
-
-# NEW (CORRECT):
-k2_open_level = pivot_levels_result[i]
-was_touched = (touch_window["low"] <= k2_open_level).any()
 ```
 
+**Begründung:**
+- NEAR = Ende des kürzeren Wicks (extremere Position, schwerer zu berühren)
+- K2 OPEN = Pivot-Level (mittlere Position, leichter zu berühren)
+- NEAR-Check ist die korrekte, weniger strenge Variante
+- Mehr valide Refinements = bessere Performance
+
 **Impact:**
-- Korrekte Unberührt-Prüfung (K2 OPEN statt NEAR)
-- Mehr valide Refinements möglich
+- NEAR ist jetzt Default in allen Backtest-Scripts
+- K2 OPEN Check wurde als zu streng verworfen
 
 ### 📝 Dokumentation
 **Aktualisiert:**
-- `STRATEGIE_REGELN.md`: "K2 Open unberührt" statt "Near unberührt"
+- `STRATEGIE_REGELN.md`: "Near unberührt" (REVERTIERT)
 - `README.md`: Alle 3 Fixes dokumentiert
 - Report Format: Winrate by Fib TP Levels entfernt
 

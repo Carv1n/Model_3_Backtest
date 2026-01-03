@@ -153,13 +153,13 @@ def detect_refinements_fast(df, htf_pivot, timeframe, max_size_frac=0.2, min_bod
     pivot_levels_result = pivot_levels_final[valid_position]
     sizes_result = sizes_final[valid_position]
 
-    # "Unberührt" check: K2 OPEN (pivot_level) must not be touched between creation and HTF valid_time
+    # "Unberührt" check: NEAR must not be touched between creation and HTF valid_time
     refinements = []
     for i in range(len(df_k2_result)):
         refinement_created = df_k2_result.iloc[i]['time']
-        k2_open_level = pivot_levels_result[i]
+        near_level = nears_result[i]
 
-        # Check if K2 OPEN was touched after refinement creation
+        # Check if NEAR was touched after refinement creation
         touch_window = df_window[
             (df_window["time"] > refinement_created) &
             (df_window["time"] <= htf_pivot.valid_time)
@@ -170,12 +170,12 @@ def detect_refinements_fast(df, htf_pivot, timeframe, max_size_frac=0.2, min_bod
         else:
             # Vectorized touch check
             if direction == "bullish":
-                was_touched = (touch_window["low"] <= k2_open_level).any()
+                was_touched = (touch_window["low"] <= near_level).any()
             else:
-                was_touched = (touch_window["high"] >= k2_open_level).any()
+                was_touched = (touch_window["high"] >= near_level).any()
 
         if was_touched:
-            continue  # K2 OPEN was touched -> refinement invalid
+            continue  # NEAR was touched -> refinement invalid
 
         # Valid refinement
         ref = Refinement(
