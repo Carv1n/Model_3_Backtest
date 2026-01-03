@@ -6,23 +6,23 @@ HTF: 3D | Entry: direct_touch
 ================================================================================
 COT FILTER IMPACT
 ================================================================================
-Original Trades (Phase 2): 5502
-Filtered Trades (Phase 3): 2668
-Filter Rate: 51.5% removed
-Trades Removed: 2834
+Original Trades (Phase 2): 5769
+Filtered Trades (Phase 3): 2794
+Filter Rate: 51.6% removed
+Trades Removed: 2975
 
 ================================================================================
 QUICK OVERVIEW
 ================================================================================
-Total Trades: 2668 (over 14 years: 2010-2024)
+Total Trades: 2794 (over 14 years: 2010-2024)
 
-Win Rate: 41.4% (P2: 41.8% ↓ -0.5%)
-Expectancy: -0.01R (P2: -0.00R ↓ -0.01R)
-Cumulative R: -27.50R (P2: -8.17R ↓ -19.32R)
-R per Year: -1.84R (P2: -0.55R ↓ -1.29R)
-Max Drawdown: -64.98R (P2: -49.18R ↓ -15.80R)
-Profit Factor: 0.98 (P2: 1.00 ↓ -0.02)
-SQN: -0.45 (P2: -0.09 ↓ -0.36)
+Win Rate: 41.3% (P2: 41.7% ↓ -0.4%)
+Expectancy: -0.01R (P2: -0.01R ↓ -0.01R)
+Cumulative R: -41.44R (P2: -42.07R ↑ +0.63R)
+R per Year: -2.77R (P2: -2.81R ↑ +0.04R)
+Max Drawdown: -66.93R (P2: -74.04R ↑ +7.12R)
+Profit Factor: 0.97 (P2: 0.99 ↓ -0.01)
+SQN: -0.66 (P2: -0.47 ↓ -0.19)
 
 → VERDICT: NOT VIABLE
 ================================================================================
@@ -30,71 +30,71 @@ SQN: -0.45 (P2: -0.09 ↓ -0.36)
 ================================================================================
 R-PERFORMANCE
 ================================================================================
-Cumulative R: -27.5R
+Cumulative R: -41.4R
 Expectancy: -0.01R per trade
-  • Average Winner: +1.39R
+  • Average Winner: +1.38R
   • Average Loser: -1.00R
   • Median R: -1.00R
 
-System Quality Number: -0.45 [Below Average]
-Profit Factor: 0.98
-Payoff Ratio: 1.39
+System Quality Number: -0.66 [Below Average]
+Profit Factor: 0.97
+Payoff Ratio: 1.38
 
-Sharpe Ratio: -0.12
+Sharpe Ratio: -0.17
 Sortino Ratio: 0.00
 
 ================================================================================
 TRADE STATISTICS
 ================================================================================
-Win Rate: 41.4%
-Long/Short: 0.85:1 (1222L / 1446S)
-  • Long WR: 41.2%
-  • Short WR: 41.5%
+Win Rate: 41.3%
+Long/Short: 0.84:1 (1279L / 1515S)
+  • Long WR: 40.9%
+  • Short WR: 41.7%
 
-Winners: 1104 | Losers: 1564
+Winners: 1155 | Losers: 1639
 
 ================================================================================
 DRAWDOWN & STREAKS
 ================================================================================
-Maximum Drawdown: -65.0R
-  • Duration: 2514 trades (3296 days / 109.9 months)
+Maximum Drawdown: -66.9R
+  • Duration: 1658 trades (3296 days / 109.9 months)
   • Recovery: Not recovered
 
-Average Drawdown: -27.6R
+Average Drawdown: -28.8R
 
-Consecutive Wins: Max 12 | Avg 2.0 | Median 1
-Consecutive Losses: Max 16 | Avg 2.8 | Median 2
+Consecutive Wins: Max 10 | Avg 2.0 | Median 1
+Consecutive Losses: Max 15 | Avg 2.8 | Median 2
 
 ================================================================================
 TIME-BASED PERFORMANCE
 ================================================================================
 R per Month: -0.2R avg
-R per Year: -1.8R avg
+R per Year: -2.8R avg
 
 Monthly:
-  • Best: +12.0R | Worst: -18.0R
-  • Profitable: 49% (89/180 months)
+  • Best: +12.6R | Worst: -19.4R
+  • Profitable: 48% (87/180 months)
 
 Yearly:
-  • Best: +24.4R | Worst: -29.2R
+  • Best: +22.1R | Worst: -30.1R
   • Profitable: 40% (6/15 years)
 
 ================================================================================
 TRADE CHARACTERISTICS
 ================================================================================
-Duration: Min 0.0d | Avg 5.8d | Max 230d
-Frequency: 178.5/year | 14.8/month | 3.43/week
+Duration: Min 0.0d | Avg 5.7d | Max 230d
+Frequency: 186.9/year | 15.5/month | 3.60/week
 Concurrent: Avg 3.4 | Max 12
 
 ================================================================================
 FUNDED ACCOUNT VIABILITY (@ 1% risk)
 ================================================================================
-[✓] Min 200 Trades: PASS (2668)
+[✓] Min 200 Trades: PASS (2794)
 [✗] Positive Expectancy: FAIL (-0.01R)
-[✗] Max DD < 10R: FAIL (-65.0R)
-[✗] SQN > 1.6: FAIL (-0.45)
-[✓] Win Rate > 35%: PASS (41.4%)
-[✗] Profit Factor > 1.3: FAIL (0.98)
+[✗] Max DD < 10R: FAIL (-66.9R)
+[✗] SQN > 1.6: FAIL (-0.66)
+[✓] Win Rate > 35%: PASS (41.3%)
+[✗] Profit Factor > 1.3: FAIL (0.97)
 
 → NOT VIABLE FOR FUNDED ACCOUNT
 ================================================================================
@@ -106,20 +106,20 @@ PAIR BREAKDOWN (BY EXPECTANCY)
 TOP 5 BEST PAIRS:
 Pair      Trades    Win%     Exp      PF    AvgW    AvgL   Total R
 --------------------------------------------------------------------------------
-CADCHF        79   51.9%   0.19R   1.40   1.30R  -1.00R     15.2R
-USDCAD        86   50.0%   0.19R   1.38   1.38R  -1.00R     16.2R
-EURGBP        87   49.4%   0.16R   1.31   1.35R  -1.00R     13.9R
-AUDNZD        78   50.0%   0.16R   1.31   1.31R  -1.00R     12.1R
-GBPAUD       121   45.5%   0.11R   1.19   1.43R  -1.00R     12.8R
+CADCHF        82   53.7%   0.24R   1.51   1.30R  -1.00R     19.4R
+USDCAD        89   48.3%   0.14R   1.28   1.37R  -1.00R     12.8R
+AUDNZD        85   49.4%   0.13R   1.26   1.29R  -1.00R     11.2R
+AUDJPY        94   46.8%   0.13R   1.24   1.41R  -1.00R     11.9R
+GBPCHF       106   46.2%   0.11R   1.21   1.40R  -1.00R     11.8R
 
 BOTTOM 5 WORST PAIRS:
 Pair      Trades    Win%     Exp      PF    AvgW    AvgL   Total R
 --------------------------------------------------------------------------------
-AUDUSD        95   37.9%  -0.12R   0.80   1.31R  -1.00R    -11.7R
-EURJPY       110   34.5%  -0.16R   0.76   1.44R  -1.00R    -17.4R
-EURCHF        51   35.3%  -0.19R   0.71   1.30R  -1.00R     -9.6R
-GBPUSD       103   33.0%  -0.19R   0.72   1.46R  -1.00R    -19.4R
-NZDUSD        89   32.6%  -0.23R   0.66   1.37R  -1.00R    -20.2R
+AUDUSD        96   38.5%  -0.11R   0.82   1.31R  -1.00R    -10.4R
+EURJPY       118   35.6%  -0.14R   0.78   1.42R  -1.00R    -16.5R
+EURNZD       127   33.1%  -0.20R   0.71   1.43R  -1.00R    -25.0R
+GBPUSD       107   31.8%  -0.22R   0.67   1.44R  -1.00R    -24.0R
+NZDUSD        88   31.8%  -0.25R   0.63   1.34R  -1.00R    -22.4R
 
 ================================================================================
 END OF REPORT
