@@ -48,9 +48,10 @@
 3. Innerhalb der **Wick Difference** des HTF-Pivots suchen
 
 **Gültigkeitsbedingungen (ALLE müssen erfüllt sein):**
+- **Zeitfenster:** K1 UND K2 zwischen HTF K1 und HTF K3 (valid_time)
 - Größe max. **20% der Pivot Gap**
 - Position innerhalb Wick Difference (Ausnahme: exakt auf Pivot Near erlaubt)
-- **Unberührt-Regel:** Vor HTF-Pivot-Entstehung nicht berührt
+- **Unberührt-Regel:** K2 OPEN (nicht Near!) darf nicht berührt werden zwischen Creation und HTF Valid Time
 - Doji-Filter (Standard: 5% Body Minimum)
 - Kein Versatz-Filter (aktuell deaktiviert)
 

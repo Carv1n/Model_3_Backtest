@@ -1,6 +1,86 @@
 # Model 3 - Changelog
 
-**Letzte Updates**: 01.01.2026
+**Letzte Updates**: 03.01.2026
+
+---
+
+## 03.01.2026 - CRITICAL FIXES: Refinement Logic & Trade Handling ✅
+
+### 🔴 Fix 1: K1 Zeitfenster-Check
+**Problem:**
+- Nur K2 wurde geprüft ob im HTF-Zeitfenster, K1 konnte außerhalb liegen
+- Konnte zu falschen Refinements führen
+
+**Fix:**
+```python
+# OLD (WRONG):
+if k2["time"] < htf_pivot.k1_time or k2["time"] >= htf_pivot.valid_time:
+
+# NEW (CORRECT):
+if k1["time"] < htf_pivot.k1_time or k2["time"] >= htf_pivot.valid_time:
+```
+
+**Impact:**
+- K1 UND K2 müssen jetzt beide im HTF-Zeitfenster liegen
+- Strengere Validierung von Refinements
+
+### 🔴 Fix 2: Trade ohne Exit
+**Problem:**
+- Trades ohne Exit (noch offen am Ende) wurden als "manual" exit gespeichert
+- Verfälschte Statistiken
+
+**Fix:**
+```python
+# OLD (WRONG):
+# kein Exit -> schließen am letzten Kurs
+trade.exit_reason = "manual"
+return trade
+
+# NEW (CORRECT):
+# kein Exit -> Trade löschen (nicht speichern)
+return None
+```
+
+**Impact:**
+- Nur abgeschlossene Trades werden gespeichert
+- Sauberere Datenqualität
+
+### 🔴 Fix 3: Unberührt-Check korrigiert
+**Problem:**
+- Vectorized Scripts prüften NEAR statt K2 OPEN
+- Falsche Refinement-Validierung
+
+**Fix:**
+```python
+# OLD (WRONG):
+near_level = nears_result[i]
+was_touched = (touch_window["low"] <= near_level).any()
+
+# NEW (CORRECT):
+k2_open_level = pivot_levels_result[i]
+was_touched = (touch_window["low"] <= k2_open_level).any()
+```
+
+**Impact:**
+- Korrekte Unberührt-Prüfung (K2 OPEN statt NEAR)
+- Mehr valide Refinements möglich
+
+### 📝 Dokumentation
+**Aktualisiert:**
+- `STRATEGIE_REGELN.md`: "K2 Open unberührt" statt "Near unberührt"
+- `README.md`: Alle 3 Fixes dokumentiert
+- Report Format: Winrate by Fib TP Levels entfernt
+
+### 🗑️ Cleanup
+**Gelöscht:**
+- Unwichtige Scripts aus `/scripts/backtesting/`:
+  - `backtest_ui.py`
+  - `create_summary.py`
+  - `monte_carlo.py`
+  - `run_all_backtests.py`
+  - `view_results.py`
+  - `visualizations.py`
+- Nur `backtest_model3.py` wird für Model 3 verwendet
 
 ---
 

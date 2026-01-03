@@ -184,7 +184,7 @@ def detect_refinements_fast(df, htf_pivot, timeframe, max_size_frac=0.2, min_bod
             direction=direction,
             pivot_level=round(pivot_levels_result[i], 5),
             extreme=round(extremes_result[i], 5),
-            near=round(near_level, 5),
+            near=round(nears_result[i], 5),
             size=round(sizes_result[i], 5),
         )
         refinements.append(ref)

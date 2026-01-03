@@ -142,10 +142,16 @@ python scripts/backtest_M.py
 
 ### Änderungen:
 
+**03.01.2026 - Kritische Fixes:**
+- ✅ K1 Zeitfenster-Check: K1 UND K2 müssen im HTF-Zeitfenster liegen
+- ✅ Trade ohne Exit: Wird gelöscht (nicht als "manual" gespeichert)
+- ✅ Unberührt-Check korrigiert: K2 OPEN statt NEAR wird geprüft
+- ✅ Winrate by Fib TP Levels entfernt aus Reports
+
 **31.12.2025 - REPORT1 Format Einführung:**
 - Pure/Conservative Trennung entfernt (vereinfacht)
 - REPORT1 Format: Optimierungs-fokussiert, schnellere Generierung
-- Neue Features: SQN, Win Rate by Fib TP Levels, Pair Breakdown
+- Neue Features: SQN, Pair Breakdown
 - PAIRS jetzt alphabetisch sortiert (AUDCAD → USDJPY)
 - Schnellere Report-Generierung durch Vectorization
 
@@ -205,12 +211,12 @@ python scripts/backtest_M.py   # Monthly
 
 ### Entry-Voraussetzungen
 - Gap Touch auf **H1-Daten** prüfen
-- TP-Check: TP nicht berührt **zwischen max(Valid Time, Gap Touch) und Entry**
-  - Check-Fenster: `max(Valid Time, Gap Touch)` bis `Entry Time`
+- TP-Check: TP nicht berührt **zwischen Gap Touch und Entry**
+  - Check-Fenster: `Gap Touch Time` bis `Entry Time`
   - Prüfung auf H1 für Präzision
 - Wick Diff Entry bei < 20% (außer Verfeinerung näher)
 - RR-Check: >= 1 RR erforderlich
-- **Unberührt-Check (Verfeinerung)**: NEAR darf nicht berührt werden zwischen Creation und HTF Valid Time
+- **Unberührt-Check (Verfeinerung)**: K2 OPEN darf nicht berührt werden zwischen Creation und HTF Valid Time
 
 ### SL-Berechnung
 - Min. 60 Pips von **ENTRY** (nicht Extreme!)
@@ -231,15 +237,15 @@ python scripts/backtest_M.py   # Monthly
 3. **Trade Statistics**: Long/Short Breakdown, Win Rates
 4. **Drawdown & Streaks**: Max DD, Recovery, Consecutive Wins/Losses
 5. **Time-Based Performance**: Monthly/Yearly R, Best/Worst Periods
-6. **Funded Account Viability**: 6 Checks (Trades, Exp, DD, SQN, WR, PF)
-7. **Win Rate by Fib TP Levels**: Fib -0.5 bis -3.0 (was-wäre-wenn Analyse)
+6. **Trade Characteristics**: Duration, Frequency, Concurrent Trades
+7. **Funded Account Viability**: 6 Checks (Trades, Exp, DD, SQN, WR, PF)
 8. **Pair Breakdown**: Top 5 Best + Bottom 5 Worst by Expectancy
 
 ### Key Features:
-- **Fib -1.0 Win Rate = Overall Win Rate** (korrekt)
 - **SQN (System Quality Number)**: Qualitäts-Rating des Systems
 - **Pair Analysis**: Welche Pairs performen am besten/schlechtesten
 - **Vectorized Calculations**: Schnellere Generierung
+- **Trade ohne Exit**: Wird NICHT gespeichert (korrekte Datenqualität)
 
 ---
 
