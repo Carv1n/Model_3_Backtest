@@ -1,112 +1,474 @@
-# Model 3 - Strategie Variablen für Backtesting & Optimierung
+# Model 3 - Strategie Variablen (Konsolidiert)
 
 **Stand**: 2025-01-04  
-**Quelle**: Basierend auf Variablen.md (User-definiert)
+**Zweck**: Alle test-relevanten Variablen für Backtesting & Optimierung
 
 ---
 
-## ⚠️ WICHTIG: Overfitting vermeiden!
+## ⚠️ OVERFITTING-WARNUNG
 
-- Nicht zu viele Parameter gleichzeitig optimieren
-- Walk-Forward Testing nutzen (5y IS / 1y OOS)
-- Parameter müssen logisch sinnvoll sein (nicht nur statistisch)
-- Robustheit über allen Pairs prüfen (nicht nur 1-2 Top-Pairs)
-- Max. 4-6 freie Parameter pro Test-Phase
+### Grundprinzipien
+- **NICHT**: Grid Search (alle Kombinationen → Overfit!)
+- **SONDERN**: Sequential Optimization (eine Variable nach der anderen)
+
+### Kriterien für robuste Optimierung
+- ✅ Max. 4-6 freie Parameter pro Test-Phase
+- ✅ Walk-Forward Testing (5y IS / 1y OOS, ~14 Windows)
+- ✅ Parameter müssen logisch sinnvoll sein (nicht nur statistisch)
+- ✅ Robustheit über allen Pairs prüfen (>60% profitabel)
+- ✅ Keine Cliff-Effekte (smooth Performance-Kurve)
+- ✅ Trade Count beachten (>200 pro HTF)
+- ✅ OOS Performance positiv & stabil
 
 ---
 
-## 1. HTF PIVOT CREATION
+## 📊 VARIABLE KATEGORIEN
+
+### TECHNISCHE VARIABLEN (Phase 3 - JETZT)
+Beziehen sich auf Pivot-Qualität & Trade-Eigenschaften:
+- Optimierung PRO HTF einzeln (W, 3D, M)
+- Unabhängig von Portfolio-Zusammensetzung
+- Beispiele: Gap Size, Entry Type, SL/TP Levels
+
+### PORTFOLIO VARIABLEN (Phase 4 - SPÄTER)
+Beziehen sich auf Combined Portfolio Management:
+- Erst NACH technischer Optimierung
+- Beispiele: Max Concurrent Trades, HTF Combinations, Correlation
+
+---
+
+## 🔴 PHASE 1: HTF PIVOT CREATION (FIXED)
 
 ### 1.1 Pivot Position
-**Zweck**: Wo wird der Pivot-Level platziert?
+**Status**: ✅ FIXED (nicht ändern)
 
-**Optionen**:
-- `open_k2` - Standard: Pivot = Open K2 ✅
-- `close_k1` - Alternativ: Pivot = Close K1
+**Aktuelle Regel**:
+- Pivot = **Open K2** (Standard)
+- Gap gemessen nach K2 Open (nicht Close)
 
-**Zusätzliche Strategien** (für Tests):
-- Nach **größter Gap** - Wähle Pivot (Open K2 vs Close K1), der größere Gap ergibt
+**Alternative Strategien** (für spätere Tests):
+- `close_k1` - Pivot = Close K1
+- Nach **größter Gap** - Wähle Pivot mit größerer Gap
 - Nach **kleinster Gap** - Wähle Pivot mit kleinerer Gap
 
-**Erwartung**:
-- Open K2: Klare Regel, konsistent
-- Close K1: Könnte bessere Entries geben bei bestimmten Setups
-- Größte/Kleinste Gap: Adaptive Strategie, mehr Komplexität
-
-**Test-Priorität**: 🔵 MITTEL - Nach Baseline Tests
+**Test-Priorität**: 🔵 NIEDRIG - Nur wenn Standard nicht funktioniert
 
 ---
 
-### 1.2 Timeframe Selection
-**Zweck**: Welche HTF-Pivots nutzen?
+### 1.2 Gap Definition
+**Status**: ✅ FIXED
 
-**Einzeln testen**:
-- `3D` only
+**Aktuelle Regel**:
+- Größter/kleinster Gap zwischen K1 und K2
+- Kein Versatz-Minimum (Bodies können sich berühren)
+- Wick Diff = Extreme - Near (längerer - kürzerer Wick)
+
+---
+
+## 🔴 PHASE 2: HTF TIMEFRAME SELECTION
+
+### 2.1 Einzelne Timeframes
+**Status**: ✅ Phase 2 abgeschlossen
+
+**Getestet**:
 - `W` only ✅ (aktuell)
-- `M` only
+- `3D` only ✅
+- `M` only ✅
 
-**Kombiniert testen**:
+**Ergebnisse verfügbar**: W_trades.csv, 3D_trades.csv, M_trades.csv
+
+---
+
+### 2.2 Kombinierte Timeframes
+**Status**: 🎯 Phase 4 (nach technischer Optimierung)
+
+**Zu testen**:
 - `3D + W`
 - `3D + M`
 - `W + M`
 - `3D + W + M` (alle)
 
-**Erwartung**:
-- Einzeln: Klare Statistik pro Timeframe
-- Kombiniert: Mehr Trades, aber Korrelation/Concurrency-Risiko
+**Deduplicate Logic**:
+- 1 Trade pro Pivot (wenn mehrere HTFs gleichen Pivot erkennen)
+- Priorität: M > W > 3D
 
-**Test-Priorität**: 🔴 HOCH - Direkt nach Baseline
+**Test-Priorität**: 🔴 HOCH - Bei Combined Tests
 
 ---
 
-## 2. ENTRY VARIABLEN
+## 🎯 PHASE 3: TECHNISCHE OPTIMIERUNG
 
-### 2.1 Entry Confirmation Type
+### 3.1 GAP SIZE FILTER 🔴 **PRIORITÄT 1 - START HERE!**
+
+**Zweck**: Filter zu kleine (Noise) und zu große Gaps (lange Duration)
+
+**Problem**:
+- Hohe Gap (>200 Pips) → Lange Duration → schlecht tradebar
+- Kleine Gap (<30 Pips) → Zu schnell TP/SL → schlechte Winrate
+
+**Test-Ansatz**: 2-Phasen
+
+#### Phase A - Grobe Ranges (6-8 Tests)
+```
+1. No Filter (0 - unlimited, Baseline)
+2. Very Wide (30-300 Pips)
+3. Wide (50-250 Pips)
+4. Balanced 1 (50-200 Pips)
+5. Balanced 2 (80-250 Pips)
+6. Tight 1 (80-200 Pips)
+7. Tight 2 (100-200 Pips)
+8. Very Tight (100-150 Pips)
+```
+
+#### Phase B - Feine Schritte (18-20 Tests)
+Nach bester Range aus Phase A:
+```
+Min Gap: 60, 65, 70, 75, 80, 85, 90, 95, 100, 110, 120 Pips
+Max Gap: 200, 220, 230, 240, 250, 260, 270, 280, 300 Pips
+```
+
+**Erwartung**: 
+- Optimale Range ~50-250 Pips
+- Filtert ~10-20% Trades
+- Win Rate +2-3%
+- Duration stabiler
+
+**Walk-Forward**: ✅ **JA** (5y/1y rolling, 14 windows)
+
+---
+
+### 3.2 GAP VERSATZ FILTER 🎯 **PRIORITÄT 2**
+
+**Zweck**: Filter Pivots mit zu starkem Versatz zwischen K1 und K2
+
+**Definition**:
+```python
+Versatz Ratio = abs(Close K1 - Open K2) / Gap
+
+Interpretation:
+0.0 = Bodies berühren sich fast (kein Versatz)
+0.5 = Moderater Versatz
+1.0 = Near liegt auf Pivot (bei Bullish)
+1.5 = Near liegt über Pivot
+2.0 = Sehr starker Versatz
+```
+
+**Problem bei hohem Versatz**:
+- Near kann ÜBER Pivot liegen (bei Bullish)
+- Wick Diff kann größer als Gap werden
+- Geometrisch problematisch
+
+**Optionen**:
+```
+Max Versatz: 0.5, 1.0, 1.5, 2.0, unlimited
+```
+
+**Test-Runs**:
+1. No Filter (unlimited) - Baseline
+2. Max 2.0 (sehr locker)
+3. Max 1.5 (locker)
+4. Max 1.0 (streng)
+5. Max 0.5 (sehr streng)
+
+**Erwartung**: Optimum ~1.0-1.5
+
+**Walk-Forward**: ❌ **NEIN** (erst grob testen)
+
+---
+
+### 3.3 WICK ASYMMETRIE FILTER 🎯 **PRIORITÄT 3**
+
+**Zweck**: Nur Pivots mit klarer Wick-Hierarchie
+
+**Definition**:
+```python
+Wick Diff % = (Extreme - Near) / Gap * 100
+
+Beispiel:
+Gap = 100 Pips
+Extreme Wick = 80 Pips
+Near Wick = 20 Pips
+Wick Diff = 60 Pips = 60% von Gap
+```
+
+**Optionen**:
+```
+Min Wick Diff: 0% (no filter), 10%, 20%, 30%, 40% von Gap
+```
+
+**Test-Runs**:
+1. 0% (kein Filter, current)
+2. 10% (leichter Filter)
+3. 20% (balanced)
+4. 30% (streng)
+5. 40% (sehr streng)
+
+**Erwartung**: Optimum ~20-30%
+
+**Walk-Forward**: ❌ **NEIN**
+
+---
+
+### 3.4 PIVOT BODY STRENGTH (Doji Filter) 🎯 **PRIORITÄT 4**
+
+**Zweck**: Filter Doji-Kerzen (zu kleine Bodies)
+
+**Current Default**: 5% (K1 und K2 Body >= 5% von Range)
+
+**Optionen**:
+```
+Doji Filter: 0%, 5%, 10%, 15%
+```
+
+**Test-Runs**:
+1. 0% (alle Kerzen erlaubt)
+2. 5% (current default) ✅
+3. 10% (strenger)
+4. 15% (sehr streng)
+
+**Erwartung**: 5% ist wahrscheinlich optimal
+
+**Walk-Forward**: ❌ **NEIN**
+
+---
+
+### 3.5 ENTRY CONFIRMATION TYPE 🔴 **PRIORITÄT HOCH**
+
 **Zweck**: Wie wird Entry bestätigt?
 
 **Optionen**:
-- `direct_touch` - Entry sofort bei Touch des Entry-Levels ✅ (Standard)
-- `1h_close` - Warte auf 1H Close jenseits Entry-Level
-- `4h_close` - Warte auf 4H Close jenseits Entry-Level
 
-**Entry-Logik bei Close**:
-1. Wenn Close **schlecht** (nicht jenseits Entry) → Verfeinerung löschen
-2. Wenn Close **gut**:
-   - Option A: Entry bei Close der Candle (H1/H4)
-   - Option B: Entry bei Near/Wick Diff wenn wieder berührt wird
+#### A) direct_touch (current default) ✅
+```
+- Entry sofort bei Touch des Entry-Levels
+- Schnellste Entry, meiste Trades
+- Höchstes Fakeout-Risiko
+```
 
-**Immer**: Min. 1 RR bei Entry-Zeitpunkt prüfen
+#### B) 1h_close
+```
+- Entry erst bei 1H CLOSE jenseits Entry-Level
+- Wenn Close zurück im Gap → Verfeinerung löschen
+- Mittlere Bestätigung
+- Weniger Trades (-20-30%), bessere Win Rate (+3-5%)
+```
+
+#### C) 4h_close
+```
+- Entry erst bei 4H CLOSE jenseits Entry-Level
+- Stärkste Bestätigung
+- Noch weniger Trades (-40-50%), beste Win Rate (+5-8%)
+```
 
 **Erwartung**:
-- direct_touch: Mehr Trades, frühere Entries, mehr Fakeouts
-- 1h_close: Weniger Trades, bessere Qualität, weniger Fakeouts
-- 4h_close: Noch weniger Trades, höchste Qualität
+- direct_touch: Mehr Trades, mehr Fakeouts
+- 1h_close: Balance zwischen Count und Quality
+- 4h_close: Beste Quality, weniger Trades
 
-**Test-Priorität**: 🔴 HOCH - Nach Baseline
+**Walk-Forward**: ✅ **JA** (kritische Regel!)
 
 ---
 
-## 3. STOP LOSS VARIABLEN
+## 🔵 PHASE 3: REFINEMENT VARIABLEN
 
-### 3.1 Minimum SL Distance (Pips)
-**Zweck**: Mindestabstand Entry → SL
+### 4.1 REFINEMENT TIMEFRAMES 🎯 **PRIORITÄT 3**
+
+**Zweck**: Welche Lower TFs für Verfeinerungen nutzen?
+
+**Max TF für Refinements**: W (nicht M!)
+- M → W, 3D, D, H4, H1
+- W → 3D, D, H4, H1
+- 3D → D, H4, H1
+
+**Test-Ansatz**:
+
+#### Phase A - Einzelne TFs
+```
+1. H1 only
+2. H4 only
+3. D only
+4. 3D only
+5. W only (bei M Pivots)
+```
+
+#### Phase B - Kombinationen
+```
+6. H1+H4 (intraday)
+7. H4+D (daily+intraday)
+8. D+H4+H1 (multi-level)
+9. 3D+D+H4 (higher TFs)
+10. W+3D+D+H4+H1 (alle) ✅ (current)
+```
+
+**Erwartung**: Optimum D+H4 oder D+H4+3D?
+
+**Walk-Forward**: ✅ **JA** (bei finaler Kombination)
+
+---
+
+### 4.2 REFINEMENT MAX SIZE 🎯 **PRIORITÄT 4**
+
+**Zweck**: Wie groß darf Verfeinerung sein relativ zum HTF Pivot?
+
+**Current Default**: 20% (Wick Diff / HTF Gap)
 
 **Optionen**:
-- `40` Pips - Enger, höhere RR, mehr SL-Hits
-- `60` Pips - Standard ✅
-- `80` Pips - Weiter, niedrigere RR, weniger SL-Hits
-- `100` Pips - Sehr weit
+```
+Max Size: 10%, 15%, 20%, 25%, 30%
+```
 
-**Test-Priorität**: 🟡 MITTEL - Nach Entry Tests
+**Test-Runs**:
+1. 10% (sehr streng)
+2. 15%
+3. 20% (current) ✅
+4. 25%
+5. 30% (locker)
+
+**Erwartung**: Optimum 20-25%
+
+**Walk-Forward**: ❌ **NEIN**
 
 ---
 
-### 3.2 Fixer SL pro Pair
+### 4.3 REFINEMENT VALIDATION ✅ **ERLEDIGT**
+
+**Ergebnis**: **Near Touch ist besser!**
+- Mehr Trades
+- Bessere Win Rate (+1%)
+- K2 Open zu streng
+
+**Current Default**: ✅ **Near unberührt** (FINAL)
+
+---
+
+### 4.4 REFINEMENT PRIORITÄT 🎯 **PRIORITÄT LOW**
+
+**Current Default**: Highest TF → Closest to Near ✅
+
+**Alternative**: Always Closest to Near (ignore TF)
+
+**Test-Priorität**: 🔵 NIEDRIG
+
+---
+
+### 4.5 WICK DIFF ENTRY STRATEGY 🟡 **PRIORITÄT MITTEL**
+
+**Zweck**: Wann Wick Diff Entry nutzen vs Verfeinerung?
+
+**Optionen**:
+- **Immer Wick Diff** - Bei jedem HTF Pivot (wenn < 20%)
+- **Nur unter 20%** - Wick Diff nur wenn klein genug ✅ (Standard)
+- **Kombiniert** - Wick Diff + beste Verfeinerungen zusammen
+
+**Test-Priorität**: 🟡 MITTEL - Nach Refinement TF Tests
+
+---
+
+## 🟢 PHASE 3: RISK MANAGEMENT
+
+### 5.1 MINIMUM RR 🔴 **PRIORITÄT HOCH**
+
+**Zweck**: Filter Trades mit zu niedrigem Risk-Reward
+
+**Current Default**: 1.0 ✅
+
+**Optionen**:
+```
+Min RR: 1.0, 1.1, 1.2, 1.5
+```
+
+**Test-Runs**:
+1. 1.0 (current, alle Trades)
+2. 1.1 (leichter Filter)
+3. 1.2 (strenger)
+4. 1.5 (sehr streng)
+
+**Erwartung**: Optimum 1.1-1.2
+
+**Walk-Forward**: ✅ **JA**
+
+---
+
+### 5.2 MAXIMUM RR 🟡 **PRIORITÄT MITTEL**
+
+**Zweck**: Erweitere SL bei zu hohem RR
+
+**Current Default**: 1.5 ✅ (wenn RR > 1.5 → SL erweitern)
+
+**Regel**: Bei RR > Max → SL erweitern UND `rr = Max` setzen
+
+**Optionen**:
+```
+Max RR: 1.5, 2.0, 2.5, 3.0
+```
+
+**Test-Runs**:
+1. 1.5 (current, conservative) ✅
+2. 2.0 (balanced)
+3. 2.5 (locker)
+4. 3.0 (sehr locker)
+
+**Walk-Forward**: ❌ **NEIN**
+
+---
+
+### 5.3 SL MINIMUM DISTANCE 🟡 **PRIORITÄT MITTEL**
+
+**Zweck**: Minimale SL Distanz in Pips
+
+**Current Default**: 60 Pips ✅
+
+**Optionen**:
+```
+Min SL: 40, 50, 60, 70, 80, 100 Pips
+```
+
+**Test-Runs**:
+1. 40 Pips (kleine SLs)
+2. 50 Pips
+3. 60 Pips (current) ✅
+4. 70 Pips
+5. 80 Pips
+6. 100 Pips (große SLs)
+
+**Erwartung**: Optimum 60-80 Pips
+
+**Walk-Forward**: ✅ **JA**
+
+---
+
+### 5.4 SL FIB LEVEL 🟡 **PRIORITÄT MITTEL**
+
+**Zweck**: Fibonacci Extension für SL Platzierung
+
+**Current Default**: Fib 1.1 ✅ (10% über Extreme)
+
+**Regel**: `SL = Extreme + (Gap * (Fib - 1.0))`
+
+**Optionen**:
+```
+SL Fib: 1.0, 1.1, 1.2, 1.5
+```
+
+**Test-Runs**:
+1. 1.0 (direkt bei Extreme)
+2. 1.1 (current, 10% Buffer) ✅
+3. 1.2 (20% Buffer)
+4. 1.5 (50% Buffer)
+
+**Erwartung**: 1.1-1.2 optimal
+
+**Walk-Forward**: ❌ **NEIN**
+
+---
+
+### 5.5 FIXER SL PRO PAIR ⚠️ **OVERFITTING RISIKO!**
+
 **Zweck**: Pair-spezifische SL-Distanz
 
-**⚠️ ACHTUNG OVERFITTING!**
+**⚠️ ACHTUNG**:
+- Risiko: 28 Pairs = 28 freie Parameter!
 - Nur nutzen wenn statistisch signifikant
-- Risiko: Zu viele freie Parameter (28 Pairs = 28 Parameter!)
 
 **Empfehlung**: 
 - Erst globale SL-Regeln optimieren
@@ -117,255 +479,305 @@
 
 ---
 
-### 3.3 Minimum RR für Trade-Ausführung
-**Zweck**: Trades nur ausführen wenn RR hoch genug
+## 🟢 PHASE 3: TAKE PROFIT
+
+### 6.1 TP FIB LEVEL 🟡 **PRIORITÄT MITTEL**
+
+**Zweck**: Fibonacci Extension für TP Platzierung
+
+**Current Default**: Fib -1.0 ✅ (Pivot + Gap Extension)
+
+**Regel**: `TP = Pivot - (Gap * abs(Fib))`
 
 **Optionen**:
-- `1.0` - Standard ✅ (mindestens 1:1)
-- `1.1` - Etwas strenger
-- `1.2` - Noch strenger, höhere Qualität
+```
+TP Fib: -0.618, -1.0, -1.272, -1.5, -2.0, -2.5
+```
 
-**Erwartung**:
-- Höhere Min RR: Weniger Trades, bessere durchschnittliche Qualität
-- Niedrigere Min RR: Mehr Trades, schlechtere durchschnittliche Qualität
+**Test-Runs**:
+1. -0.618 (konservativ, Golden Ratio)
+2. -1.0 (current, symmetrisch) ✅
+3. -1.5 (aggressiv)
+4. -2.0 (sehr aggressiv)
 
-**Test-Priorität**: 🔴 HOCH - Nach Entry Tests
+**Erwartung**: Trade-off Win Rate vs Avg Win Size
+
+**Walk-Forward**: ✅ **JA** (wichtig!)
 
 ---
 
-### 3.4 Fixer SL bei Fib Level (unabhängig von RR)
-**Zweck**: SL fix bei bestimmtem Fib-Level platzieren
+### 6.2 MIN/MAX TP DISTANCE 🔵 **PRIORITÄT NIEDRIG**
 
-**Optionen**:
-- `Fib 1.0` - SL direkt bei Extreme (100%)
-- `Fib 1.1` - SL 10% jenseits Extreme ✅ (Standard)
-- `Fib 1.2` - SL 20% jenseits Extreme
-- `Fib 1.5` - SL 50% jenseits Extreme
-
-**Erwartung**:
-- Näher bei Extreme: Engerer SL, mehr Hits, höhere RR
-- Weiter von Extreme: Weiterer SL, weniger Hits, niedrigere RR
-
-**Test-Priorität**: 🟡 MITTEL - Nach SL Distance Tests
-
----
-
-## 4. TAKE PROFIT VARIABLEN
-
-### 4.1 TP Fib Level
-**Zweck**: Bei welchem Fib-Level wird TP platziert?
-
-**Optionen**:
-- `-1.0` - Standard ✅ (Pivot + Gap Extension)
-- `-1.5` - 1.5x Gap Extension (aggressiver)
-- `-2.0` - 2x Gap Extension (sehr aggressiv)
-- `-2.5` - 2.5x Gap Extension
-
-**Erwartung**:
-- Konservativere TP (-1): Höhere Win Rate, kleinere Wins
-- Aggressivere TP (-2/-2.5): Niedrigere Win Rate, größere Wins
-
-**Test-Priorität**: 🟡 MITTEL - Nach Entry Tests
-
----
-
-### 4.2 Min/Max TP Distance (Pips)
 **Zweck**: Limitiere TP auf Pips-Basis
 
-**Optionen**:
-- Min TP: `50`, `75`, `100` Pips
-- Max TP: `200`, `250`, `300` Pips
-
-**Erwartung**:
-- Zu enge Limits: Gute Trades werden eingeschränkt
-- Zu weite Limits: Unrealistische TPs bei großen Gaps
-
-**Test-Priorität**: 🔵 NIEDRIG - Experimentell
-
----
-
-## 5. RISK/REWARD VARIABLEN
-
-### 5.1 Maximum RR
-**Zweck**: Maximales erlaubtes RR - wenn höher, SL erweitern
+**Current Default**:
+- Min TP: 30 Pips
+- Max TP: 300 Pips
 
 **Optionen**:
-- `1.5` - Standard ✅
-- `2.0` - Erlaubt höhere RR, weiterer SL
-- `2.5` - Sehr hohe RR erlaubt
-- `3.0` - Keine praktische Begrenzung
+```
+Min TP: 50, 75, 100 Pips
+Max TP: 200, 250, 300 Pips
+```
 
-**Erwartung**:
-- Niedrigere Max RR (1.5): Engere SLs, konsistentere Ergebnisse
-- Höhere Max RR (2.5-3.0): Weitere SLs, höhere Wins wenn erfolgreich
+**Erwartung**: Abhängig von Gap Size Filter
 
-**Test-Priorität**: 🟡 MITTEL - Nach SL Tests
+**Walk-Forward**: ❌ **NEIN**
 
 ---
 
-## 6. VERFEINERUNGS-VARIABLEN
+## 🔵 PHASE 3: ADVANCED EXITS (EXPERIMENTELL)
 
-### 6.1 Refinement Timeframes
-**Zweck**: Welche Timeframes für Verfeinerungen nutzen?
+### 7.1 PARTIAL TP 🔵 **PRIORITÄT LOW**
 
-**Einzeln testen**:
-- Nur `H1`
-- Nur `H4`
-- Nur `D`
-- Nur `3D`
-- Nur `W` (max TF!)
-
-**Kombiniert testen**:
-- `H1 + H4` (Intraday)
-- `D + H4` (Daily + Intraday)
-- `3D + D + H4` (Multi-Level)
-- `W + 3D + D + H4 + H1` (alle) ✅ (Standard)
-
-**Erwartung**:
-- Einzelne TFs: Klare Statistik pro Level
-- Kombiniert: Mehr Verfeinerungen, bessere Abdeckung
-
-**Test-Priorität**: 🔴 HOCH - Nach Entry Tests
-
----
-
-### 6.2 Wick Diff Entry Strategy
-**Zweck**: Wann Wick Diff Entry nutzen vs Verfeinerung?
+**Zweck**: Nimm Teil-Gewinne, lasse Rest laufen
 
 **Optionen**:
-- **Immer Wick Diff** - Bei jedem HTF Pivot (wenn < 20%)
-- **Nur unter 20%** - Wick Diff nur wenn klein genug ✅ (Standard)
-- **Kombiniert** - Wick Diff + beste Verfeinerungen zusammen
 
-**Erwartung**:
-- Immer Wick Diff: Mehr Entries, aber evtl. schlechtere Qualität
-- Nur unter 20%: Qualitätsfilter
-- Kombiniert: Best of both worlds?
+#### A) 50% bei Fib -0.5
+```
+Wenn Preis Fib -0.5 erreicht:
+- Close 50% Position
+- Rest läuft zu TP (Fib -1.0)
+- Move SL zu BE nach Partial TP
+```
 
-**Test-Priorität**: 🟡 MITTEL - Nach Refinement TF Tests
+#### B) 50% bei 1R Profit
+```
+Wenn 1R Profit erreicht:
+- Close 50%
+- Rest läuft
+- SL zu BE
+```
+
+**Walk-Forward**: ✅ **JA** (falls implementiert)
 
 ---
 
-### 6.3 Refinement Max Size
-**Zweck**: Maximale Größe der Verfeinerung (% von HTF Gap)
+### 7.2 BREAKEVEN MOVE 🔵 **PRIORITÄT LOW**
+
+**Zweck**: Move SL zu Entry (BE) nach gewissem Profit
 
 **Optionen**:
-- `10%` - Nur sehr kleine Verfeinerungen
-- `20%` - Standard ✅
-- `30%` - Größere Verfeinerungen erlaubt
+- Bei Fib -0.5
+- Bei 1R Profit
+- Bei 50% TP Distanz erreicht
 
-**Erwartung**:
-- Kleinere Size: Weniger Verfeinerungen, höhere Qualität
-- Größere Size: Mehr Verfeinerungen, evtl. mehr Noise
-
-**Test-Priorität**: 🟡 MITTEL - Nach Entry Tests
+**Walk-Forward**: ✅ **JA** (falls implementiert)
 
 ---
 
-### 6.4 Doji Filter
-**Zweck**: Minimum Body Size (% der Candle Range)
+### 7.3 TRAILING SL 🔵 **PRIORITÄT LOW**
+
+**Zweck**: Trail SL hinter Preis nach
 
 **Optionen**:
-- `0%` - Kein Filter (alle Kerzen erlaubt)
-- `5%` - Standard ✅ (Body mind. 5%)
-- `10%` - Strengerer Filter (nur starke Bodies)
 
-**Erwartung**:
-- Kein Filter (0%): Mehr Signale, evtl. Doji-Fakeouts
-- Strenger Filter (10%): Weniger Signale, nur Momentum-Kerzen
+#### A) Nach Fib -0.5
+```
+Trail SL by Fib steps (-0.25, -0.5, -0.75)
+```
 
-**Test-Priorität**: 🔵 NIEDRIG - Nach Refinement Tests
+#### B) Nach 1R
+```
+Trail SL by 0.5R steps
+```
 
----
-
-### 6.5 Refinement Validierungs-Check
-**Zweck**: Wann ist Verfeinerung ungültig?
-
-**Optionen**:
-- **K2 Touch** - Near darf nicht bei K2 Close berührt werden
-- **Near Touch** - Near darf zwischen Creation und Valid Time nicht berührt werden ✅ (Standard)
-
-**Erwartung**:
-- K2 Touch: Weniger streng, mehr Verfeinerungen
-- Near Touch: Strenger, bessere Qualität
-
-**Test-Priorität**: 🔵 NIEDRIG - Experimentell
+**Walk-Forward**: ✅ **JA** (falls implementiert)
 
 ---
 
-### 6.6 Refinement Priorität
-**Zweck**: Welche Verfeinerung wird gewählt bei mehreren?
+## 🟢 PHASE 4: PORTFOLIO MANAGEMENT
 
-**Variante 1 (Standard)** ✅:
-- Höchste Prio = Höchstes Timeframe (W > 3D > D > H4 > H1)
-- Bei mehreren pro TF: Nächste zu HTF Near
+### 8.1 RISK PER TRADE 🔵 **PRIORITÄT NIEDRIG**
 
-**Variante 2 (Alternative)**:
-- IMMER nächste zu HTF Near (unabhängig von TF)
-
-**Erwartung**:
-- Variante 1: Bevorzugt höhere TFs (mehr "Gewicht")
-- Variante 2: Bevorzugt geometrisch beste Position
-
-**Test-Priorität**: 🔵 NIEDRIG - Nach Refinement Tests
-
----
-
-## 7. PORTFOLIO & RISK MANAGEMENT
-
-### 7.1 Risk per Trade
 **Zweck**: Wie viel % des Kapitals pro Trade riskieren?
 
+**Current Default**: 1.0% ✅
+
 **Optionen**:
-- `0.5%` - Sehr konservativ
-- `1.0%` - Standard ✅
-- `2.0%` - Aggressiver
+```
+Risk per Trade: 0.5%, 1.0%, 2.0%
+```
 
 **Test-Priorität**: 🔵 NIEDRIG - Portfolio-Level
 
 ---
 
-### 7.2 Max Concurrent Trades
+### 8.2 MAX CONCURRENT TRADES 🔴 **PRIORITÄT HOCH - BEI COMBINED**
+
 **Zweck**: Maximale Anzahl gleichzeitiger Trades
 
 **Optionen**:
-- `Unbegrenzt` - Alle Setups nehmen ✅ (aktuell für Single-TF)
-- `5` - Diversifikation erzwingen
-- `10` - Balance
+```
+Max Concurrent: 4, 5, 6, 8, 10, unlimited
+```
 
 **⚠️ WICHTIG**: Erst bei Combined Portfolio Tests relevant!
 
-**Test-Priorität**: 🔴 HOCH - Bei Combined Tests (W+3D+M)
+**Current für Single-TF**: Unbegrenzt ✅
+
+**Erwartung**: Optimum 5-8
+
+**Walk-Forward**: ✅ **JA**
 
 ---
 
-### 7.3 Max Concurrent per Pair
+### 8.3 MAX CONCURRENT PER PAIR 🔴 **PRIORITÄT HOCH - BEI COMBINED**
+
 **Zweck**: Max. Trades pro Pair gleichzeitig
 
 **Optionen**:
-- `1` - Nur ein Trade pro Pair ✅ (empfohlen)
-- `2` - Zwei Trades erlaubt (z.B. verschiedene HTFs)
-- `Unbegrenzt` - Kein Limit
+```
+Max per Pair: 1, 2, unlimited
+```
 
-**Test-Priorität**: 🔴 HOCH - Bei Combined Tests
+**Empfehlung**: 1 (nur ein Trade pro Pair) ✅
+
+**Walk-Forward**: ✅ **JA**
 
 ---
 
-## 8. OPTIMIERUNGS-ZIELE
+### 8.4 CORRELATION FILTER 🟡 **PRIORITÄT MITTEL - BEI COMBINED**
 
-### Primäre Ziele:
+**Zweck**: Vermeide zu viele korrelierte Trades
+
+**Optionen**:
+
+#### A) Max Correlated Pairs
+```
+Max 2 Pairs mit Correlation > 0.7 gleichzeitig
+Beispiel: EUR/USD + GBP/USD = 2 korrelierte EUR Trades
+```
+
+#### B) Currency Exposure
+```
+Max 4 Trades mit USD
+Max 3 Trades mit EUR
+Max 2 Trades mit JPY
+```
+
+**Walk-Forward**: ✅ **JA**
+
+---
+
+## ⚫ PHASE 5: EXPERIMENTELLE VARIABLEN
+
+### 9.1 IMPULSIVE MOVE FILTER 🔵 **EXPERIMENTELL**
+
+**Zweck**: Filtere Entries nach zu impulsivem Move
+
+**Optionen**:
+
+#### A) Move seit Valid Time
+```
+Max % Move zwischen Valid Time und Entry
+Wenn > 5% → skip (zu impulsiv)
+```
+
+#### B) Entry Candle Size
+```
+Wenn Entry Candle Range > 2x ATR → skip
+```
+
+#### C) Speed of Approach
+```
+Anzahl Bars zwischen Valid Time und Entry Touch
+Wenn < 5 Bars → zu schnell
+```
+
+---
+
+### 9.2 TIME-OF-DAY FILTER 🔵 **OPTIONAL**
+
+**Optionen**:
+- London Session only (08:00-17:00 GMT)
+- NY Session only (13:00-22:00 GMT)
+- London + NY Overlap (13:00-17:00 GMT)
+- All Sessions (current) ✅
+
+**Erwartung**: Wahrscheinlich kein großer Effekt
+
+---
+
+### 9.3 DAY-OF-WEEK FILTER 🔵 **OPTIONAL**
+
+**Optionen**:
+- Skip Monday
+- Skip Friday
+- Tuesday-Thursday only
+- All Days (current) ✅
+
+**Erwartung**: Evtl. kleine Effekte
+
+---
+
+### 9.4 VOLATILITY (ATR) FILTER 🔵 **EXPERIMENTELL**
+
+**Zweck**: Nur Trades in bestimmter Volatilitäts-Range
+
+**Optionen**:
+```
+Min ATR: 0.5% Daily Range
+Max ATR: 2.0% Daily Range
+```
+
+---
+
+### 9.5 DURATION PREDICTION FILTER 🔵 **EXPERIMENTELL**
+
+**Erkenntnis**: Gap Size korreliert mit Duration
+- Small Gap (50-100 Pips) → 3-10 Tage
+- Medium Gap (100-200 Pips) → 10-30 Tage
+- Large Gap (200-300 Pips) → 30-60 Tage
+
+**Optionen**:
+```
+Max Expected Duration: 30, 45, 60 Tage
+Skip wenn predicted Duration > Max
+```
+
+---
+
+### 9.6 ENTRY TIMING FILTER 🔵 **EXPERIMENTELL**
+
+**Zweck**: Setup kann "veralten"
+
+**Optionen**:
+
+#### A) Max Time Valid → Entry
+```
+Wenn > 30 Tage nach Valid Time noch kein Entry → skip
+```
+
+#### B) Max Time Gap Touch → Entry
+```
+Wenn > 14 Tage nach Gap Touch noch kein Entry → skip
+```
+
+#### C) Speed Filter
+```
+Wenn Entry < 3 Bars nach Valid Time → zu schnell
+```
+
+---
+
+## 🎯 OPTIMIERUNGS-ZIELE
+
+### Primäre Ziele
 - ✅ **Profit Expectancy**: 0.1 - 0.3 R/Trade (ambitioniert)
 - ✅ **Win Rate**: 45-50% (realistisch)
 - ✅ **Max Duration**: 95% der Trades unter 60 Tagen
 - ✅ **Min Duration**: 2-3 Tage (kein TP/SL innerhalb 1-2 Tagen)
+- ✅ **SQN**: > 1.6 (gut), > 2.0 (sehr gut)
 
-### Sekundäre Ziele:
-- SQN: > 1.6 (gut), > 2.0 (sehr gut)
-- Profit Factor: > 1.3
-- Max Drawdown: < 10R (bei 1% Risk/Trade)
-- Sharpe Ratio: > 1.0
+### Sekundäre Ziele
+- **Profit Factor**: > 1.3
+- **Max Drawdown**: < 10R (bei 1% Risk/Trade)
+- **Sharpe Ratio**: > 1.0
+- **Trade Count**: > 200 pro HTF
 
-### Wichtig für Funded Accounts:
+### Wichtig für Funded Accounts
 - Consistent Profitability (über Monate)
 - Controlled Drawdown (< 5-10% Max DD)
 - Genug Trades (> 200)
@@ -373,51 +785,107 @@
 
 ---
 
-## 10. TEST-REIHENFOLGE (Empfehlung)
+## 📋 TEST-REIHENFOLGE (EMPFOHLEN)
 
-### Phase 1: Baseline ✅
+### ✅ Phase 1: Baseline (ABGESCHLOSSEN)
 - W only, direct_touch, Standard-Settings
-- Status: Abgeschlossen, bereit für Re-Run nach Bug Fixes
+- Status: Bereit für Re-Run nach Bug Fixes
 
-### Phase 2: HTF Selection 🎯
-- 3D, W, M einzeln testen
-- Beste Timeframe(s) ermitteln
+### ✅ Phase 2: HTF Selection (ABGESCHLOSSEN)
+- 3D, W, M einzeln getestet
+- CSV Trades vorhanden: W_trades.csv, 3D_trades.csv, M_trades.csv
 
-### Phase 3: Entry & Refinements
-- Entry Confirmation (direct_touch vs 1h_close vs 4h_close)
-- Refinement Timeframes (einzeln und kombiniert)
+### 🎯 Phase 3: Technische Optimierung (JETZT)
 
-### Phase 4: Risk Management
-- Min RR Testing (1.0 vs 1.1 vs 1.2)
-- SL Distance (40 vs 60 vs 80 Pips)
-- Max RR (1.5 vs 2.0 vs 2.5)
+#### 3.1 Gap Quality Filters (START HERE!)
+1. **Gap Size Filter** (Priorität 1)
+   - Phase A: Grobe Ranges (6-8 Tests)
+   - Phase B: Feine Schritte (18-20 Tests)
+   - Walk-Forward: JA
 
-### Phase 5: Fine-Tuning
-- TP Level (-1 vs -1.5 vs -2)
-- Refinement Size (10% vs 20% vs 30%)
-- Doji Filter (0% vs 5% vs 10%)
+2. **Gap Versatz Filter** (Priorität 2)
+   - 5 Tests (0, 0.5, 1.0, 1.5, 2.0)
+   - Walk-Forward: NEIN
 
-### Phase 6: Combined Portfolio
-- HTF Combinations (3D+W, W+M, alle)
-- Portfolio Constraints (Max Concurrent, Per-Pair Limits)
+3. **Wick Asymmetrie Filter** (Priorität 3)
+   - 5 Tests (0%, 10%, 20%, 30%, 40%)
+   - Walk-Forward: NEIN
+
+4. **Doji Filter** (Priorität 4)
+   - 4 Tests (0%, 5%, 10%, 15%)
+   - Walk-Forward: NEIN
+
+#### 3.2 Entry & Refinements
+5. **Entry Confirmation** (Priorität Hoch)
+   - 3 Tests (direct_touch, 1h_close, 4h_close)
+   - Walk-Forward: JA
+
+6. **Refinement Timeframes** (Priorität 3)
+   - Phase A: Einzelne TFs (5 Tests)
+   - Phase B: Kombinationen (5 Tests)
+   - Walk-Forward: JA (finale Kombination)
+
+7. **Refinement Max Size** (Priorität 4)
+   - 5 Tests (10%, 15%, 20%, 25%, 30%)
+   - Walk-Forward: NEIN
+
+#### 3.3 Risk Management
+8. **Min RR** (Priorität Hoch)
+   - 4 Tests (1.0, 1.1, 1.2, 1.5)
+   - Walk-Forward: JA
+
+9. **SL Distance** (Priorität Mittel)
+   - 6 Tests (40, 50, 60, 70, 80, 100 Pips)
+   - Walk-Forward: JA
+
+10. **Max RR** (Priorität Mittel)
+    - 4 Tests (1.5, 2.0, 2.5, 3.0)
+    - Walk-Forward: NEIN
+
+11. **SL Fib Level** (Priorität Mittel)
+    - 4 Tests (1.0, 1.1, 1.2, 1.5)
+    - Walk-Forward: NEIN
+
+#### 3.4 Take Profit
+12. **TP Fib Level** (Priorität Mittel)
+    - 5 Tests (-0.618, -1.0, -1.5, -2.0, -2.5)
+    - Walk-Forward: JA
+
+### 🟢 Phase 4: Combined Portfolio
+13. **HTF Combinations**
+    - 7 Tests (3D, W, M, 3D+W, 3D+M, W+M, All)
+    - Walk-Forward: JA
+
+14. **Portfolio Constraints**
+    - Max Concurrent Trades (5 Tests)
+    - Max per Pair (3 Tests)
+    - Correlation Filter (optional)
+    - Walk-Forward: JA
+
+### 🔵 Phase 5: Fine-Tuning & Experimentell
+15. **Advanced Exits**
+    - Partial TP
+    - Breakeven Move
+    - Trailing SL
+
+16. **Experimentelle Filter**
+    - Impulsive Move
+    - Time/Day Filters
+    - ATR Filter
+    - Duration Prediction
 
 ---
 
-## 11. WALK-FORWARD TESTING
+## 📊 WALK-FORWARD TESTING
 
-**Setup (Empfohlen)**:
-- IS (In-Sample): 5 Jahre
-- OOS (Out-of-Sample): 1 Jahr
-- Step: 1 Jahr
-- Windows: ~14 (2005-2024)
+### Setup (Empfohlen)
+```
+IS (In-Sample): 5 Jahre
+OOS (Out-of-Sample): 1 Jahr
+Step: 1 Jahr
+Windows: ~14 (2005-2024)
+```
 
-**Prozedur**:
+### Prozedur
 1. Optimiere Parameter auf IS
-2. Wähle Top 3 Parameter-Sets
-3. Teste auf OOS
-4. Aggregiere OOS-Performance
-5. Wenn stabil → robust!
-
----
-
-*Last Updated: 2025-01-04*
+2. Wähle Top 3 Parameter
