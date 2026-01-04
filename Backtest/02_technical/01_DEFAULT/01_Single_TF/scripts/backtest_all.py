@@ -28,6 +28,7 @@ from datetime import datetime
 import pandas as pd
 import numpy as np
 from collections import defaultdict
+from multiprocessing import Pool, cpu_count, Manager
 
 # Go up to "05_Model 3" directory
 model3_root = Path(__file__).parent.parent.parent.parent.parent.parent
@@ -40,6 +41,14 @@ from scripts.backtesting.backtest_model3 import (
     price_per_pip,
     should_use_wick_diff_entry,
 )
+
+# Global cache (filled once at start, used by all processes)
+DATA_CACHE = {}
+
+def init_worker(shared_cache):
+    """Initialize worker process with shared cache"""
+    global DATA_CACHE
+    DATA_CACHE = shared_cache
 
 # ============================================================================
 # OPTIMIZED FUNCTIONS (vectorized versions)
@@ -261,8 +270,8 @@ PAIRS = [
     "USDCAD", "USDCHF", "USDJPY"
 ]  # Alphabetical order
 ENTRY_CONFIRMATION = "direct_touch"
-START_DATE = "2010-01-01"
-END_DATE = "2024-12-31"
+START_DATE = "2005-01-01"
+END_DATE = "2025-12-31"
 
 # Risk Settings
 STARTING_CAPITAL = 100000  # $100k
@@ -535,59 +544,92 @@ def simulate_single_trade(pair, pivot, refinements, ltf_cache, htf_timeframe):
 
 
 # ============================================================================
+# DATA LOADING & CACHING
+# ============================================================================
+
+def load_all_data_for_timeframe(htf_timeframe, pairs, start_date, end_date):
+    """
+    Pre-loads ALL data for a timeframe into RAM cache.
+
+    This is done ONCE per timeframe, then all processes use the cached data.
+    Cache is cleared after script ends.
+
+    Returns: dict with structure {pair: {tf: dataframe}}
+    """
+    print(f"\n[DATA LOADING] Pre-loading all data for {htf_timeframe}...")
+
+    cache = {}
+    start_ts = pd.Timestamp(start_date, tz="UTC")
+    end_ts = pd.Timestamp(end_date, tz="UTC")
+
+    # Determine which timeframes we need
+    all_tfs = ["M", "W", "3D", "D", "H4", "H1"]
+    htf_idx = all_tfs.index(htf_timeframe)
+    needed_tfs = [htf_timeframe] + all_tfs[htf_idx + 1:]  # HTF + all LTFs
+
+    total_loads = len(pairs) * len(needed_tfs)
+    loaded = 0
+
+    for pair in pairs:
+        cache[pair] = {}
+        for tf in needed_tfs:
+            df = load_tf_data(tf, pair)
+            df = df[(df["time"] >= start_ts) & (df["time"] <= end_ts)].copy()
+            cache[pair][tf] = df
+            loaded += 1
+
+            # Progress indicator
+            if loaded % 10 == 0:
+                print(f"  Loaded {loaded}/{total_loads} datasets...", end='\r')
+
+    print(f"  ✓ Loaded {total_loads} datasets into RAM cache          ")
+    return cache
+
+
+# ============================================================================
 # PORTFOLIO SIMULATION (PER TIMEFRAME)
 # ============================================================================
 
-def run_backtest_for_timeframe(htf_timeframe):
+def process_single_pair(args):
     """
-    Führt Backtest für einen HTF-Timeframe durch (W, 3D, oder M).
+    Worker function for multiprocessing - processes one pair
+    Uses pre-loaded data from DATA_CACHE (faster!)
 
-    Returns: list of trade dicts
+    Args: tuple (pair, htf_timeframe, start_date, end_date)
+    Returns: tuple (pair, list of trades)
     """
-    all_trades = []
+    pair, htf_timeframe, start_date, end_date = args
 
-    print(f"\n{'='*80}")
-    print(f"BACKTEST: {htf_timeframe}")
-    print(f"{'='*80}")
+    start_ts = pd.Timestamp(start_date, tz="UTC")
+    end_ts = pd.Timestamp(end_date, tz="UTC")
 
-    for pair in PAIRS:
-        print(f"\n{pair}:")
+    # Get data from cache
+    pair_data = DATA_CACHE.get(pair, {})
+    htf_df = pair_data.get(htf_timeframe)
 
-        # Load HTF data
-        htf_df = load_tf_data(htf_timeframe, pair)
-        start_ts = pd.Timestamp(START_DATE, tz="UTC")
-        end_ts = pd.Timestamp(END_DATE, tz="UTC")
-        htf_df = htf_df[(htf_df["time"] >= start_ts) & (htf_df["time"] <= end_ts)].copy()
-        print(f"  HTF ({htf_timeframe}): {len(htf_df)} candles")
+    if htf_df is None or len(htf_df) == 0:
+        return (pair, [])
 
-        # Detect pivots
-        pivots = detect_htf_pivots(htf_df, min_body_pct=DOJI_FILTER)
-        print(f"  Pivots: {len(pivots)}")
+    # Detect pivots
+    pivots = detect_htf_pivots(htf_df, min_body_pct=DOJI_FILTER)
 
-        if len(pivots) == 0:
-            continue
+    if len(pivots) == 0:
+        return (pair, [])
 
-        # Load LTF data
-        ltf_cache = {}
+    # Get LTF data from cache
+    all_tfs = ["M", "W", "3D", "D", "H4", "H1"]
+    htf_idx = all_tfs.index(htf_timeframe)
+    ltf_list = all_tfs[htf_idx + 1:]
 
-        # CRITICAL FIX: LTF list must EXCLUDE the HTF itself!
-        # For 3D HTF, we can't search refinements on 3D data (timing conflict)
-        # For M HTF, we need to include W refinements
-        all_tfs = ["M", "W", "3D", "D", "H4", "H1"]
-        htf_idx = all_tfs.index(htf_timeframe)
-        ltf_list = all_tfs[htf_idx + 1:]  # All TFs below HTF
+    ltf_cache = {tf: pair_data.get(tf) for tf in ltf_list}
 
+    # Detect ALL refinements at once (vectorized)
+    all_refinements = {}
+    for pivot in pivots:
+        pivot_id = f"{pivot.time}"
+        refinements = []
         for tf in ltf_list:
-            ltf_df = load_tf_data(tf, pair)
-            ltf_df = ltf_df[(ltf_df["time"] >= start_ts) & (ltf_df["time"] <= end_ts)].copy()
-            ltf_cache[tf] = ltf_df
-
-        # Detect ALL refinements at once (vectorized)
-        all_refinements = {}
-        for pivot in pivots:
-            pivot_id = f"{pivot.time}"
-            refinements = []
-            for tf in ltf_list:
+            if ltf_cache[tf] is not None:
                 ref_list = detect_refinements_fast(
                     ltf_cache[tf],
                     pivot,
@@ -596,22 +638,59 @@ def run_backtest_for_timeframe(htf_timeframe):
                     min_body_pct=DOJI_FILTER
                 )
                 refinements.extend(ref_list)
-            all_refinements[pivot_id] = refinements
+        all_refinements[pivot_id] = refinements
 
-        # Simulate trades
-        trades_found = 0
-        for pivot in pivots:
-            pivot_id = f"{pivot.time}"
-            refinements = all_refinements.get(pivot_id, [])
+    # Simulate trades
+    pair_trades = []
+    for pivot in pivots:
+        pivot_id = f"{pivot.time}"
+        refinements = all_refinements.get(pivot_id, [])
+        trade = simulate_single_trade(pair, pivot, refinements, ltf_cache, htf_timeframe)
+        if trade:
+            pair_trades.append(trade)
 
-            # Simulate trade
-            trade = simulate_single_trade(pair, pivot, refinements, ltf_cache, htf_timeframe)
+    return (pair, pair_trades)
 
-            if trade:
-                all_trades.append(trade)
-                trades_found += 1
 
-        print(f"  Trades Found: {trades_found}")
+def run_backtest_for_timeframe(htf_timeframe):
+    """
+    Führt Backtest für einen HTF-Timeframe durch (W, 3D, oder M).
+
+    OPTIMIZED:
+    - Pre-loads ALL data into RAM cache (faster I/O)
+    - Uses multiprocessing with live progress
+    - Cache only exists during script runtime
+
+    Returns: list of trade dicts
+    """
+    print(f"\n{'='*80}")
+    print(f"BACKTEST: {htf_timeframe}")
+    print(f"{'='*80}")
+
+    # STEP 1: Pre-load all data into cache
+    cache = load_all_data_for_timeframe(htf_timeframe, PAIRS, START_DATE, END_DATE)
+
+    # STEP 2: Prepare arguments for each pair
+    pair_args = [(pair, htf_timeframe, START_DATE, END_DATE) for pair in PAIRS]
+
+    # Determine number of processes (use all available cores)
+    num_processes = cpu_count()
+    print(f"\n[PROCESSING] Running backtest with {num_processes} CPU cores...")
+    print(f"{'='*80}")
+
+    # STEP 3: Process pairs in parallel with LIVE progress
+    all_trades = []
+    completed = 0
+
+    with Pool(processes=num_processes, initializer=init_worker, initargs=(cache,)) as pool:
+        # imap_unordered gives us results as they complete (live progress!)
+        for pair, pair_trades in pool.imap_unordered(process_single_pair, pair_args):
+            completed += 1
+            if pair_trades:
+                all_trades.extend(pair_trades)
+                print(f"  [{completed:2d}/{len(PAIRS)}] {pair}: {len(pair_trades)} trades")
+            else:
+                print(f"  [{completed:2d}/{len(PAIRS)}] {pair}: 0 trades")
 
     # Sort chronologically
     all_trades.sort(key=lambda t: t["entry_time"])
