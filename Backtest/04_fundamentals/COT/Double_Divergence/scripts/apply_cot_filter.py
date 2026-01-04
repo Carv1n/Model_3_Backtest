@@ -369,12 +369,12 @@ def main():
     """Main script to apply COT filter to Phase 2 trades"""
 
     # Configuration
-    # Script is in: 05_Model 3/Backtest/03_fundamentals/COT/Double_Divergence/scripts/
+    # Script is in: 05_Model 3/Backtest/04_fundamentals/COT/Double_Divergence/scripts/
     # Need to go up to: Trading Backtests/
     BASE_DIR = Path(__file__).parent.parent.parent.parent.parent.parent.parent
     COT_DATA_DIR = BASE_DIR / "Data" / "Cot" / "Legacy_Reports" / "Forex"
-    PHASE2_DIR = BASE_DIR / "05_Model 3" / "Backtest" / "02_technical" / "01_DEFAULT" / "01_Single_TF" / "results" / "Trades"
-    OUTPUT_DIR = BASE_DIR / "05_Model 3" / "Backtest" / "03_fundamentals" / "COT" / "Double_Divergence" / "01_default"
+    PHASE2_DIR = BASE_DIR / "05_Model 3" / "Backtest" / "02_technical" / "01_Single_TF" / "results" / "Trades"
+    OUTPUT_DIR = BASE_DIR / "05_Model 3" / "Backtest" / "04_fundamentals" / "COT" / "Double_Divergence" / "01_default"
 
     # Verify directories exist
     if not COT_DATA_DIR.exists():

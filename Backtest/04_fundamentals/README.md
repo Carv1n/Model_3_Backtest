@@ -1,4 +1,4 @@
-# 03_fundamentals - Backtests mit fundamentalen Filtern
+# 04_fundamentals - Backtests mit fundamentalen Filtern
 
 ## Ziel
 Integration fundamentaler Filter zur Verbesserung der Performance.
@@ -51,7 +51,7 @@ Integration fundamentaler Filter zur Verbesserung der Performance.
 
 **Nutzung**:
 ```bash
-cd "05_Model 3/Backtest/03_fundamentals/COT/Double_Divergence/scripts/"
+cd "05_Model 3/Backtest/04_fundamentals/COT/Double_Divergence/scripts/"
 python apply_cot_filter.py
 ```
 
@@ -151,7 +151,7 @@ python scripts/backtesting/backtest_model3.py \
     --entry-confirmation 1h_close \
     --fundamental-filter cot \
     --start-date 2010-01-01 \
-    --output Backtest/03_fundamentals/cot_only.csv
+    --output Backtest/04_fundamentals/cot_only.csv
 ```
 
 ### Test 2: Nur Seasonality
@@ -162,7 +162,7 @@ python scripts/backtesting/backtest_model3.py \
     --entry-confirmation 1h_close \
     --fundamental-filter seasonality \
     --start-date 2010-01-01 \
-    --output Backtest/03_fundamentals/seasonality_only.csv
+    --output Backtest/04_fundamentals/seasonality_only.csv
 ```
 
 ### Test 3: Kombination (COT + Seasonality)
@@ -173,7 +173,7 @@ python scripts/backtesting/backtest_model3.py \
     --entry-confirmation 1h_close \
     --fundamental-filter cot seasonality \
     --start-date 2010-01-01 \
-    --output Backtest/03_fundamentals/cot_seasonality.csv
+    --output Backtest/04_fundamentals/cot_seasonality.csv
 ```
 
 ### Test 4: Alle Filter
@@ -184,7 +184,7 @@ python scripts/backtesting/backtest_model3.py \
     --entry-confirmation 1h_close \
     --fundamental-filter all \
     --start-date 2010-01-01 \
-    --output Backtest/03_fundamentals/all_fundamentals.csv
+    --output Backtest/04_fundamentals/all_fundamentals.csv
 ```
 
 ---
@@ -238,7 +238,7 @@ python scripts/backtesting/backtest_model3.py \
 ## Output-Dateien (geplant)
 
 ```
-03_fundamentals/
+04_fundamentals/
 ├── cot_only.csv
 ├── seasonality_only.csv
 ├── valuation_only.csv

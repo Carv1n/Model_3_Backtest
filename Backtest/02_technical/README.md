@@ -89,7 +89,7 @@ gap_touch_time = find_gap_touch_on_h1_fast(h1_df, pivot, daily_gap_touch)
 
 ## Aktuelle Struktur
 
-### 01_DEFAULT/01_Single_TF/
+### 01_Single_TF/
 **Combined Backtest (alle 3 Timeframes in einem Script)**
 
 **Main Script:**
@@ -97,7 +97,7 @@ gap_touch_time = find_gap_touch_on_h1_fast(h1_df, pivot, daily_gap_touch)
 
 **Ausführung (EMPFOHLEN):**
 ```bash
-cd "05_Model 3/Backtest/02_technical/01_DEFAULT/01_Single_TF"
+cd "05_Model 3/Backtest/02_technical/01_Single_TF"
 python scripts/backtest_all.py
 ```
 
@@ -252,7 +252,8 @@ python scripts/backtesting/backtest_model3.py \
 Nach Abschluss 02_technical:
 1. **Beste Kombination** identifizieren (Entry + HTF)
 2. **Baseline dokumentieren**: Performance ohne Fundamentals
-3. **Weiter zu 03_fundamentals**: COT, Seasonality hinzufügen
+3. **Weiter zu 03_optimization**: Parameter-Optimierung
+4. **Weiter zu 04_fundamentals**: COT, Seasonality hinzufügen
 
 **WICHTIG**: Siehe `STRATEGIE_REGELN.md` für alle technischen Regeln!
 

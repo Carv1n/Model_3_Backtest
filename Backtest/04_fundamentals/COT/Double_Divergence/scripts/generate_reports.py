@@ -11,7 +11,7 @@ import sys
 from pathlib import Path
 
 # Add Phase 2 scripts to path to import calc_stats
-phase2_scripts = Path(__file__).resolve().parents[4] / "02_technical" / "01_DEFAULT" / "01_Single_TF" / "scripts"
+phase2_scripts = Path(__file__).resolve().parents[4] / "02_technical" / "01_Single_TF" / "scripts"
 sys.path.insert(0, str(phase2_scripts))
 
 from report_helpers import calc_stats

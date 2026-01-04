@@ -124,7 +124,7 @@
 
 ### Phase 2: Technical Backtests 🎯 AKTUELL (01.01.2026)
 
-**Ordner**: `Backtest/02_technical/01_DEFAULT/01_Single_TF/`
+**Ordner**: `Backtest/02_technical/01_Single_TF/`
 
 **Scripts (alle funktional):**
 - `scripts/backtest_all.py` - Main Backtest Script (W, 3D, M) ✅ **Updated 01.01.2026**
@@ -202,7 +202,7 @@ results/
 
 ### Phase 3: COT Integration ⏳ VORBEREITET
 
-**Ordner**: `Backtest/03_fundamentals/COT/`
+**Ordner**: `Backtest/04_fundamentals/COT/`
 
 **Geplant:**
 - COT Index Filtering auf W, 3D, M Tests anwenden

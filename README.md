@@ -1,41 +1,44 @@
 # Model 3 - Multi-Timeframe Pivot Trading System
 
-## 📁 Projekt-Struktur (AKTUALISIERT 01.01.2026)
+## 📁 Projekt-Struktur (AKTUALISIERT 04.01.2026)
 
 ```
 05_Model 3/
 ├── README.md                    ← DIESE DATEI (Projekt-Übersicht)
+├── BACKTEST_PROCESS.md          ← OPTIMIERUNGS-PROZEDUR (Phase 2)
+├── STRATEGIE_VARIABLES.md       ← VARIABLEN FÜR OPTIMIERUNG
 ├── STRATEGIE_REGELN.md          ← KOMPLETTE TECHNISCHE REGELN
 ├── claude.md                    ← Claude Kontext
 ├── CHANGELOG.md                 ← Änderungshistorie
-│
-├── scripts/
-│   └── backtesting/
-│       └── backtest_model3.py   ← Core-Backtest-Engine
 │
 ├── Backtest/
 │   ├── 01_test/                 ← ABGESCHLOSSEN ✅
 │   │   ├── 01_Validation/       ← 6 Sample Trades (Validierung)
 │   │   └── 02_W_test/           ← Weekly Tests (OLD STRUCTURE)
 │   │
-│   ├── 02_technical/            ← AKTUELL 🎯
-│   │   └── 01_DEFAULT/
-│   │       └── 01_Single_TF/    ← Einzelne Timeframes (W, 3D, M)
-│   │           ├── scripts/
-│   │           │   ├── backtest_W.py
-│   │           │   ├── backtest_3D.py
-│   │           │   ├── backtest_M.py
-│   │           │   └── report_helpers.py
-│   │           └── results/
-│   │               ├── Trades/
-│   │               │   ├── W_trades.csv
-│   │               │   ├── 3D_trades.csv
-│   │               │   └── M_trades.csv
-│   │               ├── W_report.txt
-│   │               ├── 3D_report.txt
-│   │               └── M_report.txt
+│   ├── 02_technical/            ← ABGESCHLOSSEN ✅
+│   │   └── 01_Single_TF/        ← Einzelne Timeframes (W, 3D, M)
+│   │       ├── scripts/
+│   │       │   ├── backtest_all.py      ← Main Script (W, 3D, M)
+│   │       │   └── report_helpers.py
+│   │       └── results/
+│   │           ├── Trades/
+│   │           │   ├── W_trades.csv
+│   │           │   ├── 3D_trades.csv
+│   │           │   └── M_trades.csv
+│   │           ├── W_report.txt
+│   │           ├── 3D_report.txt
+│   │           └── M_report.txt
 │   │
-│   └── 03_fundamentals/         ← SPÄTER (COT, Seasonality)
+│   ├── 03_optimization/         ← AKTUELL 🎯
+│   │   └── 01_Single_TF/
+│   │       ├── scripts/
+│   │       │   └── optimize_gap_size.py
+│   │       └── 01_Gap_Size/
+│   │           ├── A_Coarse_Ranges/
+│   │           └── B_Fine_Steps/
+│   │
+│   └── 04_fundamentals/         ← SPÄTER (COT, Seasonality)
 │       └── COT/
 │
 └── archive/                     ← Archivierte Dateien
@@ -93,27 +96,18 @@ python Backtest/01_test/01_Validation/validation_trades.py
 - Alle Regeln korrekt implementiert
 - Trade-Flow geprüft
 
-### Phase 2: Single Timeframe Tests 🎯 AKTUELL
+### Phase 2: Single Timeframe Tests ✅ ABGESCHLOSSEN
 
-**Weekly:**
+**Alle Timeframes:**
 ```bash
 cd "05_Model 3/Backtest/02_technical/01_DEFAULT/01_Single_TF"
-python scripts/backtest_W.py
-```
-
-**3-Day:**
-```bash
-python scripts/backtest_3D.py
-```
-
-**Monthly:**
-```bash
-python scripts/backtest_M.py
+python scripts/backtest_all.py
 ```
 
 **Output:**
 - `results/Trades/{TF}_trades.csv` - Trade-Liste mit allen Details
 - `results/{TF}_report.txt` - Vollständiger Report (REPORT1 Format)
+- Timeframes: W, 3D, M
 
 ---
 
@@ -124,76 +118,121 @@ python scripts/backtest_M.py
 - **Zweck**: Logik validieren mit 6 Sample-Trades
 - **Status**: ✅ Alle Regeln korrekt implementiert
 
-### Phase 2: Technical Backtests 🎯 AKTUELL
+### Phase 2: Technical Backtests ✅ ABGESCHLOSSEN
 - **Ordner**: `Backtest/02_technical/01_DEFAULT/01_Single_TF/`
 - **Zweck**: Separate Backtests für W, 3D, M
 - **Config**: Einzelne Timeframes, 28 Pairs (alphabetisch), direct_touch, 2010-2024
 - **Output**: TXT Reports (REPORT1 Format) + CSV Exports
-- **Report Features**: SQN, Win Rate by Fib TP, Pair Breakdown, Funded Account Viability
+- **Report Features**: SQN, Pair Breakdown, Funded Account Viability
+- **Status**: W, 3D, M Backtests durchgeführt (04.01.2026)
 
-### Phase 3: COT Integration (NÄCHSTER SCHRITT)
-- **Ordner**: `Backtest/03_fundamentals/COT/`
+### Phase 3: Technische Optimierung 🎯 AKTUELL
+- **Ordner**: `Backtest/02_technical/01_DEFAULT/01_Single_TF/`
+- **Zweck**: CSV-basierte Optimierung der Strategie-Parameter
+- **Methode**: Sequential Optimization (eine Variable nach der anderen)
+- **Prozedur**: Siehe `BACKTEST_PROCESS.md`
+- **Variablen**: Siehe `STRATEGIE_VARIABLES.md`
+- **Startpunkt**: Gap Size Filter (Phase A & B)
+
+### Phase 4: Portfolio & COT Integration (SPÄTER)
+- **Ordner**: `Backtest/04_fundamentals/COT/`
 - **Zweck**: COT Index filtering auf W, 3D, M Tests anwenden
 - **Filter**: Commercial vs Retail positioning
 
 ---
 
-## 📂 Ordnerstruktur & Report Format (Update 31.12.2025)
+## 📂 Aktueller Status (04.01.2026)
 
-### Änderungen:
+### Phase 2 ✅ ABGESCHLOSSEN (04.01.2026)
 
-**03.01.2026 - Kritische Fixes:**
+**Backtests durchgeführt:**
+- Weekly (W) - 28 Pairs, 2010-2024
+- 3-Day (3D) - 28 Pairs, 2010-2024
+- Monthly (M) - 28 Pairs, 2010-2024
+
+**Ergebnisse verfügbar:**
+- `results/W_trades.csv` + `W_report.txt`
+- `results/3D_trades.csv` + `3D_report.txt`
+- `results/M_trades.csv` + `M_report.txt`
+
+### Phase 3 🎯 JETZT: Optimierung
+
+**Fokus**: CSV-basierte Optimierung (schnell & effizient)
+
+**Nächste Schritte:**
+1. Gap Size Filter (Phase A: Grobe Ranges)
+2. Gap Size Filter (Phase B: Feine Schritte)
+3. Walk-Forward Validation
+4. Weitere Filter (Versatz, Wick Asymmetrie)
+
+**Prozedur**: Siehe `BACKTEST_PROCESS.md`
+
+---
+
+## 📂 Changelog-Zusammenfassung
+
+### 03.01.2026 - Kritische Fixes
 - ✅ K1 Zeitfenster-Check: K1 UND K2 müssen im HTF-Zeitfenster liegen
 - ✅ Trade ohne Exit: Wird gelöscht (nicht als "manual" gespeichert)
-- ✅ Unberührt-Check korrigiert: K2 OPEN statt NEAR wird geprüft
-- ✅ Winrate by Fib TP Levels entfernt aus Reports
+- ✅ Unberührt-Check: NEAR ist Default (K2 OPEN war zu streng)
 
-**31.12.2025 - REPORT1 Format Einführung:**
+### 31.12.2025 - REPORT1 Format Einführung
 - Pure/Conservative Trennung entfernt (vereinfacht)
 - REPORT1 Format: Optimierungs-fokussiert, schnellere Generierung
 - Neue Features: SQN, Pair Breakdown
 - PAIRS jetzt alphabetisch sortiert (AUDCAD → USDJPY)
-- Schnellere Report-Generierung durch Vectorization
 
-**30.12.2025 - Strukturänderung:**
+### 30.12.2025 - Strukturänderung
 - `02_technical/01_DEFAULT/01_Single_TF/` für alle 3 Timeframes
-- Saubere Trennung: W, 3D, M haben eigene Scripts
+- Konsolidierung auf ein einziges Script: `backtest_all.py`
 - Keine Zeitstempel mehr in Dateinamen
 
 ### Ausgabe-Dateien
 
-**CSV Trades (in `/Trades/`):**
-- `W_trades.csv`, `3D_trades.csv`, `M_trades.csv`
+**CSV Trades:**
+- `results/Trades/W_trades.csv`
+- `results/Trades/3D_trades.csv`
+- `results/Trades/M_trades.csv`
 
 **TXT Reports (REPORT1 Format):**
-- `W_report.txt`, `3D_report.txt`, `M_report.txt`
-- Enthält: SQN, Win Rate by Fib TP, Top/Bottom 5 Pairs, Funded Account Viability
+- `results/W_report.txt`
+- `results/3D_report.txt`
+- `results/M_report.txt`
+- Enthält: SQN, Top/Bottom 5 Pairs, Funded Account Viability
 
 ---
 
 ## 🔧 Scripts
 
-### backtest_W.py / backtest_3D.py / backtest_M.py
+### backtest_all.py (Main Script)
 
 **Verwendung:**
 ```bash
 cd "Backtest/02_technical/01_DEFAULT/01_Single_TF"
-python scripts/backtest_W.py   # Weekly
-python scripts/backtest_3D.py  # 3-Day
-python scripts/backtest_M.py   # Monthly
+python scripts/backtest_all.py
 ```
 
+**Funktionsweise:**
+- Führt W, 3D, M Backtests nacheinander aus
+- Nutzt `report_helpers.py` für Statistik-Berechnung
+- Generiert REPORT1-Format Reports
+
 **Settings (in Script):**
-- `TIMEFRAME`: "W", "3D", oder "M"
-- `HTF_TIMEFRAMES`: Liste mit einem Timeframe
-- `PAIRS`: 28 Major/Cross Pairs
+- `TIMEFRAMES`: ["W", "3D", "M"]
+- `PAIRS`: 28 Major/Cross Pairs (alphabetisch sortiert)
 - `START_DATE`: "2010-01-01"
 - `END_DATE`: "2024-12-31"
+- `ENTRY_CONFIRMATION`: "direct_touch"
+- `DOJI_FILTER`: 5.0
+- `REFINEMENT_MAX_SIZE`: 0.20 (20%)
+- `MIN_SL_DISTANCE`: 60 Pips
+- `MIN_RR`: 1.0
+- `MAX_RR`: 1.5
 
 **Output:**
 - Automatische Ordner-Erstellung
-- Pure + Conservative Reports
-- CSV Exports ohne Zeitstempel
+- CSV Exports (W_trades.csv, 3D_trades.csv, M_trades.csv)
+- TXT Reports (W_report.txt, 3D_report.txt, M_report.txt)
 
 ---
 
@@ -243,43 +282,87 @@ python scripts/backtest_M.py   # Monthly
 
 ### Key Features:
 - **SQN (System Quality Number)**: Qualitäts-Rating des Systems
+  - Classification: Excellent > 3.0 > Very Good > 2.5 > Good > 2.0 > Average > 1.6 > Below Average
 - **Pair Analysis**: Welche Pairs performen am besten/schlechtesten
 - **Vectorized Calculations**: Schnellere Generierung
 - **Trade ohne Exit**: Wird NICHT gespeichert (korrekte Datenqualität)
+
+### CSV Spalten (für Optimierung):
+- **Gap/Pivot**: `gap_pips`, `wick_diff_pips`, `wick_diff_pct`
+- **Entry/Exit**: `entry_price`, `sl_price`, `tp_price`, `final_rr`
+- **Performance**: `pnl_r`, `win_loss`, `duration_days`, `mfe_pips`, `mae_pips`
+- **Meta**: `pair`, `htf_timeframe`, `direction`, `priority_refinement_tf`
 
 ---
 
 ## 📝 Wichtige Dateien
 
-- **STRATEGIE_REGELN.md** ⭐ - ALLE technischen Regeln kompakt
-- **README.md** - Diese Datei (Projekt-Übersicht)
+- **README.md** ⭐ - Diese Datei (Projekt-Übersicht)
+- **BACKTEST_PROCESS.md** ⭐ - Optimierungs-Prozedur (Phase 3)
+- **STRATEGIE_VARIABLES.md** ⭐ - Alle test-relevanten Variablen
+- **STRATEGIE_REGELN.md** - ALLE technischen Regeln kompakt
 - **CHANGELOG.md** - Änderungshistorie
 - **claude.md** - Claude Kontext & Implementierungsstatus
-- **backtest_W.py / 3D / M** - Timeframe-spezifische Backtests
-- **report_helpers.py** - Report-Generierung (shared)
+- **scripts/backtest_all.py** - Main Backtest Script
+- **scripts/report_helpers.py** - Report-Generierung & Statistiken
 
 ---
 
 ## 🎯 Nächste Schritte
 
-1. 🔄 **Single Timeframe Tests RE-RUN** (W, 3D, M) - Nach Bug Fixes vom 01.01.2026
-2. ⏳ Ergebnisse analysieren und vergleichen
-3. ⏳ COT Integration vorbereiten
-4. ⏳ Combined Portfolio Tests (W+3D+M zusammen)
+### Phase 3: Technische Optimierung (JETZT)
+
+1. 🎯 **Gap Size Filter** - START HERE!
+   - Phase A: Grobe Ranges (8 Tests)
+   - Phase B: Feine Schritte (~20 Tests)
+   - Walk-Forward Validation (14 Windows)
+   - **Methode**: CSV-basiert (schnell!)
+   - **Zeit**: ~3h
+
+2. ⏳ **CSV erweitern** (~4h)
+   - Neue Spalten: `k1_close`, `k2_open`, `versatz_ratio`, `k1_body_pct`, `k2_body_pct`
+   - Re-Run W, 3D, M (~1h pro TF)
+   - Dann: Gap Versatz Filter, Doji Filter Impact
+
+3. ⏳ **Kritische Backtests** (~15h)
+   - Entry Confirmation (3 Runs: direct_touch, 1h_close, 4h_close)
+   - Refinement TFs Phase A (5 Runs)
+   - Walk-Forward
+
+4. ⏳ **Final Cross-Check** (~20h)
+   - Alle optimalen Parameter kombiniert
+   - Walk-Forward: 14 Windows (5y IS / 1y OOS)
+   - OOS Stabilität prüfen
+
+### Phase 4: Portfolio & COT (SPÄTER)
+
+5. ⏳ Combined Portfolio Tests (W+3D+M zusammen)
+6. ⏳ COT Integration vorbereiten
+7. ⏳ Max Concurrent Trades optimieren
 
 ---
 
-## ⚠️ Wichtige Updates (01.01.2026)
+## ⚠️ Wichtige Updates (04.01.2026)
 
-**CRITICAL BUG FIXES angewendet:**
+**Phase 2 ABGESCHLOSSEN:**
+- ✅ W, 3D, M Backtests durchgeführt
+- ✅ REPORT1 Format Reports generiert
+- ✅ CSV Trades für Optimierung verfügbar
+
+**Bug Fixes angewendet (03.01.2026):**
+1. ✅ **K1 Zeitfenster-Check**: K1 UND K2 müssen im HTF-Zeitfenster liegen
+2. ✅ **Trade ohne Exit**: Wird gelöscht (nicht als "manual" gespeichert)
+3. ✅ **Unberührt-Check**: NEAR ist Default (K2 OPEN war zu streng)
+
+**Bug Fixes (01.01.2026):**
 1. ✅ **3D Zero Trades Fix**: Dynamic LTF list (excludes HTF itself)
 2. ✅ **Chronological Entry Logic**: Korrekte Touch-basierte Reihenfolge
 3. ✅ **RR Fallback**: Höchste Prio < 1 RR → Delete, nächste wird aktiv
 
-**EMPFEHLUNG**: Backtests neu ausführen mit korrigierter Logic!
+**Nächster Schritt**: Phase 3 - Technische Optimierung (Gap Size Filter)
 
 Details siehe [CHANGELOG.md](CHANGELOG.md)
 
 ---
 
-*Last Updated: 01.01.2026*
+*Last Updated: 04.01.2026*
