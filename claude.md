@@ -324,8 +324,7 @@ results/
 │   │   └── 02_W_test/           ← Weekly Tests (alte Struktur)
 │   │
 │   ├── 02_technical/            ← AKTUELL 🎯
-│   │   └── 01_DEFAULT/
-│   │       └── 01_Single_TF/    ← Einzelne Timeframes
+│   │   └── 01_Single_TF/    ← Einzelne Timeframes
 │   │           ├── scripts/
 │   │           │   ├── backtest_W.py
 │   │           │   ├── backtest_3D.py
@@ -336,7 +335,15 @@ results/
 │   │               ├── Pure_Strategy/
 │   │               └── Conservative/
 │   │
-│   └── 03_fundamentals/         ← SPÄTER (COT, Seasonality)
+│   ├── 03_optimization/         ← AKTUELL 🎯 (Phase 3)
+│   │   └── 01_Single_TF/
+│   │       ├── scripts/
+│   │       │   └── optimize_gap_size.py
+│   │       └── 01_Gap_Size/
+│   │           ├── A_Coarse_Ranges/
+│   │           └── B_Fine_Steps/
+│   │
+│   └── 04_fundamentals/         ← SPÄTER (COT, Seasonality)
 │       └── COT/
 │
 ├── pivot_analysis/
@@ -376,19 +383,19 @@ results/
 
 **Weekly:**
 ```bash
-cd "05_Model 3/Backtest/02_technical/01_DEFAULT/01_Single_TF"
+cd "05_Model 3/Backtest/02_technical/01_Single_TF"
 python scripts/backtest_W.py
 ```
 
 **3-Day:**
 ```bash
-cd "05_Model 3/Backtest/02_technical/01_DEFAULT/01_Single_TF"
+cd "05_Model 3/Backtest/02_technical/01_Single_TF"
 python scripts/backtest_3D.py
 ```
 
 **Monthly:**
 ```bash
-cd "05_Model 3/Backtest/02_technical/01_DEFAULT/01_Single_TF"
+cd "05_Model 3/Backtest/02_technical/01_Single_TF"
 python scripts/backtest_M.py
 ```
 
