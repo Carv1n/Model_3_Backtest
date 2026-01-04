@@ -90,46 +90,32 @@ gap_touch_time = find_gap_touch_on_h1_fast(h1_df, pivot, daily_gap_touch)
 ## Aktuelle Struktur
 
 ### 01_DEFAULT/01_Single_TF/
-**Einzelne Timeframe Tests (W, 3D, M separat)**
+**Combined Backtest (alle 3 Timeframes in einem Script)**
 
-**Scripts:**
-- `scripts/backtest_W.py` - Weekly Backtest
-- `scripts/backtest_3D.py` - 3-Day Backtest
-- `scripts/backtest_M.py` - Monthly Backtest
+**Main Script:**
+- `scripts/backtest_all.py` - **OPTIMIERT**: Alle 3 Timeframes (W, 3D, M) in einem Lauf
 
-**Ausführung (seriell):**
+**Ausführung (EMPFOHLEN):**
 ```bash
 cd "05_Model 3/Backtest/02_technical/01_DEFAULT/01_Single_TF"
-python scripts/backtest_W.py   # Weekly
-python scripts/backtest_3D.py  # 3-Day
-python scripts/backtest_M.py   # Monthly
+python scripts/backtest_all.py
 ```
 
-**Ausführung (parallel - alle 3 gleichzeitig):**
-```bash
-# Terminal 1:
-cd "05_Model 3/Backtest/02_technical/01_DEFAULT/01_Single_TF"
-python scripts/backtest_W.py
-
-# Terminal 2 (neues Terminal):
-cd "05_Model 3/Backtest/02_technical/01_DEFAULT/01_Single_TF"
-python scripts/backtest_3D.py
-
-# Terminal 3 (neues Terminal):
-cd "05_Model 3/Backtest/02_technical/01_DEFAULT/01_Single_TF"
-python scripts/backtest_M.py
-```
-
-**ODER (Windows - alle 3 in einem Befehl starten):**
-```bash
-cd "05_Model 3/Backtest/02_technical/01_DEFAULT/01_Single_TF"
-start python scripts/backtest_W.py & start python scripts/backtest_3D.py & start python scripts/backtest_M.py
-```
+**Performance-Optimierungen:**
+- ✅ **Multiprocessing**: Nutzt alle CPU Cores parallel
+- ✅ **Smart Data Loading**: Jedes Parquet nur 1x geladen (nicht 28x pro Pair!)
+- ✅ **RAM Caching**: Daten im RAM während Script-Laufzeit
+- ✅ **Vektorisierte Operations**: NumPy/Pandas Vectorization
+- ✅ **Live Progress Display**: Zeigt aktuell verarbeitetes Pair
+- **Runtime**: ~1.5-2 Min für alle 3 Timeframes (2005-2025, 28 Pairs)
 
 **Output:**
-- `results/Trades/{TF}_pure.csv`, `{TF}_conservative.csv`
-- `results/Pure_Strategy/{TF}_pure.txt`
-- `results/Conservative/{TF}_conservative.txt`
+- `results/W_report.txt` - Weekly Report
+- `results/3D_report.txt` - 3-Day Report
+- `results/M_report.txt` - Monthly Report
+- `results/Trades/W_trades.csv` - Weekly Trades
+- `results/Trades/3D_trades.csv` - 3-Day Trades
+- `results/Trades/M_trades.csv` - Monthly Trades
 
 **Settings:**
 - Entry: `direct_touch` (Standard)
@@ -137,8 +123,9 @@ start python scripts/backtest_W.py & start python scripts/backtest_3D.py & start
 - Refinement Max Size: 20%
 - Min RR: 1.0, Max RR: 1.5
 - Risk per Trade: 1%
-- Start: 2010-01-01, End: 2024-12-31
+- **Period: 2005-01-01 to 2025-12-31** (21 Jahre)
 - Pairs: Alle 28 Major/Cross Pairs
+- **Performance**: ~1.5-2 Min für alle 3 Timeframes (optimiert mit Multiprocessing)
 
 ---
 

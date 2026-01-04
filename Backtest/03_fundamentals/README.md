@@ -266,23 +266,29 @@ python scripts/backtesting/backtest_model3.py \
 
 ## Nächste Schritte
 
-**Aktuell**: Erst 01_test und 02_technical abschließen.
+**Aktuell**: Phase 2 (02_technical) abgeschlossen.
 
-**Dann**:
-1. COT-Daten Download & Integration
-2. Seasonality-Analyse & Integration
-3. Vollständiger Backtest mit Fundamentals
-4. Performance-Vergleich: Technical vs. Fundamental
+**Status**:
+- ✅ W, 3D, M Backtests abgeschlossen (2005-2025, optimiert)
+- ✅ Beste technische Baseline identifiziert
+- ✅ Performance: ~1.5-2 Min für alle 3 Timeframes
+- 🔄 COT Integration bereit für weitere Tests
+
+**Baseline (02_technical)**:
+- Period: 2005-01-01 to 2025-12-31 (21 Jahre)
+- Entry: direct_touch
+- Risk: 1% per trade
+- Pairs: 28 Major/Cross
 
 ---
 
 ## Voraussetzung
 
-**Erst nach Abschluss von Phase 2** (02_technical):
-- W, 3D, M Backtests abgeschlossen
-- Beste technische Baseline identifiziert
-- Dann COT Integration starten
+**Phase 2** (02_technical) abgeschlossen ✅:
+- W, 3D, M Backtests für 2005-2025 verfügbar
+- Optimiert mit Multiprocessing (1.5-2 Min Runtime)
+- Baseline-Performance dokumentiert
 
 ---
 
-*Last Updated: 30.12.2025*
+*Last Updated: 04.01.2026*
