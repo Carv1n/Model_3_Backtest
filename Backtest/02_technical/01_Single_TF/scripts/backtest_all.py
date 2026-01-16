@@ -16,7 +16,7 @@ Output (per timeframe):
 Settings:
 - Entry: direct_touch
 - Risk: 1% per trade
-- Period: 2010-2024
+- Period: 2010-2025
 - Pairs: All 28 Major/Cross Pairs
 - NO Transaction Costs (R-based only)
 """
@@ -31,7 +31,8 @@ from collections import defaultdict
 from multiprocessing import Pool, cpu_count, Manager
 
 # Go up to "05_Model 3" directory
-model3_root = Path(__file__).parent.parent.parent.parent.parent.parent
+# Path: scripts -> 01_Single_TF -> 02_technical -> Backtest -> 05_Model 3
+model3_root = Path(__file__).parent.parent.parent.parent.parent
 sys.path.insert(0, str(model3_root))
 
 from scripts.backtesting.backtest_model3 import (
@@ -270,7 +271,7 @@ PAIRS = [
     "USDCAD", "USDCHF", "USDJPY"
 ]  # Alphabetical order
 ENTRY_CONFIRMATION = "direct_touch"
-START_DATE = "2005-01-01"
+START_DATE = "2010-01-01"
 END_DATE = "2025-12-31"
 
 # Risk Settings
@@ -551,7 +552,8 @@ def load_parquet_file(tf):
     """Load entire parquet file (all pairs) for a timeframe"""
     from pathlib import Path
     # Go up to "Trading Backtests" root directory, then into Data
-    base = Path(__file__).parent.parent.parent.parent.parent.parent.parent / "Data" / "Chartdata" / "Forex" / "Parquet"
+    # Path: scripts -> 01_Single_TF -> 02_technical -> Backtest -> 05_Model 3 -> Trading Backtests
+    base = Path(__file__).parent.parent.parent.parent.parent.parent / "Data" / "Chartdata" / "Forex" / "Parquet"
     path = base / f"All_Pairs_{tf}_UTC.parquet"
 
     if not path.exists():
@@ -633,9 +635,9 @@ def load_all_data_for_timeframe(htf_timeframe, pairs, start_date, end_date):
             df_pair = df_all[df_all["pair"] == pair].copy()
             cache[pair][tf] = df_pair
 
-        print(f"✓ ({len(df_all)} candles, split into {len(pairs)} pairs)")
+        print(f"[OK] ({len(df_all)} candles, split into {len(pairs)} pairs)")
 
-    print(f"  ✓ All data loaded into RAM cache")
+    print(f"  [OK] All data loaded into RAM cache")
     return cache
 
 
@@ -808,7 +810,7 @@ def generate_report_for_timeframe(htf_timeframe, trades_df):
     # Save report
     report_file = RESULTS_DIR / f"{htf_timeframe}_report.txt"
     report_file.write_text(report, encoding='utf-8')
-    print(f"  ✓ Report: {report_file.name}")
+    print(f"  [OK] Report: {report_file.name}")
 
     # Save CSV
     # Fix timezone issue: Remove timezone from datetime columns
@@ -819,7 +821,7 @@ def generate_report_for_timeframe(htf_timeframe, trades_df):
 
     trades_csv = TRADES_DIR / f"{htf_timeframe}_trades.csv"
     trades_df.to_csv(trades_csv, index=False)
-    print(f"  ✓ CSV: {trades_csv.relative_to(RESULTS_DIR.parent)}")
+    print(f"  [OK] CSV: {trades_csv.relative_to(RESULTS_DIR.parent)}")
 
     # Print summary
     print(f"\n  Results:")

@@ -6,7 +6,7 @@ Vollständiger Backtest mit allen 28 Forex Pairs:
 - Pairs: Alle 28 Major/Cross Pairs
 - HTF: Weekly
 - Entry: direct_touch
-- Zeitraum: 2010-2024
+- Zeitraum: 2010-2025
 - Optimized (Vectorized, NO Cache needed)
 
 Output:
@@ -265,7 +265,7 @@ PAIRS = [
 HTF_TIMEFRAMES = ["W"]
 ENTRY_CONFIRMATION = "direct_touch"
 START_DATE = "2010-01-01"
-END_DATE = "2024-12-31"
+END_DATE = "2025-12-31"
 
 # Risk Settings
 STARTING_CAPITAL = 100000  # $100k

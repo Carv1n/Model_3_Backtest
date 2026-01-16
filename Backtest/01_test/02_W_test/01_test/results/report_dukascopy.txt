@@ -1,20 +1,20 @@
 ================================================================================
 MODEL 3 BACKTEST REPORT
 ================================================================================
-HTF: Weekly | Entry: direct_touch | Pairs: AUDCAD, AUDCHF
+HTF: Weekly | Entry: direct_touch | Pairs: AUDNZD, EURUSD
 
 ================================================================================
 QUICK OVERVIEW
 ================================================================================
-Total Trades: 3979 (over 14 years: 2010-2024)
+Total Trades: 264 (over 14 years: 2010-2024)
 
-Win Rate: 41.0%
-Expectancy: -0.01R
-Cumulative R: -54.1R
-R per Year: -3.6R
-Max Drawdown: -87.2R
-Profit Factor: 0.98
-SQN: -0.72
+Win Rate: 38.6%
+Expectancy: -0.08R
+Cumulative R: -20.4R
+R per Year: -1.4R
+Max Drawdown: -30.7R
+Profit Factor: 0.87
+SQN: -1.07
 
 → VERDICT: NOT VIABLE
 ================================================================================
@@ -22,71 +22,71 @@ SQN: -0.72
 ================================================================================
 R-PERFORMANCE
 ================================================================================
-Cumulative R: -54.1R
-Expectancy: -0.01R per trade
-  • Average Winner: +1.40R
+Cumulative R: -20.4R
+Expectancy: -0.08R per trade
+  • Average Winner: +1.39R
   • Average Loser: -1.00R
   • Median R: -1.00R
 
-System Quality Number: -0.72 [Below Average]
-Profit Factor: 0.98
-Payoff Ratio: 1.40
+System Quality Number: -1.07 [Below Average]
+Profit Factor: 0.87
+Payoff Ratio: 1.39
 
-Sharpe Ratio: -0.19
+Sharpe Ratio: -0.28
 Sortino Ratio: 0.00
 
 ================================================================================
 TRADE STATISTICS
 ================================================================================
-Win Rate: 41.0%
-Long/Short: 1.01:1 (2000L / 1979S)
-  • Long WR: 40.6%
-  • Short WR: 41.5%
+Win Rate: 38.6%
+Long/Short: 1.05:1 (135L / 129S)
+  • Long WR: 38.5%
+  • Short WR: 38.8%
 
-Winners: 1633 | Losers: 2346
+Winners: 102 | Losers: 162
 
 ================================================================================
 DRAWDOWN & STREAKS
 ================================================================================
-Maximum Drawdown: -87.2R
-  • Duration: 3664 trades (2337 days / 77.9 months)
+Maximum Drawdown: -30.7R
+  • Duration: 264 trades (2606 days / 86.9 months)
   • Recovery: Not recovered
 
-Average Drawdown: -48.5R
+Average Drawdown: -17.9R
 
-Consecutive Wins: Max 11 | Avg 1.9 | Median 1
-Consecutive Losses: Max 16 | Avg 2.8 | Median 2
+Consecutive Wins: Max 7 | Avg 1.7 | Median 1
+Consecutive Losses: Max 9 | Avg 2.6 | Median 2
 
 ================================================================================
 TIME-BASED PERFORMANCE
 ================================================================================
-R per Month: -0.3R avg
-R per Year: -3.6R avg
+R per Month: -0.1R avg
+R per Year: -1.4R avg
 
 Monthly:
-  • Best: +29.3R | Worst: -25.3R
-  • Profitable: 46% (83/180 months)
+  • Best: +4.2R | Worst: -4.0R
+  • Profitable: 44% (64/145 months)
 
 Yearly:
-  • Best: +41.8R | Worst: -47.1R
-  • Profitable: 47% (7/15 years)
+  • Best: +15.6R | Worst: -8.5R
+  • Profitable: 33% (5/15 years)
 
 ================================================================================
 TRADE CHARACTERISTICS
 ================================================================================
-Duration: Min 0.0d | Avg 9.3d | Max 2979d
-Frequency: 266.8/year | 22.1/month | 5.13/week
-Concurrent: Avg 7.5 | Max 22
+Duration: Min 0.0d | Avg 8.3d | Max 266d
+Frequency: 18.2/year | 1.8/month | 0.35/week
+Concurrent: Avg 0.3 | Max 3
 
 ================================================================================
 FUNDED ACCOUNT VIABILITY (@ 1% risk)
 ================================================================================
-[✓] Min 200 Trades: PASS (3979)
-[✗] Positive Expectancy: FAIL (-0.01R)
-[✗] Max DD < 10R: FAIL (-87.2R)
-[✗] SQN > 1.6: FAIL (-0.72)
-[✓] Win Rate > 35%: PASS (41.0%)
-[✗] Profit Factor > 1.3: FAIL (0.98)
+[✓] Min 200 Trades: PASS (264)
+[✗] Positive Expectancy: FAIL (-0.08R)
+[✗] Max DD < 10R: FAIL (-30.7R)
+[✗] SQN > 1.6: FAIL (-1.07)
+[✓] Win Rate > 35%: PASS (38.6%)
+[✗] Profit Factor > 1.3: FAIL (0.87)
 
 → NOT VIABLE FOR FUNDED ACCOUNT
 ================================================================================
@@ -98,20 +98,8 @@ PAIR BREAKDOWN (BY EXPECTANCY)
 TOP 5 BEST PAIRS:
 Pair      Trades    Win%     Exp      PF    AvgW    AvgL   Total R
 --------------------------------------------------------------------------------
-GBPAUD       169   46.2%  +0.13R   1.24  +1.45R  -1.00R    +21.9R
-GBPNZD       158   45.6%  +0.12R   1.23  +1.47R  -1.00R    +19.6R
-GBPCAD       164   45.7%  +0.12R   1.22  +1.45R  -1.00R    +19.6R
-AUDUSD       130   46.9%  +0.11R   1.21  +1.37R  -1.00R    +14.6R
-NZDUSD       123   46.3%  +0.10R   1.19  +1.37R  -1.00R    +12.3R
-
-BOTTOM 5 WORST PAIRS:
-Pair      Trades    Win%     Exp      PF    AvgW    AvgL   Total R
---------------------------------------------------------------------------------
-USDJPY       138   37.0%  -0.12R   0.81  +1.38R  -1.00R    -16.7R
-EURJPY       149   35.6%  -0.13R   0.80  +1.45R  -1.00R    -19.2R
-GBPUSD       160   35.6%  -0.14R   0.78  +1.42R  -1.00R    -22.2R
-NZDCHF       129   35.7%  -0.15R   0.77  +1.39R  -1.00R    -19.3R
-GBPJPY       162   32.7%  -0.21R   0.69  +1.43R  -1.00R    -33.4R
+AUDNZD       126   39.7%  -0.05R   0.91  +1.39R  -1.00R     -6.5R
+EURUSD       138   37.7%  -0.10R   0.84  +1.39R  -1.00R    -13.9R
 
 ================================================================================
 END OF REPORT
